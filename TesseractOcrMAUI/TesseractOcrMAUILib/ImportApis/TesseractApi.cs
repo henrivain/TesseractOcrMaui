@@ -1,12 +1,22 @@
-﻿using System.Runtime.InteropServices;
-
-#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 
 namespace TesseractOcrMAUILib.ImportApis;
 internal sealed partial class TesseractApi
 {
-    const string DllName = @"lib\tesseract53.dll";
-    
+
+
+
+
+#if WINDOWS
+    const string DllName = @"Platforms\Windows\lib\x86_64\tesseract53.dll";
+#elif ANDROID21_0_OR_GREATER
+    const string DllName = @"Platforms\Windows\lib\arm64-v8a\libtesseract.so";
+#else
+    const string DllName = @"Platforms\Windows\lib\x86_64\tesseract53.dll";
+#endif
+
+
+
     const CharSet StrEncoding = CharSet.Ansi;
 
     [LibraryImport(DllName, EntryPoint = "TessBaseAPICreate")]

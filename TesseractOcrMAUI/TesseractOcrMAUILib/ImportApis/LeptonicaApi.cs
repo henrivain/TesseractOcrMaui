@@ -1,12 +1,10 @@
-﻿using System.Runtime.InteropServices;
-
-#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
 
 namespace TesseractOcrMAUILib.ImportApis;
 internal sealed partial class LeptonicaApi
 {
-    const string DllName = @"leptonica-1.84.0.dll";
+    const string DllName = @"Platforms\Windows\lib\x86_64\leptonica-1.84.0.dll";
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixAddGray")]
     internal static extern IntPtr PixAddGray(HandleRef handleRef1, HandleRef handleRef2, HandleRef handleRef3);

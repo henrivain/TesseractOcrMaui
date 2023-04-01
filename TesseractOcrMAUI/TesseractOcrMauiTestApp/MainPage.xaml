@@ -35,6 +35,10 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Center" />
 
+            <Label Text="Nothing yet"
+                   HorizontalTextAlignment="Center"
+                   Loaded="Label_Loaded" />
+
         </VerticalStackLayout>
     </ScrollView>
 
