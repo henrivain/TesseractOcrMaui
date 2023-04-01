@@ -19,33 +19,63 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Update="lib\arm64-v8a\libleptonica.so">
+	  <None Update="Platforms\Android\lib\arm64-v8a\libleptonica.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="lib\arm64-v8a\libpng.so">
+	  <None Update="Platforms\Android\lib\arm64-v8a\libpng.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="lib\arm64-v8a\libtesseract.so">
+	  <None Update="Platforms\Android\lib\arm64-v8a\libtesseract.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="lib\arm64-v8a\tesseract">
+	  <None Update="Platforms\Android\lib\armeabi-v7a\libleptonica.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="lib\x86_64\leptonica-1.84.0.dll">
+	  <None Update="Platforms\Android\lib\armeabi-v7a\libpng.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="lib\x86_64\libpng16.dll">
+	  <None Update="Platforms\Android\lib\armeabi-v7a\libtesseract.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="lib\x86_64\tesseract53.dll">
+	  <None Update="Platforms\Android\lib\x86\libleptonica.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="lib\x86_64\zlib.dll">
+	  <None Update="Platforms\Android\lib\x86\libpng.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="TesseracData\fin_4.1.0.traineddata">
+	  <None Update="Platforms\Android\lib\x86\libtesseract.so">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	  <None Update="Platforms\Android\lib\x86_64\libleptonica.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Platforms\Android\lib\x86_64\libpng.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Platforms\Android\lib\x86_64\libtesseract.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Platforms\Windows\lib\x86_64\leptonica-1.84.0.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Platforms\Windows\lib\x86_64\libpng16.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Platforms\Windows\lib\x86_64\tesseract53.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Platforms\Windows\lib\x86_64\zlib.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="tessdata\fin.traineddata">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Platforms\Android\lib\armeabi-v7a\" />
+	  <Folder Include="Platforms\Android\lib\x86_64\" />
+	  <Folder Include="Platforms\Android\lib\x86\" />
 	</ItemGroup>
 
 </Project>

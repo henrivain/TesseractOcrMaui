@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractOcrMAUILib", "TesseractOcrMAUILib\TesseractOcrMAUILib.csproj", "{241257FD-743C-4391-93E4-6D3E1BB18171}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractOcrMAUILib", "TesseractOcrMAUILib\TesseractOcrMAUILib.csproj", "{241257FD-743C-4391-93E4-6D3E1BB18171}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractOcrMauiTestApp", "TesseractOcrMauiTestApp\TesseractOcrMauiTestApp.csproj", "{BA8C08AF-20F0-48F5-BEA9-FFBDD3556984}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractOcrMauiTestApp", "TesseractOcrMauiTestApp\TesseractOcrMauiTestApp.csproj", "{BA8C08AF-20F0-48F5-BEA9-FFBDD3556984}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractWrapper", "TesseractWrapper\TesseractWrapper.csproj", "{6505EA4E-6487-46B8-9EB6-1C0BBE61BA9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +25,10 @@ Global
 		{BA8C08AF-20F0-48F5-BEA9-FFBDD3556984}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA8C08AF-20F0-48F5-BEA9-FFBDD3556984}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BA8C08AF-20F0-48F5-BEA9-FFBDD3556984}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{6505EA4E-6487-46B8-9EB6-1C0BBE61BA9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6505EA4E-6487-46B8-9EB6-1C0BBE61BA9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6505EA4E-6487-46B8-9EB6-1C0BBE61BA9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6505EA4E-6487-46B8-9EB6-1C0BBE61BA9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
