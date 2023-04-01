@@ -15,6 +15,7 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<!--<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>-->
 	</PropertyGroup>
 
@@ -73,6 +74,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Enums\" />
+	  <Folder Include="Pix\" />
 	  <Folder Include="Platforms\Android\lib\armeabi-v7a\" />
 	  <Folder Include="Platforms\Android\lib\x86_64\" />
 	  <Folder Include="Platforms\Android\lib\x86\" />
