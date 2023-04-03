@@ -11,6 +11,8 @@ public class TessEngine : DisposableObject
     {
     }
 
+
+
     public TessEngine(string language, string traineddataPath, EngineMode mode, IDictionary<string, object> initialOptions)
     {
         if (language is null)

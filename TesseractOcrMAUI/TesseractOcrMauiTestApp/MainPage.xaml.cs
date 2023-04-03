@@ -1,4 +1,7 @@
 ﻿using Microsoft.Maui.Handlers;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using TesseractOcrMAUILib;
 
 namespace TesseractOcrMauiTestApp;
@@ -28,12 +31,17 @@ public partial class MainPage : ContentPage
     {
         if (sender is Label label)
         {
-            var tessData = @"C:\1 Henri\github\TesseractOcrMaui\TesseractOcrMAUI\TesseractOcrMAUILib\tessdata\";
+            string result = string.Empty;
+#if WINDOWS
+            var tessData = @"C:\1 Henri\github\TesseractOcrMaui\TesseractOcrMAUI\TesseractOcrMAUILib\Tessdata\";
             var imagePath = @"C:\1 Henri\github\TesseractOcrMaui\TesseractOcrMAUI\TesseractOcrMAUILib\TestImages\test1.png";
             using var engine = new TessEngine("fin", tessData);
             using var image = Pix.LoadFromFile(imagePath);
             using var page = engine.Process(image);
-            var result = page.GetText();
+            result = page.GetText();
+#elif ANDROID
+            
+#endif
 
             label.Text = result;
         }

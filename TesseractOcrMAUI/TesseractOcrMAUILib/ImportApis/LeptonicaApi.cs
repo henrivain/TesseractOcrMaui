@@ -4,7 +4,18 @@
 namespace TesseractOcrMAUILib.ImportApis;
 internal sealed partial class LeptonicaApi
 {
+
+
+#if WINDOWS
     const string DllName = @"Platforms\Windows\lib\x86_64\leptonica-1.84.0.dll";
+
+#elif ANDROID21_0_OR_GREATER
+    const string DllName = "libleptonica";
+#else
+    const string DllName = @"Platform Not Supported";
+
+#endif
+
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixAddGray")]
     internal static extern IntPtr PixAddGray(HandleRef handleRef1, HandleRef handleRef2, HandleRef handleRef3);
