@@ -15,7 +15,7 @@ public static class ServiceExtensions
         JavaSystem.LoadLibrary("leptonica");
         JavaSystem.LoadLibrary("tesseract");
 #endif
-        services.AddSingleton<ITessDataHandler, TessDataHandler>();
+        services.AddSingleton<ITessDataProvider, TessDataProvider>();
         
         return services;
     }
