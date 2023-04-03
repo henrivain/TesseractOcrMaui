@@ -2,7 +2,7 @@
 public interface ITessDataHandler
 {
     string FileExtension { get; }
-    string Directory { get; }
-    string[] GetDataLanguages();
-    Task<bool> CopyDataAsync();
+    string TessDataFolder { get; }
+    string[] GetAvailableLanguages();
+    Task<DataLoadResult> CopyFromPackageAsync(string[] files);
 }

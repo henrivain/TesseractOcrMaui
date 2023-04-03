@@ -16,8 +16,12 @@ public static class MauiProgram
             });
 
 
+        var n = FileSystem.AppPackageFileExistsAsync("fin.traineddata");
+        n.Wait();
+        var v = n.Result;
+
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
         builder.Services.AddTesseractOcr();
 
