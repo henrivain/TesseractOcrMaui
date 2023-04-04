@@ -6,12 +6,18 @@ namespace TesseractOcrMAUILib;
 public class TessPage : DisposableObject
 {
     public TessPage(TessEngine engine, Pix image, string inputName, Rect region, PageSegmentationMode? mode)
+        : this(engine, image, inputName, region, mode, NullLogger.Instance)
+    {
+    }
+
+    public TessPage(TessEngine engine, Pix image, string inputName, Rect region, PageSegmentationMode? mode, ILogger logger)
     {
         Engine = engine;
         Image = image;
         InputName = inputName;
         Region = region;
         Mode = mode;
+        Logger = logger;
     }
 
     public TessEngine Engine { get; }
@@ -20,6 +26,8 @@ public class TessPage : DisposableObject
     public Rect Region { get; }
     public PageSegmentationMode? Mode { get; }
     public bool AlreadyRecognized { get; private set; }
+    public string OutputDirectory { get; init; } = Path.Combine(FileSystem.CacheDirectory, "tessoutput");
+    public ILogger Logger { get; }
 
     public string GetText()
     {
@@ -60,14 +68,13 @@ public class TessPage : DisposableObject
         }
 
         using Pix pix = GetThresholdedImage();
-        string path = Path.Combine(Environment.CurrentDirectory, "tessinput.tif");
         try
         {
-            pix.Save(path, ImageFormat.TiffG4);
+            pix.Save(OutputDirectory, ImageFormat.TiffG4);
         }
         catch
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to save image to tif format using path '{path}'.");
+            System.Diagnostics.Debug.WriteLine($"Failed to save image to tif format using path '{OutputDirectory}'.");
         }
     }
 

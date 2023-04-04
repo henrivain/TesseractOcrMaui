@@ -1,50 +1,51 @@
-﻿using TesseractOcrMAUILib;
+﻿using Microsoft.Extensions.Logging;
+using TesseractOcrMAUILib;
+using TesseractOcrMAUILib.Extensions;
 
 namespace TesseractOcrMauiTestApp;
 
 public partial class MainPage : ContentPage
 {
-    int _count = 0;
-
-
-    public MainPage(ITesseract tesseract)
+    public MainPage(ITesseract tesseract, ILogger<MainPage> logger)
     {
         InitializeComponent();
         Tesseract = tesseract;
+
+        logger.LogInformation($"--------------------------------");
+        logger.LogInformation($"-   {nameof(TesseractOcrMAUILib)} Demo   -");
+        logger.LogInformation($"--------------------------------");
     }
-
-    private void OnCounterClicked(object sender, EventArgs e)
-    {
-        _count++;
-
-        if (_count == 1)
-            CounterBtn.Text = $"Clicked {_count} time";
-        else
-            CounterBtn.Text = $"Clicked {_count} times";
-
-        SemanticScreenReader.Announce(CounterBtn.Text);
-    }
-
 
     ITesseract Tesseract { get; }
 
-    private void Label_Loaded(object sender, EventArgs e)
+
+    private async void Button_Clicked(object sender, EventArgs e)
     {
-        if (sender is Label label)
+        var pickResult = await FilePicker.PickAsync(new PickOptions()
         {
-            var imagePath = @"C:\1 Henri\github\TesseractOcrMaui\TesseractOcrMAUI\TesseractOcrMAUILib\TestImages\test1.png";
+            PickerTitle = "Pick png image",
+            FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>()
+            {
+                [DevicePlatform.Android] = new List<string>() { "image/png" },
+                [DevicePlatform.WinUI] = new List<string>() { ".png" },
+            })
+        });
 
-            //string result = string.Empty;
-            //var tessData = @"C:\1 Henri\github\TesseractOcrMaui\TesseractOcrMAUI\TesseractOcrMAUILib\Tessdata\";
-            //using var engine = new TessEngine("fin", tessData);
-            //using var image = Pix.LoadFromFile(imagePath);
-            //using var page = engine.Process(image);
-            //result = page.GetText();
 
-            var result = Tesseract.RecognizeText(imagePath);
-            
-            label.Text = result.RecognisedText;
+        if (pickResult is null)
+        {
+            return;
         }
+
+        var result = await Tesseract.RecognizeTextAsync(pickResult.FullPath);
+
+        confidenceLabel.Text = $"Confidence: {result.Confidence}";
+        if (result.NotSuccess())
+        {
+            resultLabel.Text = $"Recognizion failed: {result.Status}";
+            return;
+        }
+        resultLabel.Text = result.RecognisedText;
     }
 }
 

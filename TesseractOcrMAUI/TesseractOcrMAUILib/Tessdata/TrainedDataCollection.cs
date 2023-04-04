@@ -21,7 +21,7 @@ internal class TrainedDataCollection : ITrainedDataCollection
         {
             throw new ArgumentNullException(nameof(fileName));
         }
-        Task<bool> exist = FileSystem.AppPackageFileExistsAsync(fileName);
+        Task<bool> exist = FileSystem.Current.AppPackageFileExistsAsync(fileName);
         exist.Wait();
         if (exist.Result is false)
         {

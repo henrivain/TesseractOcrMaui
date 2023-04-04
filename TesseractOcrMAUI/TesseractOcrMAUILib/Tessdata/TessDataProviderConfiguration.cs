@@ -3,7 +3,7 @@ public class TessDataProviderConfiguration : ITessDataProviderConfiguration
 {
     public TessDataProviderConfiguration()
     {
-        TessDataFolder = Path.Combine(FileSystem.CacheDirectory, "tessdata");
+        TessDataFolder = Path.Combine(FileSystem.Current.CacheDirectory, "tessdata");
         OverwritesOldEntries = false;
     }
 

@@ -4,23 +4,28 @@
 namespace TesseractOcrMAUILib;
 public class TessEngine : DisposableObject
 {
-    public TessEngine(string language) : this(language, string.Empty) { }
+    public TessEngine(string language, ILogger? logger = null) 
+        : this(language, string.Empty, logger) 
+    { 
+    }
 
-    public TessEngine(string language, string traineddataPath)
-        : this(language, traineddataPath, EngineMode.Default, new Dictionary<string, object>())
+    public TessEngine(string language, string traineddataPath, ILogger? logger = null)
+        : this(language, traineddataPath, EngineMode.Default, new Dictionary<string, object>(), logger)
     {
     }
 
-
-
-    public TessEngine(string language, string traineddataPath, EngineMode mode, IDictionary<string, object> initialOptions)
+    public TessEngine(string language, string traineddataPath, EngineMode mode, 
+        IDictionary<string, object> initialOptions, ILogger? logger = null)
     {
+        Logger = logger ?? NullLogger<TessEngine>.Instance;
         if (language is null)
         {
+            Logger.LogError("Cannot initilize '{ctor}' with null language.", nameof(TessEngine));
             throw new ArgumentNullException(nameof(language));
         }
         if (traineddataPath is null)
         {
+            Logger.LogError("Cannot initilize '{ctor}' with null trained data path.", nameof(TessEngine));
             throw new ArgumentNullException(nameof(traineddataPath));
         }
         Handle = new(this, TesseractApi.CreateApi());
@@ -34,9 +39,7 @@ public class TessEngine : DisposableObject
     public int ProcessCount { get; private set; } = 0;
     public PageSegmentationMode DefaultSegmentationMode { get; set; } = PageSegmentationMode.Auto;
     public static string Version => Marshal.PtrToStringAnsi(TesseractApi.GetVersion()) ?? string.Empty;
-
-
-
+    ILogger Logger { get; }
 
     public TessPage Process(Pix image, PageSegmentationMode? mode = null)
     {
@@ -68,7 +71,7 @@ public class TessEngine : DisposableObject
             TesseractApi.SetInputName(Handle, inputName);
         }
 
-        TessPage page = new(this, image, inputName ?? string.Empty, region, mode);
+        TessPage page = new(this, image, inputName ?? string.Empty, region, mode, Logger);
         page.Disposed += OnIteratorDisposed;
         return page;
     }

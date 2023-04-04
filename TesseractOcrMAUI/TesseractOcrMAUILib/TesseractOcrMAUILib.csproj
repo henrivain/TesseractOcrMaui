@@ -57,13 +57,6 @@
 		<None Update="Tessdata\fin.traineddata">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="TestImages\test1.png">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-	
-	<ItemGroup>
-	  <Folder Include="Results\" />
 	</ItemGroup>
 
 </Project>

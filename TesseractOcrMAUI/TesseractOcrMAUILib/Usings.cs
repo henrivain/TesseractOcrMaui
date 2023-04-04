@@ -5,3 +5,4 @@ global using Rect = TesseractOcrMAUILib.Imaging.Rect;
 global using System.Runtime.InteropServices;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.Abstractions;
+global using TesseractOcrMAUILib.Extensions;

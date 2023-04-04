@@ -30,6 +30,14 @@ internal class TessDataProvider : ITessDataProvider
     public string FileExtension { get; } = ".traineddata";
     public string TessDataFolder => Configuration.GetTessDataFolder();
     public string[] AvailableLanguages { get; private set; } = Array.Empty<string>();
+
+
+    ITessDataProviderConfiguration Configuration { get; }
+    ITrainedDataCollection TrainedDataCollection { get; }
+    ILogger<ITessDataProvider> Logger { get; }
+
+
+
     public async Task<DataLoadResult> LoadFromPackagesAsync()
     {
         var files = TrainedDataCollection.GetTrainedDataFileNames();
@@ -66,7 +74,7 @@ internal class TessDataProvider : ITessDataProvider
         }
 
         AvailableLanguages = validFiles.ToArray();
-        if (invalidFiles.Count <= 0) 
+        if (invalidFiles.Count > 0) 
         {
             if (state is TessDataState.NoneValid)
             {
@@ -94,9 +102,7 @@ internal class TessDataProvider : ITessDataProvider
     }
 
 
-    ITessDataProviderConfiguration Configuration { get; }
-    ITrainedDataCollection TrainedDataCollection { get; }
-    ILogger<ITessDataProvider> Logger { get; }
+
     private async Task<(bool Success, string Msg)> TryCopyFile(string file, bool overwritesFiles)
     {
         if (string.IsNullOrWhiteSpace(file))
@@ -109,7 +115,7 @@ internal class TessDataProvider : ITessDataProvider
             Logger.LogWarning("Could not load '{file}', must have '{extension}' extension.", file, FileExtension);
             return (false, $"Invalid file extension, must be {FileExtension}");
         }
-        if (await FileSystem.AppPackageFileExistsAsync(file) is false)
+        if (await FileSystem.Current.AppPackageFileExistsAsync(file) is false)
         {
             Logger.LogWarning("Cannot copy package file '{file}', it doesn't exist.", file);
             return (false, "Package not found.");
@@ -126,12 +132,13 @@ internal class TessDataProvider : ITessDataProvider
     }
     private async Task<(bool Success, string Msg)> TryCopyStream(string packageFileName, string destination)
     {
+        Logger.LogInformation("Copy '{file}' to '{dest}'.", packageFileName, destination);
+
         try
         {
-            using Stream stream = await FileSystem.OpenAppPackageFileAsync(packageFileName);
-            Logger.LogInformation("Copy '{file}' to '{dest}'.", packageFileName, destination);
+            using Stream stream = await FileSystem.Current.OpenAppPackageFileAsync(packageFileName);
             using FileStream fileStream = File.Create(destination);
-            stream.CopyTo(fileStream);
+            await stream.CopyToAsync(fileStream);
             return (true, "Copy successful.");
         }
         catch (Exception ex)
@@ -141,6 +148,12 @@ internal class TessDataProvider : ITessDataProvider
             return (false, ex.Message);
         }
     }
+
+    /// <summary>
+    /// Remove any file or directory that is found from file path
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <returns>False if any exception or invalid path, otherwise true.</returns>
     private bool DeleteOldEntries(in string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))

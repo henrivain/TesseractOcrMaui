@@ -1,5 +1,7 @@
 ﻿namespace TesseractOcrMAUILib.Enums;
 public enum RecognizionStatus
 {
-    Success, Failed, NoLanguagesAvailable
+    Success, Failed, NoLanguagesAvailable,
+    CannotLoadTessData,
+    ImageNotFound
 }

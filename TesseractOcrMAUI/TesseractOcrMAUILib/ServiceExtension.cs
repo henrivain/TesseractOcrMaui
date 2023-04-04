@@ -1,5 +1,4 @@
 ﻿#if ANDROID
-using Android.Database;
 using Java.Lang;
 #endif
 using TesseractOcrMAUILib.Tessdata;
