@@ -89,4 +89,10 @@ public class TessPage : DisposableObject
             TesseractApi.Clear(Engine.Handle);
         }
     }
+
+    internal float GetConfidence()
+    {
+        Recognize();
+        return TesseractApi.GetMeanConfidence(Engine.Handle) / 100f;
+    }
 }

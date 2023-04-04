@@ -23,7 +23,17 @@ public static class MauiProgram
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
-        builder.Services.AddTesseractOcr();
+        builder.Services.AddTesseractOcr(
+            files =>
+            {
+                files.AddFile("fin.traineddata");
+            },
+            config =>
+            {
+                 
+            });
+
+        builder.Services.AddSingleton<MainPage>();
 
         return builder.Build();
     }

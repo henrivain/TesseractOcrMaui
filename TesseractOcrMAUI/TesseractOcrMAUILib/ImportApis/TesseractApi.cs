@@ -100,4 +100,9 @@ internal sealed partial class TesseractApi
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIPrintVariablesToFile", CharSet = StrEncoding)]
     internal static extern int PrintVariablesToFile(HandleRef handle, string fileName);
+
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIMeanTextConf")]
+    internal static extern int GetMeanConfidence(HandleRef handle);
+ 
 }

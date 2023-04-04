@@ -1,8 +1,4 @@
-﻿using Microsoft.Maui.Handlers;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using TesseractOcrMAUILib;
+﻿using TesseractOcrMAUILib;
 
 namespace TesseractOcrMauiTestApp;
 
@@ -10,9 +6,11 @@ public partial class MainPage : ContentPage
 {
     int _count = 0;
 
-    public MainPage()
+
+    public MainPage(ITesseract tesseract)
     {
         InitializeComponent();
+        Tesseract = tesseract;
     }
 
     private void OnCounterClicked(object sender, EventArgs e)
@@ -27,23 +25,25 @@ public partial class MainPage : ContentPage
         SemanticScreenReader.Announce(CounterBtn.Text);
     }
 
+
+    ITesseract Tesseract { get; }
+
     private void Label_Loaded(object sender, EventArgs e)
     {
         if (sender is Label label)
         {
-            string result = string.Empty;
-#if WINDOWS
-            var tessData = @"C:\1 Henri\github\TesseractOcrMaui\TesseractOcrMAUI\TesseractOcrMAUILib\Tessdata\";
             var imagePath = @"C:\1 Henri\github\TesseractOcrMaui\TesseractOcrMAUI\TesseractOcrMAUILib\TestImages\test1.png";
-            using var engine = new TessEngine("fin", tessData);
-            using var image = Pix.LoadFromFile(imagePath);
-            using var page = engine.Process(image);
-            result = page.GetText();
-#elif ANDROID
-            
-#endif
 
-            label.Text = result;
+            //string result = string.Empty;
+            //var tessData = @"C:\1 Henri\github\TesseractOcrMaui\TesseractOcrMAUI\TesseractOcrMAUILib\Tessdata\";
+            //using var engine = new TessEngine("fin", tessData);
+            //using var image = Pix.LoadFromFile(imagePath);
+            //using var page = engine.Process(image);
+            //result = page.GetText();
+
+            var result = Tesseract.RecognizeText(imagePath);
+            
+            label.Text = result.RecognisedText;
         }
     }
 }

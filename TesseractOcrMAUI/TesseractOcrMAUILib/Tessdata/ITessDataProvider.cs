@@ -1,8 +1,21 @@
-﻿namespace TesseractOcrMAUILib.Tessdata;
+﻿using TesseractOcrMAUILib.Results;
+
+namespace TesseractOcrMAUILib.Tessdata;
 public interface ITessDataProvider
 {
-    string FileExtension { get; }
+    /// <summary>
+    /// Path to tessdata folder.
+    /// </summary>
     string TessDataFolder { get; }
+
+    /// <summary>
+    /// Get array of available trained data paths.
+    /// </summary>
     string[] AvailableLanguages { get; }
-    Task<DataLoadResult> LoadFromPackagesAsync(string[] files, bool copyAlways = false);
+
+    /// <summary>
+    /// Load required trained data files from app packages and copy them to TessDataFolder.
+    /// </summary>
+    /// <returns>Task of DataLoadResult representing action status.</returns>
+    Task<DataLoadResult> LoadFromPackagesAsync();
 }

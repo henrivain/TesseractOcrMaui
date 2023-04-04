@@ -1,18 +1,39 @@
-﻿namespace TesseractOcrMAUILib.Tessdata;
+﻿using TesseractOcrMAUILib.Results;
+
+namespace TesseractOcrMAUILib.Tessdata;
 internal class TessDataProvider : ITessDataProvider
 {
-    public TessDataProvider() : this(NullLogger<TessDataProvider>.Instance) { }
-    public TessDataProvider(ILogger<TessDataProvider> logger)
+    public TessDataProvider(ITrainedDataCollection collection, ITessDataProviderConfiguration configuration)
+        : this(collection, configuration, NullLogger<ITessDataProvider>.Instance) 
+    { 
+    }
+
+    public TessDataProvider(
+        ITrainedDataCollection collection, 
+        ITessDataProviderConfiguration configuration, 
+        ILogger<ITessDataProvider> logger)
     {
-        TessDataFolder = Path.Combine(FileSystem.CacheDirectory, "tessdata");
+        if (collection is null)
+        {
+            throw new ArgumentNullException(nameof(collection));
+        }
+        if (configuration is null)
+        {
+            throw new ArgumentNullException(nameof(configuration));
+        }
+        TrainedDataCollection = collection;
+        Configuration = configuration;
         Logger = logger;
     }
 
-    public string FileExtension { get; } = "traineddata";
-    public required string TessDataFolder { get; init; }
+
+    public string FileExtension { get; } = ".traineddata";
+    public string TessDataFolder => Configuration.GetTessDataFolder();
     public string[] AvailableLanguages { get; private set; } = Array.Empty<string>();
-    public async Task<DataLoadResult> LoadFromPackagesAsync(string[] files, bool copyAlways = false)
+    public async Task<DataLoadResult> LoadFromPackagesAsync()
     {
+        var files = TrainedDataCollection.GetTrainedDataFileNames();
+
         Logger.LogInformation("Try copy '{count}' app package files to '{dir}'.", files.Length, TessDataFolder);
 
         if (files.Length <= 0)
@@ -33,7 +54,7 @@ internal class TessDataProvider : ITessDataProvider
         HashSet<string> validFiles = new();
         foreach (var file in files)
         {
-            var (success, msg) = await TryCopyFile(file, copyAlways);
+            var (success, msg) = await TryCopyFile(file, Configuration.GetOverWriteOldEntries());
             if (success)
             {
                 state = TessDataState.AtLeastOneValid;
@@ -72,8 +93,10 @@ internal class TessDataProvider : ITessDataProvider
         };
     }
 
-    ILogger<TessDataProvider> Logger { get; }
 
+    ITessDataProviderConfiguration Configuration { get; }
+    ITrainedDataCollection TrainedDataCollection { get; }
+    ILogger<ITessDataProvider> Logger { get; }
     private async Task<(bool Success, string Msg)> TryCopyFile(string file, bool overwritesFiles)
     {
         if (string.IsNullOrWhiteSpace(file))
