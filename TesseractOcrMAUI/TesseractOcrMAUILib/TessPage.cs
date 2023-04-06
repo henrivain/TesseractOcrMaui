@@ -35,13 +35,18 @@ public class TessPage : DisposableObject
 
         string result = TesseractApi.GetUTF8Text(Engine.Handle);
 
+        // My Windows seems to use different encoding than UTF-8 by default, so this should help.
+        // Android uses UTF-8 as default so all good.
+#if WINDOWS
         var bytes = new byte[result.Length];
         for (int i = 0; i < result.Length; i++)
         {
             bytes[i] = (byte)result[i];
         }
         return Encoding.UTF8.GetString(bytes);
-
+#else
+        return result;
+#endif
     }
 
     private void Recognize()

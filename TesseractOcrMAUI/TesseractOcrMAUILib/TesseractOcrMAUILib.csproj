@@ -20,7 +20,7 @@
 		<!--<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>-->
 	</PropertyGroup>
 
-
+	<!-- Android native libraries-->
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
 		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libleptonica.so" />
 		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libpng.so" />
@@ -40,6 +40,7 @@
 		<AndroidNativeLibrary Include="lib\Android\x86\libtesseract.so" />
 	</ItemGroup>
 
+	<!-- Windows native libraries -->
 	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
 		<None Update="lib\Windows\x86_64\leptonica-1.84.0.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -60,11 +61,4 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
-	
-	<ItemGroup>
-		<None Update="Tessdata\fin.traineddata">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 </Project>
