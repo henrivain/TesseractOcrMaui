@@ -21,20 +21,22 @@
 	</PropertyGroup>
 
 
-
-
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
 		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libleptonica.so" />
 		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libpng.so" />
+		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libjpeg.so" />
 		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libtesseract.so" />
 		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libleptonica.so" />
 		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libpng.so" />
+		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libjpeg.so" />
 		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libtesseract.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86_64\libleptonica.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86_64\libpng.so" />
+		<AndroidNativeLibrary Include="lib\Android\x86_64\libjpeg.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86_64\libtesseract.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86\libleptonica.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86\libpng.so" />
+		<AndroidNativeLibrary Include="lib\Android\x86\libjpeg.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86\libtesseract.so" />
 	</ItemGroup>
 
@@ -49,6 +51,12 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="lib\Windows\x86_64\zlib.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="lib\Windows\x86_64\jpeg62.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="lib\Windows\x86_64\turbojpeg.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

@@ -26,8 +26,8 @@ public partial class MainPage : ContentPage
             PickerTitle = "Pick png image",
             FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>()
             {
-                [DevicePlatform.Android] = new List<string>() { "image/png" },
-                [DevicePlatform.WinUI] = new List<string>() { ".png" },
+                [DevicePlatform.Android] = new List<string>() { "image/png", "image/jpeg" },
+                [DevicePlatform.WinUI] = new List<string>() { ".png", ".jpg", ".jpeg" },
             })
         });
 
