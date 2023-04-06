@@ -29,6 +29,7 @@ public static class ServiceExtensions
 #if ANDROID
         // Load libraries
         JavaSystem.LoadLibrary("png");
+        JavaSystem.LoadLibrary("jpeg");
         JavaSystem.LoadLibrary("leptonica");
         JavaSystem.LoadLibrary("tesseract");
 #endif
