@@ -82,15 +82,24 @@ public class Tesseract : ITesseract
 
         Logger.LogInformation("Recognize image at '{path}'", imagePath);
 
-        using var engine = new TessEngine(language, tessDataFolder, Logger);
-        using var image = Pix.LoadFromFile(imagePath);
-        using var page = engine.Process(image);
+        string? text = null;
+        float confidence = -1f;
+        try
+        {
+            using var engine = new TessEngine(language, tessDataFolder, Logger);
+            using var image = Pix.LoadFromFile(imagePath);
+            using var page = engine.ProcessImage(image);
+            confidence = page.GetConfidence();
+            text = page.GetText();
+        }
+        catch 
+        {
+            throw;
+        }
 
-        float confidence = page.GetConfidence();
-        string text = page.GetText();
 
         Logger.LogInformation("Recognized image with confidence '{value}'", confidence);
-        Logger.LogInformation("Image contained text with length '{value}'", text.Length);
+        Logger.LogInformation("Image contained text with length '{value}'", text?.Length ?? 0);
         return new RecognizionResult
         {
             Status = RecognizionStatus.Success,

@@ -19,6 +19,10 @@ public abstract class DisposableObject : IDisposable
         Dispose(false);
     }
 
+    /// <summary>
+    /// Check if object is disposed.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
     protected virtual void VerifyNotDisposed()
     {
         if (IsDisposed)
