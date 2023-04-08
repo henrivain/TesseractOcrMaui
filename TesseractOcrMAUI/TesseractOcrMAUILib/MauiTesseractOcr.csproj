@@ -2,10 +2,9 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net7.0;net7.0-android</TargetFrameworks>
+		<!-- IOS and MacOS are not supported -->
 		<!-- Removed ;net7.0-ios;net7.0-maccatalyst -->
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
-		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -17,19 +16,39 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		
-		<!--<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>-->
 	</PropertyGroup>
 
-	<!-- Package -->
-	<PropertyGroup>
+	<!-- Package, only with release mode -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' ">
 		<Version>0.0.1</Version>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Maui Tesseract ocr</Title>
 		<PackageId>MauiTesseractOcr</PackageId>
 		<Authors>henrivain</Authors>
 		<Description>Tesseract wrapper for .Net Maui. Supports Windows and Android platforms.</Description>
+		<PackageProjectUrl></PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/henrivain/TesseractOcrMaui</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>tesseract;ocr;maui;csharp;android;windows;arm64-v8a;arm-v7a;x86_64;x86;</PackageTags>
+		<PackageLicenseFile>LICENCE</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Copyright>Copyright 2023 Henri Vainio</Copyright>
+		<!-- Output will be found inside this folder-->
+		<PackageOutputPath>C:\Nugets</PackageOutputPath>
 	</PropertyGroup>
+
+	<!-- Nuget includes, only with release mode -->
+	<ItemGroup Condition="'$(Configuration)' == 'Release' ">
+		<None Include="..\..\LICENCE" Link="Properties\LICENCE">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md" Link="Properties\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 	<!-- Android native libraries-->
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
@@ -72,4 +91,8 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\" />
+	</ItemGroup>
+	
 </Project>
