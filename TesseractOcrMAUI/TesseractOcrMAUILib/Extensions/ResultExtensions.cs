@@ -1,7 +1,7 @@
-﻿using TesseractOcrMAUILib.Results;
-using TesseractOcrMAUILib.Tessdata;
+﻿using MauiTesseractOcr.Results;
+using MauiTesseractOcr.Tessdata;
 
-namespace TesseractOcrMAUILib.Extensions;
+namespace MauiTesseractOcr.Extensions;
 public static class ResultExtensions
 {
     public static bool Success(this RecognizionStatus status) => status is RecognizionStatus.Success;

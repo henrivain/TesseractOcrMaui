@@ -1,14 +1,14 @@
-﻿using System.Reflection.Metadata;
-using TesseractOcrMAUILib.Converters;
-using TesseractOcrMAUILib.ImportApis;
+﻿using MauiTesseractOcr.Converters;
+using MauiTesseractOcr.ImportApis;
+using System.Reflection.Metadata;
 
-namespace TesseractOcrMAUILib;
+namespace MauiTesseractOcr;
 internal class TessApi
 {
     internal static int BaseApiInit(HandleRef handle, string language, string traineddataPath,
         EngineMode mode, IDictionary<string, object> initialOptions)
     {
-        if (handle.Handle == IntPtr.Zero)
+        if (handle.Handle == nint.Zero)
         {
             throw new InvalidOperationException($"{nameof(Handle)} must not be zero pointer.");
         }

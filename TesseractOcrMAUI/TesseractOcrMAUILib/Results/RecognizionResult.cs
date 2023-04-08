@@ -1,4 +1,4 @@
-﻿namespace TesseractOcrMAUILib.Results;
+﻿namespace MauiTesseractOcr.Results;
 public readonly struct RecognizionResult
 {
     public RecognizionResult() { }

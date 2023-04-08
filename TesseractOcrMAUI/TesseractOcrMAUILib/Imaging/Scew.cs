@@ -1,4 +1,4 @@
-﻿namespace TesseractOcrMAUILib.Imaging;
+﻿namespace MauiTesseractOcr.Imaging;
 
 public class Scew
 {

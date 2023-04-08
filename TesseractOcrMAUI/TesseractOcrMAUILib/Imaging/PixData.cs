@@ -1,7 +1,7 @@
 ﻿// Code copied from https://github.com/charlesw/tesseract
-using TesseractOcrMAUILib.ImportApis;
+using MauiTesseractOcr.ImportApis;
 
-namespace TesseractOcrMAUILib.Imaging;
+namespace MauiTesseractOcr.Imaging;
 
 /// <summary>
 /// Store information about Pix image.

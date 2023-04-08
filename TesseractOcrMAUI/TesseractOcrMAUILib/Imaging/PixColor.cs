@@ -1,5 +1,5 @@
 ﻿// Code copied from https://github.com/charlesw/tesseract
-namespace TesseractOcrMAUILib.Imaging;
+namespace MauiTesseractOcr.Imaging;
 
 /// <summary>
 /// Structure representing Pix image color.

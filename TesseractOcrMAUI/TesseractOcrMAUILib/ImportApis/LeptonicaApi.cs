@@ -1,7 +1,7 @@
 ﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
 
-namespace TesseractOcrMAUILib.ImportApis;
+namespace MauiTesseractOcr.ImportApis;
 internal sealed partial class LeptonicaApi
 {
 #if WINDOWS
@@ -10,8 +10,7 @@ internal sealed partial class LeptonicaApi
 #elif ANDROID21_0_OR_GREATER
     const string DllName = "libleptonica";
 #else
-    const string DllName = @"Platform Not Supported";
-
+    const string DllName = "Use Windows or Android Platform";
 #endif
 
 

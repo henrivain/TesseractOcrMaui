@@ -1,10 +1,9 @@
-﻿namespace TesseractOcrMAUILib;
+﻿namespace MauiTesseractOcr;
 public abstract class DisposableObject : IDisposable
 {
     public bool IsDisposed { get; private set; } = false;
 
     public event EventHandler<EventArgs>? Disposed;
-
 
     public void Dispose()
     {

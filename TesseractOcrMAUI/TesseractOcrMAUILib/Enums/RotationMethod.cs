@@ -1,4 +1,5 @@
-﻿namespace TesseractOcrMAUILib.Enums;
+﻿namespace MauiTesseractOcr.Enums;
+
 
 /// <summary>
 /// Method types to rotate image

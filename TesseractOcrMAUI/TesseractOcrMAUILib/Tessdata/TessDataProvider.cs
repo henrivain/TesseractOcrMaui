@@ -1,6 +1,6 @@
-﻿using TesseractOcrMAUILib.Results;
+﻿using MauiTesseractOcr.Results;
 
-namespace TesseractOcrMAUILib.Tessdata;
+namespace MauiTesseractOcr.Tessdata;
 internal class TessDataProvider : ITessDataProvider
 {
     public TessDataProvider(ITrainedDataCollection collection, ITessDataProviderConfiguration configuration)

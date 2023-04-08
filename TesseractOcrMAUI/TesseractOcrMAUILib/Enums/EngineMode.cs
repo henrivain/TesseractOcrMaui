@@ -1,4 +1,4 @@
-﻿namespace TesseractOcrMAUILib.Enums;
+﻿namespace MauiTesseractOcr.Enums;
 
 /// <summary>
 /// Tesseract engine mode to be used when recognizing text for images.

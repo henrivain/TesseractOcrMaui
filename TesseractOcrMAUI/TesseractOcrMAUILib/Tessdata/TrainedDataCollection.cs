@@ -1,4 +1,4 @@
-﻿namespace TesseractOcrMAUILib.Tessdata;
+﻿namespace MauiTesseractOcr.Tessdata;
 internal class TrainedDataCollection : ITrainedDataCollection
 {
     private HashSet<string> Files { get; set; } = new();

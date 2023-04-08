@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace TesseractOcrMAUILib.Exceptions;
+namespace MauiTesseractOcr.Exceptions;
 [Serializable]
 internal class LeptonicaException : Exception
 {

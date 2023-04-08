@@ -1,6 +1,6 @@
-﻿using TesseractOcrMAUILib.Results;
+﻿using MauiTesseractOcr.Results;
 
-namespace TesseractOcrMAUILib;
+namespace MauiTesseractOcr;
 public interface ITesseract
 {
     RecognizionResult RecognizeText(string imagePath);

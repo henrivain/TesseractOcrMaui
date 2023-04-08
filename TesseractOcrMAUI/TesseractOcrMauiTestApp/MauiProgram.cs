@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using TesseractOcrMAUILib;
+using MauiTesseractOcr;
 
 namespace TesseractOcrMauiTestApp;
 public static class MauiProgram

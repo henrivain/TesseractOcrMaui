@@ -1,4 +1,4 @@
-﻿namespace TesseractOcrMAUILib.Tessdata;
+﻿namespace MauiTesseractOcr.Tessdata;
 public class TessDataProviderConfiguration : ITessDataProviderConfiguration
 {
     public TessDataProviderConfiguration()

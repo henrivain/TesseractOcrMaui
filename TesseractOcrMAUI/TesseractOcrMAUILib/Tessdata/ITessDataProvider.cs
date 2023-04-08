@@ -1,6 +1,6 @@
-﻿using TesseractOcrMAUILib.Results;
+﻿using MauiTesseractOcr.Results;
 
-namespace TesseractOcrMAUILib.Tessdata;
+namespace MauiTesseractOcr.Tessdata;
 public interface ITessDataProvider
 {
     /// <summary>

@@ -1,6 +1,6 @@
-﻿using TesseractOcrMAUILib.Tessdata;
+﻿using MauiTesseractOcr.Tessdata;
 
-namespace TesseractOcrMAUILib.Results;
+namespace MauiTesseractOcr.Results;
 public readonly struct DataLoadResult
 {
     public required TessDataState State { get; init; }

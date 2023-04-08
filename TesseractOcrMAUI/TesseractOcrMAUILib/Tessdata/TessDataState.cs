@@ -1,4 +1,4 @@
-﻿namespace TesseractOcrMAUILib.Tessdata;
+﻿namespace MauiTesseractOcr.Tessdata;
 public enum TessDataState
 {
     AllValid, AtLeastOneValid, NoneValid

@@ -1,9 +1,9 @@
 ﻿#if WINDOWS
 using System.Text;
 #endif
-using TesseractOcrMAUILib.ImportApis;
+using MauiTesseractOcr.ImportApis;
 
-namespace TesseractOcrMAUILib;
+namespace MauiTesseractOcr;
 
 /// <summary>
 /// Page that is used to contain information during and after image recognizion.
@@ -55,7 +55,7 @@ public class TessPage : DisposableObject
         Recognize();
 
         string result = TesseractApi.GetUTF8Text(Engine.Handle);
-        
+
         Logger.LogInformation("Found '{count}' characters in image.", result.Length);
 
         // My Windows seems to use different encoding than UTF-8 by default, so this should help.
@@ -110,13 +110,13 @@ public class TessPage : DisposableObject
             throw new InvalidOperationException("Cannor OCR image using OSD only segmentation, " +
                 "use DetectBestOrientation instead.");
         }
-        int recognizionStatus = TesseractApi.Recognize(Engine.Handle, new HandleRef(this, IntPtr.Zero));
+        int recognizionStatus = TesseractApi.Recognize(Engine.Handle, new HandleRef(this, nint.Zero));
         if (recognizionStatus is not 0)
         {
             Logger.LogError("Image recognizion failed");
             throw new ImageRecognizionException("Recognizion failed.");
         }
-        
+
         AlreadyRecognized = true;
         if (Engine.TryGetBoolVar("tessedit_write_images", out bool value) is false &&
             value is false)
@@ -149,8 +149,8 @@ public class TessPage : DisposableObject
     private Pix GetThresholdedImage()
     {
         Recognize();
-        IntPtr handle = TesseractApi.GetThresholdedImage(Engine.Handle);
-        if (handle == IntPtr.Zero)
+        nint handle = TesseractApi.GetThresholdedImage(Engine.Handle);
+        if (handle == nint.Zero)
         {
             Logger.LogError("Tesseract cannot get thresholded image");
             throw new TesseractException("Failed to get thresholded image.");

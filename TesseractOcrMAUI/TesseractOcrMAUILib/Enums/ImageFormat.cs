@@ -1,4 +1,4 @@
-﻿namespace TesseractOcrMAUILib.Enums;
+﻿namespace MauiTesseractOcr.Enums;
 
 /// <summary>
 /// Available image formats

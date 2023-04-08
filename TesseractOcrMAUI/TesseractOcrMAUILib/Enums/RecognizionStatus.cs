@@ -1,4 +1,6 @@
-﻿namespace TesseractOcrMAUILib.Enums;
+﻿namespace MauiTesseractOcr.Enums;
+
+
 
 /// <summary>
 /// Status returned by tesseract image recognizion process.

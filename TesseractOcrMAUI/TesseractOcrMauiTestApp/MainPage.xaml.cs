@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using TesseractOcrMAUILib;
-using TesseractOcrMAUILib.Extensions;
+using MauiTesseractOcr;
+using MauiTesseractOcr.Extensions;
 
 namespace TesseractOcrMauiTestApp;
 
@@ -12,7 +12,7 @@ public partial class MainPage : ContentPage
         Tesseract = tesseract;
 
         logger.LogInformation($"--------------------------------");
-        logger.LogInformation($"-   {nameof(TesseractOcrMAUILib)} Demo   -");
+        logger.LogInformation($"-   {nameof(MauiTesseractOcr)} Demo   -");
         logger.LogInformation($"--------------------------------");
     }
 

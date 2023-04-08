@@ -1,9 +1,9 @@
 ﻿#if ANDROID
 using Java.Lang;
 #endif
-using TesseractOcrMAUILib.Tessdata;
+using MauiTesseractOcr.Tessdata;
 
-namespace TesseractOcrMAUILib;
+namespace MauiTesseractOcr;
 public static class ServiceExtensions
 {
     public static IServiceCollection AddTesseractOcr(this IServiceCollection services)
@@ -13,7 +13,7 @@ public static class ServiceExtensions
     }
 
     public static IServiceCollection AddTesseractOcr(
-        this IServiceCollection services, 
+        this IServiceCollection services,
         Action<ITrainedDataCollection>? tessDataCollection)
     {
         services.AddTesseractOcr(tessDataCollection, null);
@@ -22,8 +22,8 @@ public static class ServiceExtensions
 
 
     public static IServiceCollection AddTesseractOcr(
-        this IServiceCollection services, 
-        Action<ITrainedDataCollection>? tessDataCollection, 
+        this IServiceCollection services,
+        Action<ITrainedDataCollection>? tessDataCollection,
         Action<ITessDataProviderConfiguration>? providerConfiguration)
     {
 #if ANDROID

@@ -1,6 +1,6 @@
 ﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 
-namespace TesseractOcrMAUILib.ImportApis;
+namespace MauiTesseractOcr.ImportApis;
 
 internal sealed partial class TesseractApi
 {
@@ -9,7 +9,7 @@ internal sealed partial class TesseractApi
 #elif ANDROID21_0_OR_GREATER
     const string DllName = "libtesseract";
 #else
-    const string DllName = @"Platform not supported";
+    const string DllName = "Use Windows or Android Platform";
 #endif
 
 

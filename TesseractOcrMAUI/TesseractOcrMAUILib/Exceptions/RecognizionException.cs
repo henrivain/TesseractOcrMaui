@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace TesseractOcrMAUILib.Exceptions;
+namespace MauiTesseractOcr.Exceptions;
 /// <summary>
 /// Thrown when text recognizion cannot be done to given image.
 /// </summary>

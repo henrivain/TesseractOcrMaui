@@ -1,7 +1,7 @@
-﻿using TesseractOcrMAUILib.ImportApis;
+﻿using MauiTesseractOcr.ImportApis;
 
 
-namespace TesseractOcrMAUILib;
+namespace MauiTesseractOcr;
 public class TessEngine : DisposableObject
 {
     /// <summary>
@@ -205,10 +205,10 @@ public class TessEngine : DisposableObject
 
     protected override void Dispose(bool disposing)
     {
-        if (Handle.Handle != IntPtr.Zero)
+        if (Handle.Handle != nint.Zero)
         {
             TesseractApi.DeleteApi(Handle);
-            Handle = new HandleRef(this, IntPtr.Zero);
+            Handle = new HandleRef(this, nint.Zero);
         }
     }
 }

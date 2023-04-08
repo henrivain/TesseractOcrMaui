@@ -1,4 +1,5 @@
-﻿namespace TesseractOcrMAUILib.Enums;
+﻿namespace MauiTesseractOcr.Enums;
+
 
 /// <summary>
 /// Possible page layout analysis modes

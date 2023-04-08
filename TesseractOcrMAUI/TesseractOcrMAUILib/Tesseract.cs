@@ -1,8 +1,8 @@
-﻿using System.Runtime.Versioning;
-using TesseractOcrMAUILib.Results;
-using TesseractOcrMAUILib.Tessdata;
+﻿using MauiTesseractOcr.Results;
+using MauiTesseractOcr.Tessdata;
+using System.Runtime.Versioning;
 
-namespace TesseractOcrMAUILib;
+namespace MauiTesseractOcr;
 
 [UnsupportedOSPlatform("MACCATALYST")]
 [UnsupportedOSPlatform("IOS")]
@@ -29,7 +29,7 @@ public class Tesseract : ITesseract
         {
             return new RecognizionResult { Status = RecognizionStatus.CannotLoadTessData };
         }
-        
+
         var loadResult = dataLoadTask.Result;
         var tessData = TessDataProvider.TessDataFolder;
         var fileName = TessDataProvider.AvailableLanguages.FirstOrDefault();
@@ -92,7 +92,7 @@ public class Tesseract : ITesseract
             confidence = page.GetConfidence();
             text = page.GetText();
         }
-        catch 
+        catch
         {
             throw;
         }
