@@ -163,7 +163,9 @@ This project does not depend on any third-party C# packages, but it needs [train
 
 ## Support
 
-If you have any questions about anything related to this project, open issue with `help wanted` tag or send me an email.
+If you have any questions about anything related to this project, open issue with `help wanted` -tag or send me an email.
+
+Only Android and Windows are supported currently, because I have no recources to build and test for IOS and MacOS. Integrating these platforms should not be very big problem if someone needs them, but I don't need them. If you want to add them, just contact me.
 
 <br/>
 
