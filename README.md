@@ -66,12 +66,10 @@ public static class MauiProgram
 }
 ```
 
-<img width="218" align="right" alt="image" src="https://user-images.githubusercontent.com/89461562/230728157-56b303d8-b7b6-4cec-b7bc-077e3540c781.png">
-
 ### 3. Inject ITesseract to your page
 
 <br/>
-Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. I you can see my Button_Clicked functionality down below
+Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. I you can see my Button_Clicked functionality down below.
 
 <br/>
 Mainpage.xaml.cs
