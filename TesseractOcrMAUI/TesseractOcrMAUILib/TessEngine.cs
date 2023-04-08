@@ -2,6 +2,10 @@
 
 
 namespace MauiTesseractOcr;
+
+/// <summary>
+/// Tesseract engine that can process images with native library bindings.
+/// </summary>
 public class TessEngine : DisposableObject
 {
     /// <summary>
@@ -64,6 +68,9 @@ public class TessEngine : DisposableObject
     /// </summary>
     public HandleRef Handle { get; private set; }
 
+    /// <summary>
+    /// Segmentation Mode that tesseract uses if nothing else is provided.
+    /// </summary>
     public PageSegmentationMode DefaultSegmentationMode { get; set; } = PageSegmentationMode.Auto;
 
     /// <summary>
@@ -131,19 +138,43 @@ public class TessEngine : DisposableObject
         return page;
     }
 
+    /// <summary>
+    /// Set tesseract library variable for debug purposes.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool SetDebugVariable(string name, string value)
     {
         return TesseractApi.SetDebugVariable(Handle, name, value) is not 0;
     }
+    /// <summary>
+    /// Set tesseract library variable.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool SetVariable(string name, string value)
     {
         return TesseractApi.SetVariable(Handle, name, value) is not 0;
     }
+
+    /// <summary>
+    /// Print all tesseract library variables to given file.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool TryPrintVariablesToFile(string fileName)
     {
         return TesseractApi.PrintVariablesToFile(Handle, fileName) is not 0;
     }
 
+    /// <summary>
+    /// Get bool variable from tesseract library.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool TryGetBoolVar(string name, out bool value)
     {
         if (TesseractApi.GetBoolVariable(Handle, name, out int result) is not 0)
@@ -154,14 +185,34 @@ public class TessEngine : DisposableObject
         value = false;
         return false;
     }
+
+    /// <summary>
+    /// Get int variable from tesseract library.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool TryGetIntVar(string name, out int value)
     {
         return TesseractApi.GetIntVariable(Handle, name, out value) is not 0;
     }
+
+    /// <summary>
+    /// Get double variable from tesseract library.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool TryGetDoubleVar(string name, out double value)
     {
         return TesseractApi.GetDoubleVariable(Handle, name, out value) is not 0;
     }
+
+    /// <summary>
+    /// Get string variable from tesseract library.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns>String value of library variable or empty if can't find with given name.</returns>
     public string GetStringVar(string name)
     {
         return TesseractApi.GetStringVariable(Handle, name) ?? string.Empty;
@@ -203,6 +254,7 @@ public class TessEngine : DisposableObject
 
     private void OnIteratorDisposed(object? sender, EventArgs e) => ProcessCount--;
 
+    /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
         if (Handle.Handle != nint.Zero)

@@ -5,7 +5,7 @@ namespace MauiTesseractOcr.Exceptions;
 /// Exception thrown when Tesseract cannot complete given task.
 /// </summary>
 [Serializable]
-internal class TesseractException : Exception
+public class TesseractException : Exception
 {
     /// <summary>
     /// New empty TesseractException.
@@ -16,14 +16,14 @@ internal class TesseractException : Exception
     /// New TesseractException with message about error reason.
     /// </summary>
     /// <param name="message">Error reason.</param>
-    public TesseractException(string message) : base(message) { }
+    public TesseractException(string? message) : base(message) { }
 
     /// <summary>
     /// New TesseractException with message and inner exception.
     /// </summary>
     /// <param name="message">Error reason.</param>
     /// <param name="innerException">Exception that caused this error.</param>
-    public TesseractException(string message, Exception innerException) : base(message, innerException)
+    public TesseractException(string? message, Exception? innerException) : base(message, innerException)
     {
     }
 

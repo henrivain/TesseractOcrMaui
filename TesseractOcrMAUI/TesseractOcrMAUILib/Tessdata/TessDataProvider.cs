@@ -3,7 +3,9 @@
 namespace MauiTesseractOcr.Tessdata;
 internal class TessDataProvider : ITessDataProvider
 {
-    public TessDataProvider(ITrainedDataCollection collection, ITessDataProviderConfiguration configuration)
+    public TessDataProvider(
+        ITrainedDataCollection collection, 
+        ITessDataProviderConfiguration configuration)
         : this(collection, configuration, NullLogger<ITessDataProvider>.Instance) 
     { 
     }
@@ -28,14 +30,14 @@ internal class TessDataProvider : ITessDataProvider
 
 
     public string FileExtension { get; } = ".traineddata";
-    public string TessDataFolder => Configuration.GetTessDataFolder();
+    public string TessDataFolder => Configuration.TessDataFolder;
     public string[] AvailableLanguages { get; private set; } = Array.Empty<string>();
+    public bool IsDataLoaded { get; private set; }
 
 
     ITessDataProviderConfiguration Configuration { get; }
     ITrainedDataCollection TrainedDataCollection { get; }
     ILogger<ITessDataProvider> Logger { get; }
-
 
 
     public async Task<DataLoadResult> LoadFromPackagesAsync()
@@ -62,7 +64,7 @@ internal class TessDataProvider : ITessDataProvider
         HashSet<string> validFiles = new();
         foreach (var file in files)
         {
-            var (success, msg) = await TryCopyFile(file, Configuration.GetOverWriteOldEntries());
+            var (success, msg) = await TryCopyFile(file, Configuration.OverwritesOldFiles);
             if (success)
             {
                 state = TessDataState.AtLeastOneValid;
@@ -83,6 +85,7 @@ internal class TessDataProvider : ITessDataProvider
             else
             {
                 Logger.LogWarning("Could not load all traineddata files.");
+                IsDataLoaded = true;
             }
             return new DataLoadResult
             {
@@ -92,7 +95,7 @@ internal class TessDataProvider : ITessDataProvider
                 Errors = errors.ToArray()
             };
         }
-
+        IsDataLoaded = true;
         Logger.LogInformation("Loaded '{count}' traineddata files.", validFiles.Count);
         return new DataLoadResult
         {
@@ -100,7 +103,7 @@ internal class TessDataProvider : ITessDataProvider
             Message = $"Loaded successfully Tesseract languages: '{string.Join(", ", AvailableLanguages)}'."
         };
     }
-
+    public string[] GetAllFileNames() => TrainedDataCollection.GetTrainedDataFileNames();
 
 
     private async Task<(bool Success, string Msg)> TryCopyFile(string file, bool overwritesFiles)

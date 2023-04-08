@@ -1,6 +1,10 @@
 ﻿using MauiTesseractOcr.Results;
 
 namespace MauiTesseractOcr.Tessdata;
+
+/// <summary>
+/// Interface for handling traineddata files.
+/// </summary>
 public interface ITessDataProvider
 {
     /// <summary>
@@ -14,8 +18,19 @@ public interface ITessDataProvider
     string[] AvailableLanguages { get; }
 
     /// <summary>
+    /// Boolean value representing if provider has already loaded tessdata.
+    /// </summary>
+    bool IsDataLoaded { get; }
+
+    /// <summary>
     /// Load required trained data files from app packages and copy them to TessDataFolder.
     /// </summary>
     /// <returns>Task of DataLoadResult representing action status.</returns>
     Task<DataLoadResult> LoadFromPackagesAsync();
+
+    /// <summary>
+    /// Get all traineddata file names that are provided when initializing.
+    /// </summary>
+    /// <returns>Array of filenames with extensions.</returns>
+    string[] GetAllFileNames();
 }

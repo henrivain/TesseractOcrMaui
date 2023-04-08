@@ -19,7 +19,8 @@
 	</PropertyGroup>
 
 	<!-- Package, only with release mode -->
-	<PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+	<!-- Condition="'$(Configuration)' == 'Release' " -->
+	<PropertyGroup>
 		<Version>0.0.1</Version>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Maui Tesseract ocr</Title>
@@ -36,10 +37,14 @@
 		<Copyright>Copyright 2023 Henri Vainio</Copyright>
 		<!-- Output will be found inside this folder-->
 		<PackageOutputPath>C:\Nugets</PackageOutputPath>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackAsTool>False</PackAsTool>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<!-- Nuget includes, only with release mode -->
-	<ItemGroup Condition="'$(Configuration)' == 'Release' ">
+	<!-- Condition="'$(Configuration)' == 'Release' " -->
+	<ItemGroup >
 		<None Include="..\..\LICENCE" Link="Properties\LICENCE">
 		  <Pack>True</Pack>
 		  <PackagePath>\</PackagePath>

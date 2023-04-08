@@ -39,7 +39,14 @@ public unsafe class PixData
     /// </remarks>
     public void EndianByteSwap() => LeptonicaApi.PixEndianByteSwap(Pix.Handle);
 
-
+    /// <summary>
+    /// Encode image pixel to RGBA.
+    /// </summary>
+    /// <param name="red"></param>
+    /// <param name="green"></param>
+    /// <param name="blue"></param>
+    /// <param name="alpha"></param>
+    /// <returns>uint representing pixel.</returns>
     public static uint EncodeAsRGBA(byte red, byte green, byte blue, byte alpha)
     {
         return (uint)(red << 24 |

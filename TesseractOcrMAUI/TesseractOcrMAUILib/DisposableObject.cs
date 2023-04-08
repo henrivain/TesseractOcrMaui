@@ -1,10 +1,22 @@
 ﻿namespace MauiTesseractOcr;
+
+/// <summary>
+/// Base for IDisposable object.
+/// </summary>
 public abstract class DisposableObject : IDisposable
 {
+    /// <summary>
+    /// Is object already disposed?
+    /// </summary>
     public bool IsDisposed { get; private set; } = false;
 
-    public event EventHandler<EventArgs>? Disposed;
+    /// <summary>
+    /// Event after object disposed.
+    /// </summary>
 
+    public event EventHandler<EventArgs>? Disposed;
+    
+    /// <inheritdoc/>
     public void Dispose()
     {
         Dispose(true);
@@ -13,6 +25,8 @@ public abstract class DisposableObject : IDisposable
         Disposed?.Invoke(this, EventArgs.Empty);
     }
 
+    
+    /// <inheritdoc/>
     ~DisposableObject()
     {
         Dispose(false);
@@ -30,5 +44,9 @@ public abstract class DisposableObject : IDisposable
         }
     }
 
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    /// <param name="disposing"></param>
     protected abstract void Dispose(bool disposing);
 }

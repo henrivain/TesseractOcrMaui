@@ -1,6 +1,13 @@
 ﻿namespace MauiTesseractOcr.Results;
+
+/// <summary>
+/// Result that is returned from ITesseract text tecognizion
+/// </summary>
 public readonly struct RecognizionResult
 {
+    /// <summary>
+    /// new Result that is returned from ITesseract text tecognizion
+    /// </summary>
     public RecognizionResult() { }
 
     /// <summary>

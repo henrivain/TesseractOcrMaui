@@ -1,9 +1,18 @@
 ﻿namespace MauiTesseractOcr.Tessdata;
 
+/// <summary>
+/// Configure how 
+/// </summary>
 public interface ITessDataProviderConfiguration
 {
-    void OverwritesOldFiles(bool overwrite);
-    bool GetOverWriteOldEntries();
-    void UseTessDataFolder(string path);
-    string GetTessDataFolder();
+    /// <summary>
+    /// Boolean value representing if traineddata files should be recopied always.
+    /// </summary>
+    bool OverwritesOldFiles { get; set; }
+
+    /// <summary>
+    /// Path to folder containing traineddata files.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">[DEFAULT_IMPL, SET] If given value is null or empty.</exception>
+    string TessDataFolder { get; set; }
 }

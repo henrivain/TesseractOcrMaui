@@ -22,9 +22,22 @@ public sealed class PixColormap : IDisposable
     /// Depth of the image.
     /// </summary>
     public int Depth => LeptonicaApi.PixcmapGetDepth(Handle);
+
+    /// <summary>
+    /// See Leptonica docs.
+    /// </summary>
     public int Count => LeptonicaApi.PixcmapGetCount(Handle);
+
+    /// <summary>
+    /// See Leptonica docs.
+    /// </summary>
     public int FreeCount => LeptonicaApi.PixcmapGetFreeCount(Handle);
+
+    /// <summary>
+    /// Pointer handle that Leptonica uses to access this color map.
+    /// </summary>
     internal HandleRef Handle { get; private set; }
+
 
     static HashSet<int> ValidDepths { get; } = new() { 1, 2, 4, 8 };
 
@@ -156,16 +169,19 @@ public sealed class PixColormap : IDisposable
         return LeptonicaApi.PixcmapSetBlackAndWhite(Handle, setBlack ? 1 : 0, setWhite ? 1 : 0) is 0;
     }
 
+    /// <summary>
+    /// Check if color is usable.
+    /// </summary>
+    /// <param name="color"></param>
+    /// <returns>True if is, otherwise not.</returns>
+    /// <exception cref="InvalidOperationException">Cannot detect if color is usable.</exception>
     public bool IsUsableColor(PixColor color)
     {
-        if (LeptonicaApi.PixcmapUsableColor(Handle, color.Red, color.Green, color.Blue, out int usable) is 0)
-        {
-            return usable is 1;
-        }
-        else
+        if (LeptonicaApi.PixcmapUsableColor(Handle, color.Red, color.Green, color.Blue, out int usable) is not 0)
         {
             throw new InvalidOperationException("Failed to detect if color was usable or not.");
         }
+        return usable is 1;
     }
 
     /// <summary>

@@ -1,49 +1,52 @@
 ﻿namespace MauiTesseractOcr.Tessdata;
+
+/// <summary>
+/// New Configuration for TessDataProvider. Default implementation for ITessDataProviderConfiguration.
+/// </summary>
 public class TessDataProviderConfiguration : ITessDataProviderConfiguration
 {
+    private string _tessDataFolder;
+    private bool _overwritesOldFiles;
+
+    /// <summary>
+    /// New Configuration for TessDataProvider.
+    /// TessDataFolder = Microsoft.Maui.Storage.FileSystem.CacheDirectory/tessdata.
+    /// OverwritesOldFiles = false.
+    /// </summary>
     public TessDataProviderConfiguration()
     {
-        TessDataFolder = Path.Combine(FileSystem.Current.CacheDirectory, "tessdata");
-        OverwritesOldEntries = false;
+        _tessDataFolder = Path.Combine(FileSystem.Current.CacheDirectory, "tessdata");
+        _overwritesOldFiles = false;
     }
 
-    string TessDataFolder { get; set; }
-    bool OverwritesOldEntries { get; set; }
-
     /// <summary>
-    /// Set path to tessdata folder.
+    /// Boolean value representing if traineddata files should be recopied always.
     /// </summary>
-    /// <param name="path"></param>
-    /// <exception cref="ArgumentNullException">If path null or empty.</exception>
-    public void UseTessDataFolder(string path)
+    public bool OverwritesOldFiles
     {
-        if (string.IsNullOrEmpty(path))
+        get => _overwritesOldFiles; 
+        set
         {
-            throw new ArgumentNullException(nameof(path));
+            _overwritesOldFiles = value;
         }
-        TessDataFolder = path;
     }
 
-    /// <summary>
-    /// Get path to tessdata folder. 
-    /// By default uses "Microsoft.Maui.Storage.FileSystem.CacheDirectory/tessdata"
-    /// </summary>
-    /// <returns>Path to tessdata folder.</returns>
-    public string GetTessDataFolder() => TessDataFolder;
 
     /// <summary>
-    /// If true, trained data files are always copied to tessdata folder. 
-    /// If false, trained data files are copied only if they don't already exist.
+    /// Path to folder containing traineddata files.
+    /// By default uses "Microsoft.Maui.Storage.FileSystem.CacheDirectory/tessdata".
     /// </summary>
-    /// <param name="overwrite"></param>
-    public void OverwritesOldFiles(bool overwrite = false) => OverwritesOldEntries = overwrite;
-
-    /// <summary>
-    /// Get value representing if traineddata files should be copied always.
-    /// </summary>
-    /// <returns>
-    /// True if trained data files should be copied every time.
-    /// False if trained data files should be copied only if they don't already exist in tessdata directory.
-    /// </returns>
-    public bool GetOverWriteOldEntries() => OverwritesOldEntries;
+    /// <exception cref="ArgumentNullException">If value is null or empty.</exception>
+    public string TessDataFolder
+    {
+        get => _tessDataFolder; 
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+            _tessDataFolder = value;
+        }
+    }
 }

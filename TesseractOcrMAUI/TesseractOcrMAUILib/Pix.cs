@@ -4,6 +4,10 @@ using MauiTesseractOcr.ImportApis;
 using System.Runtime.CompilerServices;
 
 namespace MauiTesseractOcr;
+
+/// <summary>
+/// Leptonica Image type used by tesseract.
+/// </summary>
 public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
 {
     /// <summary>
@@ -11,9 +15,9 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// </summary>
     /// <param name="handle"></param>
     /// <exception cref="ArgumentNullException">Handle is zero ptr.</exception>
-    private Pix(nint handle)
+    private Pix(IntPtr handle)
     {
-        if (handle == nint.Zero)
+        if (handle == IntPtr.Zero)
         {
             throw new ArgumentNullException(nameof(handle), "Handle must have non Zero value (non null).");
         }
@@ -23,8 +27,8 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         Height = LeptonicaApi.PixGetHeight(Handle);
         Depth = LeptonicaApi.PixGetDepth(Handle);
 
-        nint colorMapHandle = LeptonicaApi.PixGetColormap(Handle);
-        if (colorMapHandle != nint.Zero)
+        IntPtr colorMapHandle = LeptonicaApi.PixGetColormap(Handle);
+        if (colorMapHandle != IntPtr.Zero)
         {
             _colormap = new PixColormap(colorMapHandle);
         }
@@ -33,17 +37,35 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
 
     PixColormap? _colormap;
 
-    public const float Deg2Rad = (float)(Math.PI / 180.0);
+    const float Deg2Rad = (float)(Math.PI / 180.0);
 
-    public const int DefaultBinarySearchReduction = 2; // binary search part
+    const int DefaultBinarySearchReduction = 2; // binary search part
 
-    public const int DefaultBinaryThreshold = 130;
+    const int DefaultBinaryThreshold = 130;
 
+    /// <summary>
+    /// Pointer handle used to access image through Leptonica.
+    /// </summary>
     public HandleRef Handle { get; private set; }
+
+    /// <summary>
+    /// Bit depth of image.
+    /// </summary>
     public int Depth { get; }
+
+    /// <summary>
+    /// Pixel height of image.
+    /// </summary>
     public int Height { get; }
+
+    /// <summary>
+    /// Pixel width of image.
+    /// </summary>
     public int Width { get; }
 
+    /// <summary>
+    /// Image's color map.
+    /// </summary>
     public PixColormap? Colormap
     {
         get => _colormap;
@@ -64,11 +86,19 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
             }
         }
     }
+    
+    /// <summary>
+    /// X-resolution of image.
+    /// </summary>
     public int XResolution
     {
         get => LeptonicaApi.PixGetXRes(Handle);
         set => LeptonicaApi.PixSetXRes(Handle, value);
     }
+
+    /// <summary>
+    /// Y-resolution of image.
+    /// </summary>
     public int YResolution
     {
         get => LeptonicaApi.PixGetYRes(Handle);
@@ -82,7 +112,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <param name="handle"></param>
     /// <returns>new Pix representing handle.</returns>
     /// <exception cref="ArgumentNullException">Handle is Zero ptr.</exception>
-    public static Pix FromHandle(nint handle) => new(handle);
+    public static Pix FromHandle(IntPtr handle) => new(handle);
 
     /// <summary>
     /// Create empty pix with given dimensions.
@@ -108,8 +138,8 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
             throw new ArgumentException("Height must be greater than zero", nameof(height));
         }
 
-        nint handle = LeptonicaApi.PixCreate(width, height, depth);
-        if (handle == nint.Zero)
+        IntPtr handle = LeptonicaApi.PixCreate(width, height, depth);
+        if (handle == IntPtr.Zero)
         {
             throw new InvalidOperationException("Failed to create pix, this normally occurs because the requested image size is too large, please check Standard Error Output.");
         }
@@ -125,8 +155,8 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="IOException">Could not load Pix from file.</exception>
     public static Pix LoadFromFile(string filePath)
     {
-        nint handle = LeptonicaApi.PixRead(filePath);
-        if (handle == nint.Zero)
+        IntPtr handle = LeptonicaApi.PixRead(filePath);
+        if (handle == IntPtr.Zero)
         {
             throw new IOException($"Failed to load image '{filePath}'.");
         }
@@ -141,12 +171,12 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="IOException">If image cannot be loaded from memory.</exception>
     public static Pix LoadFromMemory(byte[] bytes)
     {
-        nint handle;
+        IntPtr handle;
         fixed (byte* ptr = bytes)
         {
             handle = LeptonicaApi.PixReadMem(ptr, bytes.Length);
         }
-        if (handle == nint.Zero)
+        if (handle == IntPtr.Zero)
         {
             throw new IOException("Failed to load image from memory.");
         }
@@ -161,12 +191,12 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="IOException">If cannot load pix image from memory.</exception>
     public static Pix LoadTiffFromMemory(byte[] bytes)
     {
-        nint handle;
+        IntPtr handle;
         fixed (byte* ptr = bytes)
         {
             handle = LeptonicaApi.PixReadMemTiff(ptr, bytes.Length, 0);
         }
-        if (handle == nint.Zero)
+        if (handle == IntPtr.Zero)
         {
             throw new IOException("Failed to load image from memory.");
         }
@@ -182,8 +212,8 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="IOException">If cannot read multi page tiff from file path.</exception>
     public static Pix PixReadFromMultipageTiff(string filePath, ref int offset)
     {
-        nint handle = LeptonicaApi.PixReadFromMultipageTiff(filePath, ref offset);
-        if (handle == nint.Zero)
+        IntPtr handle = LeptonicaApi.PixReadFromMultipageTiff(filePath, ref offset);
+        if (handle == IntPtr.Zero)
         {
             throw new IOException($"Failed to load image from multi-page Tiff at offset {offset}.");
         }
@@ -274,9 +304,9 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
             throw new ArgumentException("The sy parameter must be greater than or equal to 16");
         }
 
-        int result = LeptonicaApi.PixOtsuAdaptiveThreshold(Handle, sizeX, sizeY, smoothX, smoothY, scoreFraction, out nint ppixth, out nint ppixd);
+        int result = LeptonicaApi.PixOtsuAdaptiveThreshold(Handle, sizeX, sizeY, smoothX, smoothY, scoreFraction, out IntPtr ppixth, out IntPtr ppixd);
 
-        if (ppixth != nint.Zero)
+        if (ppixth != IntPtr.Zero)
         {
             // free memory held by ppixth, an array of threshold values found for each tile
             LeptonicaApi.PixDestroy(ref ppixth);
@@ -285,7 +315,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         {
             throw new LeptonicaException("Failed to binarize image, result was not 0.");
         }
-        if (ppixd == nint.Zero)
+        if (ppixd == IntPtr.Zero)
         {
             throw new LeptonicaException("Failed to binarize image, result ptr was zero.");
         }
@@ -363,19 +393,19 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         ValidateObjectValues(whsize, factor);
 
         int result = LeptonicaApi.PixSauvolaBinarize(Handle, whsize, factor, addborder ? 1 : 0,
-            out nint ppixm, out nint ppixsd, out nint ppixth, out nint ppixd);
+            out IntPtr ppixm, out IntPtr ppixsd, out IntPtr ppixth, out IntPtr ppixd);
 
         // Free memory held by other unused pix's
 
-        if (ppixm != nint.Zero)
+        if (ppixm != IntPtr.Zero)
         {
             LeptonicaApi.PixDestroy(ref ppixm);
         }
-        if (ppixsd != nint.Zero)
+        if (ppixsd != IntPtr.Zero)
         {
             LeptonicaApi.PixDestroy(ref ppixsd);
         }
-        if (ppixth != nint.Zero)
+        if (ppixth != IntPtr.Zero)
         {
             LeptonicaApi.PixDestroy(ref ppixth);
         }
@@ -383,7 +413,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         {
             throw new LeptonicaException("Failed to binarize image, result was not 0.");
         }
-        if (ppixd == nint.Zero)
+        if (ppixd == IntPtr.Zero)
         {
             throw new LeptonicaException("Failed to binarize image, result ptr was zero.");
         }
@@ -417,10 +447,10 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     {
         ValidateObjectValues(windowHalfWidth, factor);
 
-        int result = LeptonicaApi.PixSauvolaBinarizeTiled(Handle, windowHalfWidth, factor, nx, ny, out nint ppixth, out nint ppixd);
+        int result = LeptonicaApi.PixSauvolaBinarizeTiled(Handle, windowHalfWidth, factor, nx, ny, out IntPtr ppixth, out IntPtr ppixd);
 
         // Free memory held by other unused pix's
-        if (ppixth != nint.Zero)
+        if (ppixth != IntPtr.Zero)
         {
             LeptonicaApi.PixDestroy(ref ppixth);
         }
@@ -429,7 +459,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         {
             throw new LeptonicaException("Failed to binarize image, result was not 0.");
         }
-        if (ppixd == nint.Zero)
+        if (ppixd == IntPtr.Zero)
         {
             throw new LeptonicaException("Failed to binarize image, result ptr was zero.");
         }
@@ -478,7 +508,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         }
 
         var resultPixHandle = LeptonicaApi.PixConvertRGBToGray(Handle, redWeight, greenWeight, blueWeight);
-        if (resultPixHandle == nint.Zero)
+        if (resultPixHandle == IntPtr.Zero)
         {
             throw new LeptonicaException("Failed to convert image to grayscale.");
         }
@@ -494,8 +524,8 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="TesseractException">Failed to remove lines from image.</exception>
     public Pix RemoveLines()
     {
-        nint pix1, pix2, pix3, pix4, pix5, pix6, pix7, pix8, pix9;
-        pix1 = pix2 = pix3 = pix4 = pix5 = pix6 = pix7 = pix9 = nint.Zero;
+        IntPtr pix1, pix2, pix3, pix4, pix5, pix6, pix7, pix8, pix9;
+        pix1 = pix2 = pix3 = pix4 = pix5 = pix6 = pix7 = pix9 = IntPtr.Zero;
 
         try
         {
@@ -514,9 +544,9 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
             pix4 = LeptonicaApi.PixErodeGray(new HandleRef(this, pix3), 1, 5);
 
             /* clean the background of those lines */
-            pix5 = LeptonicaApi.PixThresholdToValue(new HandleRef(this, nint.Zero), new HandleRef(this, pix4), 210, 255);
+            pix5 = LeptonicaApi.PixThresholdToValue(new HandleRef(this, IntPtr.Zero), new HandleRef(this, pix4), 210, 255);
 
-            pix6 = LeptonicaApi.PixThresholdToValue(new HandleRef(this, nint.Zero), new HandleRef(this, pix5), 200, 0);
+            pix6 = LeptonicaApi.PixThresholdToValue(new HandleRef(this, IntPtr.Zero), new HandleRef(this, pix5), 200, 0);
 
             /* get paint-through mask for changed pixels */
             pix7 = LeptonicaApi.PixThresholdToBinary(new HandleRef(this, pix6), 210);
@@ -526,12 +556,12 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
              * so when you add, it doesn't lighten those pixels.
              * It only lightens (to white) the pixels in the lines! */
             LeptonicaApi.PixInvert(new HandleRef(this, pix6), new HandleRef(this, pix6));
-            pix8 = LeptonicaApi.PixAddGray(new HandleRef(this, nint.Zero), new HandleRef(this, pix2), new HandleRef(this, pix6));
+            pix8 = LeptonicaApi.PixAddGray(new HandleRef(this, IntPtr.Zero), new HandleRef(this, pix2), new HandleRef(this, pix6));
 
             pix9 = LeptonicaApi.PixOpenGray(new HandleRef(this, pix8), 1, 9);
 
             LeptonicaApi.PixCombineMasked(new HandleRef(this, pix8), new HandleRef(this, pix9), new HandleRef(this, pix7));
-            if (pix8 == nint.Zero)
+            if (pix8 == IntPtr.Zero)
             {
                 throw new TesseractException("Failed to remove lines from image.");
             }
@@ -542,35 +572,35 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         {
             // destroy any created intermediate pix's, regardless of if the process 
             // failed for any reason.
-            if (pix1 != nint.Zero)
+            if (pix1 != IntPtr.Zero)
             {
                 LeptonicaApi.PixDestroy(ref pix1);
             }
-            if (pix2 != nint.Zero)
+            if (pix2 != IntPtr.Zero)
             {
                 LeptonicaApi.PixDestroy(ref pix2);
             }
-            if (pix3 != nint.Zero)
+            if (pix3 != IntPtr.Zero)
             {
                 LeptonicaApi.PixDestroy(ref pix3);
             }
-            if (pix4 != nint.Zero)
+            if (pix4 != IntPtr.Zero)
             {
                 LeptonicaApi.PixDestroy(ref pix4);
             }
-            if (pix5 != nint.Zero)
+            if (pix5 != IntPtr.Zero)
             {
                 LeptonicaApi.PixDestroy(ref pix5);
             }
-            if (pix6 != nint.Zero)
+            if (pix6 != IntPtr.Zero)
             {
                 LeptonicaApi.PixDestroy(ref pix6);
             }
-            if (pix7 != nint.Zero)
+            if (pix7 != IntPtr.Zero)
             {
                 LeptonicaApi.PixDestroy(ref pix7);
             }
-            if (pix9 != nint.Zero)
+            if (pix9 != IntPtr.Zero)
             {
                 LeptonicaApi.PixDestroy(ref pix9);
             }
@@ -588,25 +618,25 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="TesseractException">Failed to despeckle image, result ptr was zero.</exception>
     public Pix Despeckle(string selStr, int selSize)
     {
-        nint pix1, pix2, pix3;
-        nint pix4, pix5, pix6;
-        nint sel1, sel2;
+        IntPtr pix1, pix2, pix3;
+        IntPtr pix4, pix5, pix6;
+        IntPtr sel1, sel2;
 
         /*  Normalize for rapidly varying background */
         pix1 = LeptonicaApi.PixBackgroundNormFlex(Handle, 7, 7, 1, 1, 10);
 
         /* Remove the background */
-        pix2 = LeptonicaApi.PixGammaTRCMasked(new HandleRef(this, nint.Zero), new HandleRef(this, pix1), new HandleRef(this, nint.Zero), 1.0f, 100, 175);
+        pix2 = LeptonicaApi.PixGammaTRCMasked(new HandleRef(this, IntPtr.Zero), new HandleRef(this, pix1), new HandleRef(this, IntPtr.Zero), 1.0f, 100, 175);
 
         /* Binarize */
         pix3 = LeptonicaApi.PixThresholdToBinary(new HandleRef(this, pix2), 180);
 
         /* Remove the speckle noise up to selSize x selSize */
         sel1 = LeptonicaApi.SelCreateFromString(selStr, selSize + 2, selSize + 2, "speckle" + selSize);
-        pix4 = LeptonicaApi.PixHMT(new HandleRef(this, nint.Zero), new HandleRef(this, pix3), new HandleRef(this, sel1));
+        pix4 = LeptonicaApi.PixHMT(new HandleRef(this, IntPtr.Zero), new HandleRef(this, pix3), new HandleRef(this, sel1));
         sel2 = LeptonicaApi.SelCreateBrick(selSize, selSize, 0, 0, SelType.SEL_HIT);
-        pix5 = LeptonicaApi.PixDilate(new HandleRef(this, nint.Zero), new HandleRef(this, pix4), new HandleRef(this, sel2));
-        pix6 = LeptonicaApi.PixSubtract(new HandleRef(this, nint.Zero), new HandleRef(this, pix3), new HandleRef(this, pix5));
+        pix5 = LeptonicaApi.PixDilate(new HandleRef(this, IntPtr.Zero), new HandleRef(this, pix4), new HandleRef(this, sel2));
+        pix6 = LeptonicaApi.PixSubtract(new HandleRef(this, IntPtr.Zero), new HandleRef(this, pix3), new HandleRef(this, pix5));
 
         LeptonicaApi.SelDestroy(ref sel1);
         LeptonicaApi.SelDestroy(ref sel2);
@@ -617,7 +647,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         LeptonicaApi.PixDestroy(ref pix4);
         LeptonicaApi.PixDestroy(ref pix5);
 
-        if (pix6 == nint.Zero)
+        if (pix6 == IntPtr.Zero)
         {
             throw new TesseractException("Failed to despeckle image.");
         }
@@ -683,8 +713,8 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="TesseractException">Failed to deskew, output ptr was zero.</exception>
     public Pix Deskew(ScewSweep sweep, int redSearch, int thresh, out Scew scew)
     {
-        nint resultPixHandle = LeptonicaApi.PixDeskewGeneral(Handle, sweep.Reduction, sweep.Range, sweep.Delta, redSearch, thresh, out float pAngle, out float pConf);
-        if (resultPixHandle == nint.Zero)
+        IntPtr resultPixHandle = LeptonicaApi.PixDeskewGeneral(Handle, sweep.Reduction, sweep.Range, sweep.Delta, redSearch, thresh, out float pAngle, out float pConf);
+        if (resultPixHandle == IntPtr.Zero)
         {
             throw new TesseractException("Failed to deskew image.");
         }
@@ -733,7 +763,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
             return Clone();
         }
 
-        nint resultHandle;
+        IntPtr resultHandle;
 
         var rotations = 2 * angleInRadians / Math.PI;
         if (Math.Abs(rotations - Math.Floor(rotations)) < VerySmallAngle)
@@ -747,7 +777,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
             resultHandle = LeptonicaApi.PixRotate(Handle, angleInRadians, method, fillColor, width.Value, height.Value);
         }
 
-        if (resultHandle == nint.Zero)
+        if (resultHandle == IntPtr.Zero)
         {
             throw new LeptonicaException("Failed to rotate image around its centre.");
         }
@@ -763,9 +793,9 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="LeptonicaException">Failed to rotate.</exception>
     public Pix Rotate90(int direction)
     {
-        nint resultHandle = LeptonicaApi.PixRotate90(Handle, direction);
+        IntPtr resultHandle = LeptonicaApi.PixRotate90(Handle, direction);
 
-        if (resultHandle == nint.Zero)
+        if (resultHandle == IntPtr.Zero)
         {
             throw new LeptonicaException("Failed to rotate image.");
         }
@@ -778,9 +808,9 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="LeptonicaException">Failed to invert.</exception>
     public Pix Invert()
     {
-        nint resultHandle = LeptonicaApi.PixInvert(new HandleRef(this, nint.Zero), Handle);
+        IntPtr resultHandle = LeptonicaApi.PixInvert(new HandleRef(this, IntPtr.Zero), Handle);
 
-        if (resultHandle == nint.Zero)
+        if (resultHandle == IntPtr.Zero)
         {
             throw new LeptonicaException("Failed to invert image.");
         }
@@ -794,8 +824,8 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="LeptonicaException">Failed to convert to 8 bits per pixel.</exception>
     public Pix ConvertTo8(int cmapflag)
     {
-        nint resultHandle = LeptonicaApi.PixConvertTo8(Handle, cmapflag);
-        if (resultHandle == nint.Zero)
+        IntPtr resultHandle = LeptonicaApi.PixConvertTo8(Handle, cmapflag);
+        if (resultHandle == IntPtr.Zero)
         {
             throw new LeptonicaException("Failed to convert image to 8 bpp.");
         }
@@ -921,9 +951,9 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     ///<exception cref="InvalidOperationException">Failed to load pix.</exception>
     public Pix Scale(float scaleX, float scaleY)
     {
-        nint result = LeptonicaApi.PixScale(Handle, scaleX, scaleY);
+        IntPtr result = LeptonicaApi.PixScale(Handle, scaleX, scaleY);
 
-        if (result == nint.Zero)
+        if (result == IntPtr.Zero)
         {
             throw new InvalidOperationException("Failed to scale pix.");
         }
@@ -1007,11 +1037,11 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
 
 
 
-
+    /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
-        nint pix = Handle.Handle;
+        IntPtr pix = Handle.Handle;
         LeptonicaApi.PixDestroy(ref pix);
-        Handle = new HandleRef(this, nint.Zero);
+        Handle = new HandleRef(this, IntPtr.Zero);
     }
 }

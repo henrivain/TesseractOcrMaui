@@ -31,14 +31,42 @@ public class TessPage : DisposableObject
         Logger = logger ?? NullLogger.Instance;
     }
 
+    /// <summary>
+    /// Tesseract engine that uses native Tesseract library.
+    /// </summary>
     public TessEngine Engine { get; }
+
+    /// <summary>
+    /// Image where text is recognized from.
+    /// </summary>
     public Pix Image { get; }
+
+    /// <summary>
+    /// Name of input image.
+    /// </summary>
     public string InputName { get; }
+
+    /// <summary>
+    /// Region to be recognized.
+    /// </summary>
     public Rect Region { get; }
+
+    /// <summary>
+    /// Segmentation mode that Tesseract will use.
+    /// </summary>
     public PageSegmentationMode? Mode { get; }
+
+    /// <summary>
+    /// Is current image already recognized.
+    /// </summary>
     public bool AlreadyRecognized { get; private set; }
+
+    /// <summary>
+    /// Directory where output image is saved.
+    /// </summary>
     public string OutputDirectory { get; init; } = Path.Combine(FileSystem.CacheDirectory, "tessoutput");
-    public ILogger Logger { get; }
+    
+    ILogger Logger { get; }
 
     /// <summary>
     /// Get text from image. Runs recognizion if it is not already done. Uses UTF-8.
@@ -46,8 +74,8 @@ public class TessPage : DisposableObject
     /// <returns>Text that apprears in image.</returns>
     /// <exception cref="InvalidOperationException">PageSegmentationMode is OsdOnly when recognizing.</exception>
     /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
-    /// <exception cref="TesseractException">If can't get thresholded image when recognizing.</exception>
-    /// <exception cref="ArgumentException">[WINDOWS] Invalid byte sequence in string.</exception>
+    /// <exception cref="TesseractException">Can't get thresholded image when recognizing.</exception>
+    /// <exception cref="InvalidBytesException">[WINDOWS] Invalid byte sequence in string.</exception>
     public string GetText()
     {
         Logger.LogInformation("Try to get text from image.");
@@ -70,7 +98,14 @@ public class TessPage : DisposableObject
         {
             return string.Empty;
         }
-        return Encoding.UTF8.GetString(bytes);
+        try
+        {
+            return Encoding.UTF8.GetString(bytes);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidBytesException("Cannot encode current byte array, because it contains invalid bytes.", ex);
+        }
 #else
         return result;
 #endif

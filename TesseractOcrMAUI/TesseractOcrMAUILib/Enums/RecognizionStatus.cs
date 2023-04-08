@@ -1,5 +1,6 @@
 ﻿namespace MauiTesseractOcr.Enums;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 
 /// <summary>
@@ -7,7 +8,15 @@
 /// </summary>
 public enum RecognizionStatus
 {
-    Success, Failed, NoLanguagesAvailable,
+    Success, 
+    Failed, 
+    NoLanguagesAvailable,
     CannotLoadTessData,
-    ImageNotFound
+    ImageNotFound,
+    TraineddataNotLoaded,
+    UnknowError,
+    InvalidImage,
+    ImageAlredyProcessed,
+    CannotRecognizeText,
+    TessDataFolderNotProvided
 }
