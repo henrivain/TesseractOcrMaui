@@ -28,14 +28,15 @@
 
             <Border>
                 <VerticalStackLayout HorizontalOptions="Center">
+                    <Label x:Name="confidenceLabel"
+                           HorizontalTextAlignment="Center"
+                           Text="Confidence: -1" />
                     <Label Text="Recognized text"
                            HorizontalTextAlignment="Center" />
                     <Label x:Name="resultLabel"
                            Text="Nothing yet"
                            HorizontalTextAlignment="Center" />
-                    <Label x:Name="confidenceLabel"
-                           HorizontalTextAlignment="Center"
-                           Text="Confidence: -1" />
+                
                     <Button Text="Pick file"
                             HorizontalOptions="Center"
                             Clicked="Button_Clicked" />

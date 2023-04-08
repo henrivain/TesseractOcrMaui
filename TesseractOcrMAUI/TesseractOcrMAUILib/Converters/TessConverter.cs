@@ -1,8 +1,17 @@
 ﻿using System.Globalization;
 
 namespace TesseractOcrMAUILib.Converters;
-internal class TessConverter
+
+/// <summary>
+/// Convert object to tesseract option value string.
+/// </summary>
+internal static class TessConverter
 {
+    /// <summary>
+    /// Try convert value to tesseract option string.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns>Null if failed, otherwise string representing given value.</returns>
     public static string? TryToString(object? value)
     {
         return value switch

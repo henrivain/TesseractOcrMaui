@@ -1,9 +1,16 @@
-﻿using TesseractOcrMAUILib.ImportApis;
+﻿// Code copied from https://github.com/charlesw/tesseract
+using TesseractOcrMAUILib.ImportApis;
 
 namespace TesseractOcrMAUILib.Imaging;
 
+/// <summary>
+/// Store information about Pix image.
+/// </summary>
 public unsafe class PixData
 {
+    /// <summary>
+    /// Pix corresponding to data.
+    /// </summary>
     public Pix Pix { get; private set; }
 
     internal PixData(Pix pix)
@@ -44,7 +51,6 @@ public unsafe class PixData
     /// <summary>
     /// Gets the pixel value for a 1bpp image.
     /// </summary>
-
     public static uint GetDataBit(uint* data, int index)
     {
         return *(data + (index >> 5)) >> 31 - (index & 31) & 1;
@@ -54,7 +60,6 @@ public unsafe class PixData
     /// <summary>
     /// Sets the pixel value for a 1bpp image.
     /// </summary>
-
     public static void SetDataBit(uint* data, int index, uint value)
     {
         uint* wordPtr = data + (index >> 5);
@@ -66,7 +71,6 @@ public unsafe class PixData
     /// <summary>
     /// Gets the pixel value for a 2bpp image.
     /// </summary>
-
     public static uint GetDataDIBit(uint* data, int index)
     {
         return *(data + (index >> 4)) >> 2 * (15 - (index & 15)) & 3;
@@ -77,7 +81,6 @@ public unsafe class PixData
     /// <summary>
     /// Sets the pixel value for a 2bpp image.
     /// </summary>
-
     public static void SetDataDIBit(uint* data, int index, uint value)
     {
         uint* wordPtr = data + (index >> 4);
@@ -98,7 +101,6 @@ public unsafe class PixData
     /// <summary>
     /// Sets the pixel value for a 4bpp image.
     /// </summary>
-
     public static void SetDataQBit(uint* data, int index, uint value)
     {
         uint* wordPtr = data + (index >> 3);
@@ -110,11 +112,10 @@ public unsafe class PixData
     /// <summary>
     /// Gets the pixel value for a 8bpp image.
     /// </summary>
-
     public static uint GetDataByte(uint* data, int index)
     {
         // Must do direct size comparison to detect x64 process, since in this will be jited out and results in a lot faster code (e.g. 6x faster for image conversion)
-        if (IntPtr.Size == 8)
+        if (IntPtr.Size is 8)
         {
             return *(byte*)((ulong)((byte*)data + index) ^ 3);
         }
@@ -127,11 +128,10 @@ public unsafe class PixData
     /// <summary>
     /// Sets the pixel value for a 8bpp image.
     /// </summary>
-
     public static void SetDataByte(uint* data, int index, uint value)
     {
         // Must do direct size comparison to detect x64 process, since in this will be jited out and results in a lot faster code (e.g. 6x faster for image conversion)
-        if (IntPtr.Size == 8)
+        if (IntPtr.Size is 8)
         {
             *(byte*)((ulong)((byte*)data + index) ^ 3) = (byte)value;
         }
@@ -145,11 +145,10 @@ public unsafe class PixData
     /// <summary>
     /// Gets the pixel value for a 16bpp image.
     /// </summary>
-
     public static uint GetDataTwoByte(uint* data, int index)
     {
         // Must do direct size comparison to detect x64 process, since in this will be jited out and results in a lot faster code (e.g. 6x faster for image conversion)
-        if (IntPtr.Size == 8)
+        if (IntPtr.Size is 8)
         {
             return *(ushort*)((ulong)((ushort*)data + index) ^ 2);
         }
@@ -162,11 +161,10 @@ public unsafe class PixData
     /// <summary>
     /// Sets the pixel value for a 16bpp image.
     /// </summary>
-
     public static void SetDataTwoByte(uint* data, int index, uint value)
     {
         // Must do direct size comparison to detect x64 process, since in this will be jited out and results in a lot faster code (e.g. 6x faster for image conversion)
-        if (IntPtr.Size == 8)
+        if (IntPtr.Size is 8)
         {
             *(ushort*)((ulong)((ushort*)data + index) ^ 2) = (ushort)value;
         }
@@ -179,13 +177,11 @@ public unsafe class PixData
     /// <summary>
     /// Gets the pixel value for a 32bpp image.
     /// </summary>
-
     public static uint GetDataFourByte(uint* data, int index) => *(data + index);
 
 
     /// <summary>
     /// Sets the pixel value for a 32bpp image.
     /// </summary>
-
     public static void SetDataFourByte(uint* data, int index, uint value) => *(data + index) = value;
 }

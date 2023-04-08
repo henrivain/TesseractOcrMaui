@@ -1,7 +1,7 @@
 ﻿namespace TesseractOcrMAUILib.Enums;
 
 /// <summary>
-/// Methods to rotate image
+/// Method types to rotate image
 /// </summary>
 public enum RotationMethod
 {

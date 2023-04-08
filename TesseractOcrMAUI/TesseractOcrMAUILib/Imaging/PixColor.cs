@@ -1,10 +1,19 @@
-﻿using System.Runtime.InteropServices;
-
+﻿// Code copied from https://github.com/charlesw/tesseract
 namespace TesseractOcrMAUILib.Imaging;
 
+/// <summary>
+/// Structure representing Pix image color.
+/// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public readonly struct PixColor : IEquatable<PixColor>
 {
+    /// <summary>
+    /// New color for Pix image.
+    /// </summary>
+    /// <param name="red"></param>
+    /// <param name="green"></param>
+    /// <param name="blue"></param>
+    /// <param name="alpha"></param>
     public PixColor(byte red, byte green, byte blue, byte alpha = 255)
     {
         Red = red;
@@ -13,11 +22,31 @@ public readonly struct PixColor : IEquatable<PixColor>
         Alpha = alpha;
     }
 
+    /// <summary>
+    /// Red value for color. 0-255.
+    /// </summary>
     public byte Red { get; }
+
+    /// <summary>
+    /// Green value for color. 0-255.
+    /// </summary>
     public byte Green { get; }
+
+    /// <summary>
+    /// Blue value for color. 0-255.
+    /// </summary>
     public byte Blue { get; }
+
+    /// <summary>
+    /// Alpha value for opacity. 0-255.
+    /// </summary>
     public byte Alpha { get; }
 
+    /// <summary>
+    /// New PixColor from RGBA
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns>PixColor representing given value.</returns>
     public static PixColor FromRgba(uint value)
     {
         return new PixColor(
@@ -27,6 +56,11 @@ public readonly struct PixColor : IEquatable<PixColor>
            (byte)(value & 0xFF));
     }
 
+    /// <summary>
+    /// New PixColor from RGB
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns>PixColor representing given value.</returns>
     public static PixColor FromRgb(uint value)
     {
         return new PixColor(
@@ -36,6 +70,10 @@ public readonly struct PixColor : IEquatable<PixColor>
            0xFF);
     }
 
+    /// <summary>
+    /// Convert PixColor to RGBA.
+    /// </summary>
+    /// <returns>Uint representing RGBA color.</returns>
     public uint ToRGBA()
     {
         return (uint)(Red << 24 |
@@ -44,29 +82,23 @@ public readonly struct PixColor : IEquatable<PixColor>
            Alpha);
     }
 
-#if NETFULL
-        public static explicit operator System.Drawing.Color(PixColor color)
-        {
-            return System.Drawing.Color.FromArgb(color.alpha, color.red, color.green, color.blue);
-        }
 
-        public static explicit operator PixColor(System.Drawing.Color color)
-        {
-            return new PixColor(color.R, color.G, color.B, color.A);
-        }
-#endif
-
-
+    /// <inheritdoc/>
     public override bool Equals(object? obj)
     {
         return obj is PixColor color && Equals(color);
     }
 
+    /// <inheritdoc/>
     public bool Equals(PixColor other)
     {
-        return Red == other.Red && Blue == other.Blue && Green == other.Green && Alpha == other.Alpha;
+        return Red == other.Red && 
+            Blue  == other.Blue && 
+            Green == other.Green && 
+            Alpha == other.Alpha;
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
         int hashCode = 0;
@@ -80,8 +112,11 @@ public readonly struct PixColor : IEquatable<PixColor>
         return hashCode;
     }
 
-    public static bool operator ==(PixColor lhs, PixColor rhs) => lhs.Equals(rhs);
-    public static bool operator !=(PixColor lhs, PixColor rhs) => !(lhs == rhs);
-    public override string ToString() => string.Format("Color(0x{0:X})", ToRGBA());
+    /// <inheritdoc/>
+    public static bool operator ==(PixColor left, PixColor right) => left.Equals(right);
+    /// <inheritdoc/>
+    public static bool operator !=(PixColor left, PixColor right) => (left == right) is false;
+    /// <inheritdoc/>
+    public override string ToString() => $"Color(0x{ToRGBA():X})";  // :X converts to hex
 
 }

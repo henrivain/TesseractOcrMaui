@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TesseractOcrMAUILib.Tessdata;
+﻿namespace TesseractOcrMAUILib.Tessdata;
 internal class TrainedDataCollection : ITrainedDataCollection
 {
     private HashSet<string> Files { get; set; } = new();

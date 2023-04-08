@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿// Parts copied from https://github.com/charlesw/tesseract (With a lot reformatting)
+using System.Runtime.CompilerServices;
 using TesseractOcrMAUILib.Imaging;
 using TesseractOcrMAUILib.ImportApis;
 

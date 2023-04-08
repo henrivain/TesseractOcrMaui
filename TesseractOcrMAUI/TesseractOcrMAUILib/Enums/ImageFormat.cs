@@ -1,5 +1,8 @@
 ﻿namespace TesseractOcrMAUILib.Enums;
 
+/// <summary>
+/// Available image formats
+/// </summary>
 public enum ImageFormat
 {
     Unknown,

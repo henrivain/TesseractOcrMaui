@@ -17,4 +17,9 @@ public readonly struct RecognizionResult
     /// Confidence of text recognizion, negative means not set.
     /// </summary>
     public float Confidence { get; init; } = -1f;
+
+    /// <summary>
+    /// More information about recognizion status.
+    /// </summary>
+    public string? Message { get; init; }
 }

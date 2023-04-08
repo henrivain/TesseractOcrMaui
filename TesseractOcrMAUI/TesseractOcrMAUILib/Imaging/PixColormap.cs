@@ -1,4 +1,5 @@
-﻿using TesseractOcrMAUILib.ImportApis;
+﻿// Code copied from https://github.com/charlesw/tesseract
+using TesseractOcrMAUILib.ImportApis;
 
 namespace TesseractOcrMAUILib.Imaging;
 
@@ -11,16 +12,33 @@ namespace TesseractOcrMAUILib.Imaging;
 /// </remarks>
 public sealed class PixColormap : IDisposable
 {
-    internal HandleRef Handle { get; private set; }
 
     internal PixColormap(IntPtr handle)
     {
         Handle = new HandleRef(this, handle);
     }
 
+    /// <summary>
+    /// Depth of the image.
+    /// </summary>
+    public int Depth => LeptonicaApi.PixcmapGetDepth(Handle);
+    public int Count => LeptonicaApi.PixcmapGetCount(Handle);
+    public int FreeCount => LeptonicaApi.PixcmapGetFreeCount(Handle);
+    internal HandleRef Handle { get; private set; }
+
+    static HashSet<int> ValidDepths { get; } = new() { 1, 2, 4, 8 };
+
+
+    /// <summary>
+    /// Create colormap with given depth.
+    /// </summary>
+    /// <param name="depth"></param>
+    /// <returns>PixColorMap with given depth.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Invalid depth.</exception>
+    /// <exception cref="InvalidOperationException">Leptonica cannot create colormap.</exception>
     public static PixColormap Create(int depth)
     {
-        if (!(depth == 1 || depth == 2 || depth == 4 || depth == 8))
+        if (ValidDepths.Contains(depth) is false)
         {
             throw new ArgumentOutOfRangeException(nameof(depth), "Depth must be 1, 2, 4, or 8 bpp.");
         }
@@ -30,12 +48,20 @@ public sealed class PixColormap : IDisposable
         {
             throw new InvalidOperationException("Failed to create colormap.");
         }
-        return new PixColormap(handle);
+        return new(handle);
     }
 
+    /// <summary>
+    /// Create linear color map with given depth and levels.
+    /// </summary>
+    /// <param name="depth"></param>
+    /// <param name="levels"></param>
+    /// <returns>Colormap with given depth and levels.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Invalid depth.</exception>
+    /// <exception cref="InvalidOperationException">Leptonica cannot create colormap.</exception>
     public static PixColormap CreateLinear(int depth, int levels)
     {
-        if ((depth == 1 || depth == 2 || depth == 4 || depth == 8) is false)
+        if (ValidDepths.Contains(depth) is false)
         {
             throw new ArgumentOutOfRangeException(nameof(depth), "Depth must be 1, 2, 4, or 8 bpp.");
         }
@@ -49,12 +75,21 @@ public sealed class PixColormap : IDisposable
         {
             throw new InvalidOperationException("Failed to create colormap.");
         }
-        return new PixColormap(handle);
+        return new(handle);
     }
 
+    /// <summary>
+    /// Create linear color map.
+    /// </summary>
+    /// <param name="depth"></param>
+    /// <param name="firstIsBlack"></param>
+    /// <param name="lastIsWhite"></param>
+    /// <returns>Colormap with given values.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Invalid depth.</exception>
+    /// <exception cref="InvalidOperationException">Leptonica cannot create colormap.</exception>
     public static PixColormap CreateLinear(int depth, bool firstIsBlack, bool lastIsWhite)
     {
-        if (!(depth == 1 || depth == 2 || depth == 4 || depth == 8))
+        if (ValidDepths.Contains(depth) is false)
         {
             throw new ArgumentOutOfRangeException(nameof(depth), "Depth must be 1, 2, 4, or 8 bpp.");
         }
@@ -64,44 +99,68 @@ public sealed class PixColormap : IDisposable
         {
             throw new InvalidOperationException("Failed to create colormap.");
         }
-        return new PixColormap(handle);
+        return new(handle);
     }
 
 
-    public int Depth => LeptonicaApi.PixcmapGetDepth(Handle);
-    public int Count => LeptonicaApi.PixcmapGetCount(Handle);
-    public int FreeCount => LeptonicaApi.PixcmapGetFreeCount(Handle);
-
+    /// <summary>
+    /// Add color to current color map
+    /// </summary>
+    /// <param name="color"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool AddColor(PixColor color)
     {
-        return LeptonicaApi.PixcmapAddColor(Handle, color.Red, color.Green, color.Blue) == 0;
+        return LeptonicaApi.PixcmapAddColor(Handle, color.Red, color.Green, color.Blue) is 0;
     }
 
+    /// <summary>
+    /// Add new color to current color map.
+    /// </summary>
+    /// <param name="color"></param>
+    /// <param name="index"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool AddNewColor(PixColor color, out int index)
     {
         return LeptonicaApi.PixcmapAddNewColor(Handle, color.Red, color.Green, color.Blue, out index) == 0;
     }
 
+    /// <summary>
+    /// Add color to 
+    /// </summary>
+    /// <param name="color"></param>
+    /// <param name="index"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool AddNearestColor(PixColor color, out int index)
     {
-        return LeptonicaApi.PixcmapAddNearestColor(Handle, color.Red, color.Green, color.Blue, out index) == 0;
+        return LeptonicaApi.PixcmapAddNearestColor(Handle, color.Red, color.Green, color.Blue, out index) is 0;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="color"></param>
+    /// <param name="index"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool AddBlackOrWhite(int color, out int index)
     {
-        return LeptonicaApi.PixcmapAddBlackOrWhite(Handle, color, out index) == 0;
+        return LeptonicaApi.PixcmapAddBlackOrWhite(Handle, color, out index) is 0;
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="setBlack"></param>
+    /// <param name="setWhite"></param>
+    /// <returns>True if success, otherwise false.</returns>
     public bool SetBlackOrWhite(bool setBlack, bool setWhite)
     {
-        return LeptonicaApi.PixcmapSetBlackAndWhite(Handle, setBlack ? 1 : 0, setWhite ? 1 : 0) == 0;
+        return LeptonicaApi.PixcmapSetBlackAndWhite(Handle, setBlack ? 1 : 0, setWhite ? 1 : 0) is 0;
     }
 
     public bool IsUsableColor(PixColor color)
     {
-        if (LeptonicaApi.PixcmapUsableColor(Handle, color.Red, color.Green, color.Blue, out int usable) == 0)
+        if (LeptonicaApi.PixcmapUsableColor(Handle, color.Red, color.Green, color.Blue, out int usable) is 0)
         {
-            return usable == 1;
+            return usable is 1;
         }
         else
         {
@@ -109,6 +168,10 @@ public sealed class PixColormap : IDisposable
         }
     }
 
+    /// <summary>
+    /// Clear current color map.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Leptonica failed to clear color map.</exception>
     public void Clear()
     {
         if (LeptonicaApi.PixcmapClear(Handle) != 0)
@@ -117,28 +180,35 @@ public sealed class PixColormap : IDisposable
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">
+    /// [GET] Leptonica cannot retrieve color.
+    /// [SET] Leptonica cannot reset color.
+    /// </exception>
     public PixColor this[int index]
     {
         get
         {
-            if (LeptonicaApi.PixcmapGetColor32(Handle, index, out int color) == 0)
+            if (LeptonicaApi.PixcmapGetColor32(Handle, index, out int color) is 0)
             {
                 return PixColor.FromRgb((uint)color);
             }
-            else
-            {
-                throw new InvalidOperationException("Failed to retrieve color.");
-            }
+            throw new InvalidOperationException("Failed to retrieve color.");
         }
         set
         {
-            if (LeptonicaApi.PixcmapResetColor(Handle, index, value.Red, value.Green, value.Blue) != 0)
+            if (LeptonicaApi.PixcmapResetColor(Handle, index, value.Red, value.Green, value.Blue) is not 0)
             {
                 throw new InvalidOperationException("Failed to reset color.");
             }
         }
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         IntPtr cmap = Handle.Handle;

@@ -24,10 +24,6 @@ public static class MauiProgram
             files =>
             {
                 files.AddFile("fin.traineddata");
-            },
-            config =>
-            {
-
             });
 
         builder.Services.AddSingleton<MainPage>();
