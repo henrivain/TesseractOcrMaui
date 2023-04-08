@@ -1,6 +1,10 @@
 # TesseractOcrMaui
 
-Tesseract wrapper for windows and Android for .NET MAUI. You can find Tesseract repository from [Github](https://github.com/tesseract-ocr/tesseract).
+[Tesseract](https://github.com/tesseract-ocr/tesseract) wrapper for windows and Android for .NET MAUI.
+
+## What is this?
+
+I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces. Currently only Android and Windows are supported, because I don't have resources to test on MacOs or IOS. Also my own projects only support Windows and Android, so I didn't need those other platforms. If you need support for Apple devices, you have to build those libraries yourself and add them to project.
 
 ## Supported platforms
 
@@ -25,14 +29,16 @@ Package is not currently available in nuget, but will probably be there soon. If
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
 
 <br/>
+
 Page should be injected or injecting Tesseract won't work. `AddTesseractOcr` also loads all libraries that are needed to run library. `files.AddFile("eng.traineddata");` adds all your traineddata files to be loaded, when tesseract is used. For example I add `eng.traineddata`, so I must add [traineddata file](https://github.com/tesseract-ocr/tessdata/) with same name to my project's TesseractOcrMauiTestApp\Resources\Raw folder.
 
 <br/>
+
 MauiProgram.cs
 
 ```csharp
 using Microsoft.Extensions.Logging;
-using TesseractOcrMAUILib;  // include library
+using MauiTesseractOcr;  // include library
 
 namespace TesseractOcrMauiTestApp;
 
@@ -69,14 +75,16 @@ public static class MauiProgram
 ### 3. Inject ITesseract to your page
 
 <br/>
-Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. I you can see my Button_Clicked functionality down below.
+
+Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. I you can see my `Button_Clicked` functionality down below.
 
 <br/>
+
 Mainpage.xaml.cs
 
 ```csharp
-using TesseractOcrMAUILib;
-using TesseractOcrMAUILib.Extensions;
+using MauiTesseractOcr;
+using MauiTesseractOcr.Extensions;
 
 namespace TesseractOcrMauiTestApp;
 
@@ -126,6 +134,7 @@ public partial class MainPage : ContentPage
 ```
 
 <br/>
+
 <br/>
 
 ## Licence
@@ -146,6 +155,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-NOTE: This software depends on other packages that may be licensed under different open source licenses.
+NOTE: Tesseract depends on other packages that may be licensed under different open source licenses.
 
-See [Tesseract ocr repository](https://github.com/tesseract-ocr/tesseract) and [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract). This project does not depend on any third-party packages. Part of the code is reused from Charlesw C# Windows wrapper.
+This project does not depend on any third-party C# packages, but it needs [traineddata files](https://github.com/tesseract-ocr/tessdata/) to function. Parts of the code are also is reused from [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract).
+
+<br/>
+
+## Support
+
+If you have any questions about anything related to this project, open issue with `help wanted` tag or send me an email.
+
+<br/>
+
+Henri Vainio  
+matikkaeditorinkaantaja(at)gmail.com
