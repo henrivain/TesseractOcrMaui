@@ -8,7 +8,7 @@ internal class TessApi
     internal static int BaseApiInit(HandleRef handle, string language, string traineddataPath,
         EngineMode mode, IDictionary<string, object> initialOptions)
     {
-        if (handle.Handle == nint.Zero)
+        if (handle.Handle == IntPtr.Zero)
         {
             throw new InvalidOperationException($"{nameof(Handle)} must not be zero pointer.");
         }
