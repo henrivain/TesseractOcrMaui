@@ -14,7 +14,12 @@ public readonly struct RecognizionResult
     /// Status of last recognision
     /// </summary>
     public required RecognizionStatus Status { get; init; }
-    
+
+    /// <summary>
+    /// More information about recognizion status.
+    /// </summary>
+    public string? Message { get; init; }
+
     /// <summary>
     /// Recognized text from the image.
     /// </summary>
@@ -25,8 +30,5 @@ public readonly struct RecognizionResult
     /// </summary>
     public float Confidence { get; init; } = -1f;
 
-    /// <summary>
-    /// More information about recognizion status.
-    /// </summary>
-    public string? Message { get; init; }
+
 }

@@ -1,5 +1,4 @@
-﻿using IntelliJ.Lang.Annotations;
-using MauiTesseractOcr.Results;
+﻿using MauiTesseractOcr.Results;
 using MauiTesseractOcr.Tessdata;
 using System.Runtime.Versioning;
 
@@ -17,27 +16,24 @@ public class Tesseract : ITesseract
     /// </summary>
     /// <param name="tessDataProvider"></param>
     /// <param name="logger"></param>
-    public Tesseract(ITessDataProvider tessDataProvider, ILogger<ITesseract> logger)
+    public Tesseract(ITessDataProvider tessDataProvider, ILogger<ITesseract>? logger)
     {
         TessDataProvider = tessDataProvider;
-        Logger = logger;
+        Logger = logger ?? NullLogger<ITesseract>.Instance;
     }
 
-    /// <summary>
-    /// Path to Traineddata folder provided by ITessDataProvider.
-    /// </summary>
+    /// <inheritdoc/>
     public string TessDataFolder => TessDataProvider.TessDataFolder;
 
     ITessDataProvider TessDataProvider { get; }
     ILogger<ITesseract> Logger { get; }
 
-    /// <summary>
-    /// Load 
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public async Task<DataLoadResult> LoadTraineddataAsync()
     {
-        return await TessDataProvider.LoadFromPackagesAsync();
+        var result = await TessDataProvider.LoadFromPackagesAsync();
+        result.LogLoadErrorsIfNotAllSuccess(Logger);
+        return result;
     }
 
     /// <inheritdoc/>
@@ -67,25 +63,39 @@ public class Tesseract : ITesseract
     /// <inheritdoc/>
     public async Task<RecognizionResult> RecognizeTextAsync(string imagePath)
     {
-        var loadResult = await TessDataProvider.LoadFromPackagesAsync();
+        var loadResult = await LoadTraineddataAsync();
+        
+        if (loadResult.NotSuccess())
+        {
+            return new RecognizionResult 
+            { 
+                Status = RecognizionStatus.CannotLoadTessData,
+                Message = $"Failed to load '{loadResult.GetErrorCount()}' traineddata files. " +
+                    $"Errors: '{loadResult.GetErrorsString()}'"
+            };
+        }
         var tessData = TessDataProvider.TessDataFolder;
         var fileName = TessDataProvider.AvailableLanguages.FirstOrDefault();
         if (string.IsNullOrWhiteSpace(fileName))
         {
             return new RecognizionResult { Status = RecognizionStatus.NoLanguagesAvailable };
         };
-        if (loadResult.NotSuccess())
-        {
-            return new RecognizionResult { Status = RecognizionStatus.CannotLoadTessData };
-        }
+        
         return await Task.Run(() => Recognize(tessData, fileName, imagePath));
     }
 
+    /// <summary>
+    /// Recognize text in image. This method should not throw.
+    /// </summary>
+    /// <param name="tessDataFolder">Path to folder containing traineddata files.</param>
+    /// <param name="traineddataFileName"></param>
+    /// <param name="imagePath"></param>
+    /// <returns>RecognizionResult, information about recognizion status</returns>
     internal RecognizionResult Recognize(string tessDataFolder, string traineddataFileName, string imagePath)
     {
         if (traineddataFileName is null)
         {
-            Logger.LogWarning("Tesseract language is not definedm, cannot recognize image.");
+            Logger.LogWarning("Tesseract language is not defined, cannot recognize image.");
             return new RecognizionResult { Status = RecognizionStatus.NoLanguagesAvailable };
         }
         var language = Path.GetFileNameWithoutExtension(traineddataFileName);
@@ -122,7 +132,7 @@ public class Tesseract : ITesseract
         string? text = null;
         float confidence = -1f;
 
-        // Recognize and catch exceptions
+        // Recognize and catch any exceptions that can be thrown
         try
         {
             // nulls are alredy checked, can't throw.
