@@ -8,7 +8,7 @@ on:
 
 env:
     PROJECT_PATH: "TesseractOcrMAUI/MauiTesseractOcr/MauiTesseractOcr.csproj"
-    PACKAGE_OUTPUT_DIR: ${{ github.workspace }}/output"
+    PACKAGE_OUTPUT_DIR: ${{ github.workspace }}/output
     NUGET_SOURCE_URL: "https://api.nuget.org/v3/index.json"
 
 jobs:
