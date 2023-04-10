@@ -11,46 +11,55 @@ public class TessEngine : DisposableObject
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
     /// </summary>
-    /// <param name="language">Language means traineddata file name without extension.</param>
+    /// <param name="languages">
+    /// Language means traineddata file names without extension as a '+' separated list.
+    /// For example 'fin+swe+eng'
+    /// </param>
     /// <param name="logger">Logger to be used, by default NullLogger.</param>
-    /// <exception cref="ArgumentNullException">If language or traineddatapath is null.</exception>
+    /// <exception cref="ArgumentNullException">If languages or traineddatapath is null.</exception>
     /// <exception cref="TesseractException">If Tesseract api cannot be initialized with given parameters or for some other reason.</exception>
-    public TessEngine(string language, ILogger? logger = null)
-        : this(language, string.Empty, logger)
+    public TessEngine(string languages, ILogger? logger = null)
+        : this(languages, string.Empty, logger)
     {
     }
 
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
     /// </summary>
-    /// <param name="language">Language means traineddata file name without extension.</param>
+    /// <param name="languages">
+    /// Language means traineddata file names without extension as a '+' separated list.
+    /// For example 'fin+swe+eng'
+    /// </param>
     /// <param name="traineddataPath">Full path to traineddata folder. Do not include file name.</param>
     /// <param name="logger">Logger to be used, by default NullLogger.</param>
-    /// <exception cref="ArgumentNullException">If language or traineddatapath is null.</exception>
+    /// <exception cref="ArgumentNullException">If languages or traineddatapath is null.</exception>
     /// <exception cref="TesseractException">If Tesseract api cannot be initialized with given parameters or for some other reason.</exception>
-    public TessEngine(string language, string traineddataPath, ILogger? logger = null)
-        : this(language, traineddataPath, EngineMode.Default, new Dictionary<string, object>(), logger)
+    public TessEngine(string languages, string traineddataPath, ILogger? logger = null)
+        : this(languages, traineddataPath, EngineMode.Default, new Dictionary<string, object>(), logger)
     {
     }
 
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
     /// </summary>
-    /// <param name="language">Language means traineddata file name without extension.</param>
+    /// <param name="languages">
+    /// Language means traineddata file names without extension as a '+' separated list.
+    /// For example 'fin+swe+eng'
+    /// </param>
     /// <param name="traineddataPath">Full path to traineddata folder. Do not include file name.</param>
     /// <param name="mode">Engine mode to be used when recognizing images.</param>
     /// <param name="initialOptions">Optional Tesseract parameters to be used.</param>
     /// <param name="logger">Logger to be used, by default NullLogger.</param>
-    /// <exception cref="ArgumentNullException">If language or traineddatapath is null.</exception>
+    /// <exception cref="ArgumentNullException">If languages or traineddatapath is null.</exception>
     /// <exception cref="TesseractException">If Tesseract api cannot be initialized with given parameters or for some other reason.</exception>
-    public TessEngine(string language, string traineddataPath, EngineMode mode,
+    public TessEngine(string languages, string traineddataPath, EngineMode mode,
         IDictionary<string, object> initialOptions, ILogger? logger = null)
     {
         Logger = logger ?? NullLogger<TessEngine>.Instance;
-        if (language is null)
+        if (languages is null)
         {
             Logger.LogError("Cannot initilize '{ctor}' with null language.", nameof(TessEngine));
-            throw new ArgumentNullException(nameof(language));
+            throw new ArgumentNullException(nameof(languages));
         }
         if (traineddataPath is null)
         {
@@ -58,7 +67,7 @@ public class TessEngine : DisposableObject
             throw new ArgumentNullException(nameof(traineddataPath));
         }
         Handle = new(this, TesseractApi.CreateApi());
-        Initialize(language, traineddataPath, mode, initialOptions);
+        Initialize(languages, traineddataPath, mode, initialOptions);
     }
 
 
@@ -225,7 +234,7 @@ public class TessEngine : DisposableObject
     /// <summary>
     /// Initialize new Tesseract engine with given data.
     /// </summary>
-    /// <param name="language">
+    /// <param name="languages">
     /// '+' separated list of languages to be used with api. 
     /// Must have equivalent traineddatafile in specified traineddata directory.
     /// Do not include '.traineddata' extension or path.
@@ -234,16 +243,16 @@ public class TessEngine : DisposableObject
     /// <param name="mode">Tesseract mode to be used.</param>
     /// <param name="initialOptions">Dictionary of option configurations.</param>
     /// <exception cref="TesseractException">If Api cannot be initialized for some reason.</exception>
-    private void Initialize(string language, string traineddataPath,
+    private void Initialize(string languages, string traineddataPath,
         EngineMode mode, IDictionary<string, object> initialOptions)
     {
         Logger.LogInformation("Initilize new '{cls}' with language '{lang}' and traineddata path '{path}'",
-            nameof(TessEngine), language, traineddataPath);
+            nameof(TessEngine), languages, traineddataPath);
 
-        language ??= string.Empty;
+        languages ??= string.Empty;
         traineddataPath ??= string.Empty;
 
-        int apiStatus = TessApi.BaseApiInit(Handle, language, traineddataPath, mode, initialOptions);
+        int apiStatus = TessApi.BaseApiInit(Handle, languages, traineddataPath, mode, initialOptions);
         if (apiStatus is not 0)
         {
             Logger.LogError("Could not initialize new Tesseract api for {cls}", nameof(TessEngine));
