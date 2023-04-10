@@ -25,7 +25,7 @@
 	
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Title>Maui Tesseract ocr</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
@@ -38,7 +38,7 @@
 		<PackageLicenseFile>LICENCE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Copyright>Copyright 2023 Henri Vainio</Copyright>
-		<!-- Output will be found inside this folder-->
+		<!-- Output will be found inside this folder locally -->
 		<PackageOutputPath>C:\Nugets</PackageOutputPath>
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackAsTool>False</PackAsTool>
