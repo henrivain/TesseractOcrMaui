@@ -1,6 +1,7 @@
 ﻿using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
 using System.Runtime.Versioning;
+using Microsoft.Maui.Animations;
 
 namespace TesseractOcrMaui;
 
@@ -14,11 +15,40 @@ public class Tesseract : ITesseract
     /// <summary>
     /// New instance of High-level functionality with Tesseract ocr.
     /// </summary>
-    /// <param name="tessDataProvider"></param>
+    /// <param name="tessDataProvider">Interface object used to provide needed paths to recognizion process.</param>
     /// <param name="logger"></param>
     public Tesseract(ITessDataProvider tessDataProvider, ILogger<ITesseract>? logger)
     {
         TessDataProvider = tessDataProvider;
+        Logger = logger ?? NullLogger<ITesseract>.Instance;
+    }
+
+    /// <summary>
+    /// New instance of High-level functionality with Tesseract ocr.
+    /// </summary>
+    /// <param name="tessdataFolder">Path to tessdata folder.</param>
+    /// <param name="traineddataFileNames">Array of traineddata file names that exist in tessdata folder. Include extensions, not path.</param>
+    /// <param name="logger">Logger to be used when running recognizion and other processes.</param>
+    /// <exception cref="ArgumentNullException">
+    /// If traineddata file name is null or empty 
+    /// OR tessdataFolder is null.
+    /// </exception>
+    public Tesseract(string tessdataFolder, string[] traineddataFileNames, ILogger<ITesseract>? logger)
+    {
+        if (tessdataFolder is null)
+        {
+            throw new ArgumentNullException(nameof(tessdataFolder));
+        }
+
+        var traineddataCollection = new TrainedDataCollection();
+        foreach (var file in traineddataFileNames)
+        {
+            traineddataCollection.AddNonPackageFile(file);
+        }
+        TessDataProvider = new TessDataProvider(traineddataCollection, new TessDataProviderConfiguration()
+        {
+            TessDataFolder = tessdataFolder
+        });
         Logger = logger ?? NullLogger<ITesseract>.Instance;
     }
 
@@ -40,79 +70,56 @@ public class Tesseract : ITesseract
     public RecognizionResult RecognizeText(string imagePath)
     {
         Logger.LogInformation("Tesseract, recognize image '{path}'.", imagePath);
-
-        var validFiles = GetTraineddataFilesThatExist();
-        if (validFiles.Length < 1)
-        {
-            return new RecognizionResult
-            {
-                Status = RecognizionStatus.TraineddataNotLoaded,
-                Message = "You must load traineddata files before running this method."
-            };
-        }
+     
+        
         var tessData = TessDataProvider.TessDataFolder;
-        var fileName = validFiles.FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            return new RecognizionResult { Status = RecognizionStatus.NoLanguagesAvailable };
-        };
-        return Recognize(tessData, fileName, imagePath);
-
+        var languages = TessDataProvider.GetAllFileNames();
+        return Recognize(tessData, languages, imagePath);
     }
 
     /// <inheritdoc/>
     public async Task<RecognizionResult> RecognizeTextAsync(string imagePath)
     {
+        Logger.LogInformation("Tesseract, recognize image '{path}' async.", imagePath);
+
         var loadResult = await LoadTraineddataAsync();
-        
         if (loadResult.NotSuccess())
         {
-            return new RecognizionResult 
-            { 
+            return new RecognizionResult
+            {
                 Status = RecognizionStatus.CannotLoadTessData,
                 Message = $"Failed to load '{loadResult.GetErrorCount()}' traineddata files. " +
                     $"Errors: '{loadResult.GetErrorsString()}'"
             };
         }
         var tessData = TessDataProvider.TessDataFolder;
-        var fileName = TessDataProvider.AvailableLanguages.FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            return new RecognizionResult { Status = RecognizionStatus.NoLanguagesAvailable };
-        };
-        
-        return await Task.Run(() => Recognize(tessData, fileName, imagePath));
+        var languages = TessDataProvider.AvailableLanguages;
+        return await Task.Run(() => Recognize(tessData, languages, imagePath));
     }
 
     /// <summary>
     /// Recognize text in image. This method should not throw.
     /// </summary>
     /// <param name="tessDataFolder">Path to folder containing traineddata files.</param>
-    /// <param name="traineddataFileName"></param>
-    /// <param name="imagePath"></param>
+    /// <param name="traineddataFileNames">Array of traineddata file names, which include .traineddata extension.</param>
+    /// <param name="imagePath">Path to image to be recognized with file name and extension.</param>
     /// <returns>RecognizionResult, information about recognizion status</returns>
-    internal RecognizionResult Recognize(string tessDataFolder, string traineddataFileName, string imagePath)
+    internal RecognizionResult Recognize(string tessDataFolder, string[] traineddataFileNames, string imagePath)
     {
-        if (traineddataFileName is null)
+        var (languages, langParseResult) = TrainedDataToLanguage(tessDataFolder, traineddataFileNames);
+        if (string.IsNullOrWhiteSpace(languages))
         {
-            Logger.LogWarning("Tesseract language is not defined, cannot recognize image.");
-            return new RecognizionResult { Status = RecognizionStatus.NoLanguagesAvailable };
-        }
-        var language = Path.GetFileNameWithoutExtension(traineddataFileName);
-        if (string.IsNullOrWhiteSpace(language))
-        {
-            Logger.LogWarning("Tesseract language is not definedm, cannot recognize image.");
-            return new RecognizionResult 
-            { 
-                Status = RecognizionStatus.NoLanguagesAvailable,
-                Message = "Language not provided."
-            };
+            return langParseResult.GetValueOrDefault(
+                new RecognizionResult
+                {
+                    Status = RecognizionStatus.NoLanguagesAvailable
+                });
         }
         if (File.Exists(imagePath) is false)
         {
             Logger.LogWarning("Cannot recognize text in '{path}', file does not exist.", imagePath);
-            return new RecognizionResult 
-            { 
+            return new RecognizionResult
+            {
                 Status = RecognizionStatus.ImageNotFound,
                 Message = "Image does not exist."
             };
@@ -136,12 +143,12 @@ public class Tesseract : ITesseract
         try
         {
             // nulls are alredy checked, can't throw.
-            using var engine = new TessEngine(language, tessDataFolder, Logger);    
+            using var engine = new TessEngine(languages, tessDataFolder, Logger);
             using var image = Pix.LoadFromFile(imagePath);
-            
+
             // image can't be null here
             using var page = engine.ProcessImage(image);
-            
+
             // SegMode can't be OsdOnly in here.
             confidence = page.GetConfidence();
 
@@ -217,17 +224,47 @@ public class Tesseract : ITesseract
         };
     }
 
-
-    private string[] GetTraineddataFilesThatExist()
+    /// <summary>
+    /// Traineddata file array to '+' separated languages list. 
+    /// </summary>
+    /// <param name="tessdataFolder"></param>
+    /// <param name="traineddataFileNames"></param>
+    /// <returns>(null, ErrorResult) if failed, othewise (lang, null).</returns>
+    private static (string?, RecognizionResult?) TrainedDataToLanguage(in string tessdataFolder, params string[] traineddataFileNames)
     {
-        Logger.LogInformation("Check if tessdata is alredy loaded.");
+        if (string.IsNullOrWhiteSpace(tessdataFolder))
+        {
+            return (null, new RecognizionResult
+            {
+                Status = RecognizionStatus.TessDataFolderNotProvided,
+                Message = "Tessdata folder is null or empty."
+            });
+        }
 
-        var folder = TessDataProvider.TessDataFolder;
-        return TessDataProvider
-            .GetAllFileNames()
-            .Where(x => x is not null)
-            .Where(x => File.Exists(Path.Combine(folder, x)))
-            .ToArray();
-        
+        var files = traineddataFileNames.Where(x => string.IsNullOrWhiteSpace(x) is false);
+        List<string> languages = new();
+        foreach (var file in files)
+        {
+            string filePath = Path.Combine(tessdataFolder, file);
+            if (File.Exists(filePath) is false)
+            {
+                continue;
+            }
+            var lang = Path.GetFileNameWithoutExtension(file);
+            if (string.IsNullOrWhiteSpace(lang))
+            {
+                continue;
+            }
+            languages.Add(lang);
+        }
+        if (languages.Count <= 0)
+        {
+            return (null, new RecognizionResult
+            {
+                Status = RecognizionStatus.NoLanguagesAvailable,
+                Message = "No languages provided or all traineddata files invalid."
+            });
+        }
+        return (string.Join('+', languages), null);
     }
 }

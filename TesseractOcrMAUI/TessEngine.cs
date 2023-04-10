@@ -11,7 +11,10 @@ public class TessEngine : DisposableObject
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
     /// </summary>
-    /// <param name="language">Language means traineddata file name without extension.</param>
+    /// <param name="language">
+    /// Language means traineddata file names without extension as a '+' separated list.
+    /// For example 'fin+swe+eng'
+    /// </param>
     /// <param name="logger">Logger to be used, by default NullLogger.</param>
     /// <exception cref="ArgumentNullException">If language or traineddatapath is null.</exception>
     /// <exception cref="TesseractException">If Tesseract api cannot be initialized with given parameters or for some other reason.</exception>
@@ -23,7 +26,10 @@ public class TessEngine : DisposableObject
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
     /// </summary>
-    /// <param name="language">Language means traineddata file name without extension.</param>
+    /// <param name="language">
+    /// Language means traineddata file names without extension as a '+' separated list.
+    /// For example 'fin+swe+eng'
+    /// </param>
     /// <param name="traineddataPath">Full path to traineddata folder. Do not include file name.</param>
     /// <param name="logger">Logger to be used, by default NullLogger.</param>
     /// <exception cref="ArgumentNullException">If language or traineddatapath is null.</exception>
@@ -36,7 +42,10 @@ public class TessEngine : DisposableObject
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
     /// </summary>
-    /// <param name="language">Language means traineddata file name without extension.</param>
+    /// <param name="language">
+    /// Language means traineddata file names without extension as a '+' separated list.
+    /// For example 'fin+swe+eng'
+    /// </param>
     /// <param name="traineddataPath">Full path to traineddata folder. Do not include file name.</param>
     /// <param name="mode">Engine mode to be used when recognizing images.</param>
     /// <param name="initialOptions">Optional Tesseract parameters to be used.</param>

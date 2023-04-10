@@ -24,6 +24,9 @@ public static class MauiProgram
             files =>
             {
                 files.AddFile("fin.traineddata");
+                files.AddFile("eng.traineddata");
+                files.AddFile("swe.traineddata");
+                files.AddFile("deu.traineddata");
             });
 
         builder.Services.AddSingleton<MainPage>();

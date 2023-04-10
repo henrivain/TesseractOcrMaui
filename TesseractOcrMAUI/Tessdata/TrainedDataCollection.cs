@@ -1,4 +1,8 @@
 ﻿namespace TesseractOcrMaui.Tessdata;
+
+/// <summary>
+/// Class object used to provide information about traineddata files with Tesseract.
+/// </summary>
 internal class TrainedDataCollection : ITrainedDataCollection
 {
     private HashSet<string> Files { get; set; } = new();
@@ -21,6 +25,21 @@ internal class TrainedDataCollection : ITrainedDataCollection
         {
             throw new ArgumentException($"'{fileName}' does not exist in app packages. " +
                 $"Add matching traineddata file to your app's 'Resources/Raw' folder.");
+        }
+        Files.Add(fileName);
+    }
+
+    /// <summary>
+    /// Add file that might not be situated in app packages.
+    /// File existance is not checked.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <exception cref="ArgumentNullException">If filename is null or empty.</exception>
+    public void AddNonPackageFile(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            throw new ArgumentNullException(nameof(fileName));
         }
         Files.Add(fileName);
     }

@@ -3,6 +3,12 @@
 namespace TesseractOcrMaui.Tessdata;
 internal class TessDataProvider : ITessDataProvider
 {
+    /// <summary>
+    /// New TessdataProvider that is used to provide information about traineddata files to Tesseract.
+    /// </summary>
+    /// <param name="collection">Collection of traineddata files.</param>
+    /// <param name="configuration">Change object settings with configuration object.</param>
+    /// <exception cref="ArgumentNullException">When collection or configuration is null.</exception>
     public TessDataProvider(
         ITrainedDataCollection collection, 
         ITessDataProviderConfiguration configuration)
@@ -10,6 +16,13 @@ internal class TessDataProvider : ITessDataProvider
     { 
     }
 
+    /// <summary>
+    /// New TessdataProvider that is used to provide information about traineddata files to Tesseract.
+    /// </summary>
+    /// <param name="collection">Collection of traineddata files.</param>
+    /// <param name="configuration">Change object settings with configuration object.</param>
+    /// <param name="logger"></param>
+    /// <exception cref="ArgumentNullException">When collection or configuration is null.</exception>
     public TessDataProvider(
         ITrainedDataCollection collection, 
         ITessDataProviderConfiguration configuration, 
