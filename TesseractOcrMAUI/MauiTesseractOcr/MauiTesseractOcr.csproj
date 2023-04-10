@@ -27,7 +27,7 @@
 	<PropertyGroup>
 		<Version>1.0.1</Version>
 		<Title>Maui Tesseract ocr</Title>
-		<PackageId>MauiTesseractOcr</PackageId>
+		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
 		<Description>Tesseract wrapper for .Net Maui. Supports Windows and Android platforms.</Description>
 		<PackageProjectUrl></PackageProjectUrl>
