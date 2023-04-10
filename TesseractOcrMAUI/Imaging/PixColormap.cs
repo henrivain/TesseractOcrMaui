@@ -1,7 +1,7 @@
 ﻿// Code copied from https://github.com/charlesw/tesseract
-using MauiTesseractOcr.ImportApis;
+using TesseractOcrMaui.ImportApis;
 
-namespace MauiTesseractOcr.Imaging;
+namespace TesseractOcrMaui.Imaging;
 
 /// <summary>
 /// Represents a colormap.

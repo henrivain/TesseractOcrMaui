@@ -1,8 +1,8 @@
-﻿using MauiTesseractOcr.Converters;
-using MauiTesseractOcr.ImportApis;
+﻿using TesseractOcrMaui.Converters;
+using TesseractOcrMaui.ImportApis;
 using System.Reflection.Metadata;
 
-namespace MauiTesseractOcr;
+namespace TesseractOcrMaui;
 internal class TessApi
 {
     internal static int BaseApiInit(HandleRef handle, string language, string traineddataPath,

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace MauiTesseractOcr.Exceptions;
+namespace TesseractOcrMaui.Exceptions;
 /// <summary>
 /// Thrown when tesseract result text cannot be encoded to another encoding.
 /// </summary>

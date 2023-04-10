@@ -1,4 +1,4 @@
-﻿namespace MauiTesseractOcr.Imaging;
+﻿namespace TesseractOcrMaui.Imaging;
 
 /// <summary>
 /// Recognizion region rectangle in image.

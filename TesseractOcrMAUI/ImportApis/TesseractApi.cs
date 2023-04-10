@@ -1,6 +1,6 @@
 ﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 
-namespace MauiTesseractOcr.ImportApis;
+namespace TesseractOcrMaui.ImportApis;
 
 internal sealed partial class TesseractApi
 {

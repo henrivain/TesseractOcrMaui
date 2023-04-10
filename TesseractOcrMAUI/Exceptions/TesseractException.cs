@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace MauiTesseractOcr.Exceptions;
+namespace TesseractOcrMaui.Exceptions;
 /// <summary>
 /// Exception thrown when Tesseract cannot complete given task.
 /// </summary>

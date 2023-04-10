@@ -1,6 +1,6 @@
-﻿using MauiTesseractOcr.Results;
+﻿using TesseractOcrMaui.Results;
 
-namespace MauiTesseractOcr.Tessdata;
+namespace TesseractOcrMaui.Tessdata;
 
 /// <summary>
 /// Interface for handling traineddata files.

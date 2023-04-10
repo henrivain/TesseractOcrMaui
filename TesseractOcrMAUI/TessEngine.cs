@@ -1,7 +1,7 @@
-﻿using MauiTesseractOcr.ImportApis;
+﻿using TesseractOcrMaui.ImportApis;
 
 
-namespace MauiTesseractOcr;
+namespace TesseractOcrMaui;
 
 /// <summary>
 /// Tesseract engine that can process images with native library bindings.

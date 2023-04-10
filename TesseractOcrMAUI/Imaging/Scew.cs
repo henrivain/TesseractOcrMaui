@@ -1,4 +1,4 @@
-﻿namespace MauiTesseractOcr.Imaging;
+﻿namespace TesseractOcrMaui.Imaging;
 
 /// <summary>
 /// Text angle in image.

@@ -1,9 +1,9 @@
 ﻿#if WINDOWS
 using System.Text;
 #endif
-using MauiTesseractOcr.ImportApis;
+using TesseractOcrMaui.ImportApis;
 
-namespace MauiTesseractOcr;
+namespace TesseractOcrMaui;
 
 /// <summary>
 /// Page that is used to contain information during and after image recognizion.

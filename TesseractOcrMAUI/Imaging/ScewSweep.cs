@@ -1,4 +1,4 @@
-﻿namespace MauiTesseractOcr.Imaging;
+﻿namespace TesseractOcrMaui.Imaging;
 
 /// <summary>
 /// Represents the parameters for a sweep search used by scew algorithms.

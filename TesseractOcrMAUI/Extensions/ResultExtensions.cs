@@ -1,9 +1,9 @@
-﻿using MauiTesseractOcr.Results;
-using MauiTesseractOcr.Tessdata;
+﻿using TesseractOcrMaui.Results;
+using TesseractOcrMaui.Tessdata;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-namespace MauiTesseractOcr.Extensions;
+namespace TesseractOcrMaui.Extensions;
 
 /// <summary>
 /// Extensions to ease the use of enums and enum statuses..

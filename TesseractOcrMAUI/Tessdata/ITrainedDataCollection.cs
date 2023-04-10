@@ -1,4 +1,4 @@
-﻿namespace MauiTesseractOcr.Tessdata;
+﻿namespace TesseractOcrMaui.Tessdata;
 
 /// <summary>
 /// Store which traineddata files are used.

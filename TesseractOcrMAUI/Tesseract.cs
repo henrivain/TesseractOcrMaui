@@ -1,8 +1,8 @@
-﻿using MauiTesseractOcr.Results;
-using MauiTesseractOcr.Tessdata;
+﻿using TesseractOcrMaui.Results;
+using TesseractOcrMaui.Tessdata;
 using System.Runtime.Versioning;
 
-namespace MauiTesseractOcr;
+namespace TesseractOcrMaui;
 
 /// <summary>
 /// High-level functionality with Tesseract ocr. Default implementation for ITesseract interface.

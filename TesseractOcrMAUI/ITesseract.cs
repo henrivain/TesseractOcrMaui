@@ -1,6 +1,6 @@
-﻿using MauiTesseractOcr.Results;
+﻿using TesseractOcrMaui.Results;
 
-namespace MauiTesseractOcr;
+namespace TesseractOcrMaui;
 
 /// <summary>
 /// High level abstraction to use Tesseract ocr.

@@ -1,9 +1,9 @@
 ﻿#if ANDROID
 using Java.Lang;
 #endif
-using MauiTesseractOcr.Tessdata;
+using TesseractOcrMaui.Tessdata;
 
-namespace MauiTesseractOcr;
+namespace TesseractOcrMaui;
 
 /// <summary>
 /// Extensions to inject all library dependencies and load libraries.

@@ -1,4 +1,4 @@
-﻿namespace MauiTesseractOcr;
+﻿namespace TesseractOcrMaui;
 
 /// <summary>
 /// Base for IDisposable object.

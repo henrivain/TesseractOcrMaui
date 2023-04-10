@@ -1,9 +1,9 @@
 ﻿// Parts copied from https://github.com/charlesw/tesseract (With a lot reformatting)
-using MauiTesseractOcr.Imaging;
-using MauiTesseractOcr.ImportApis;
+using TesseractOcrMaui.Imaging;
+using TesseractOcrMaui.ImportApis;
 using System.Runtime.CompilerServices;
 
-namespace MauiTesseractOcr;
+namespace TesseractOcrMaui;
 
 /// <summary>
 /// Leptonica Image type used by tesseract.

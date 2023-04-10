@@ -1,4 +1,4 @@
-﻿namespace MauiTesseractOcr.Results;
+﻿namespace TesseractOcrMaui.Results;
 
 /// <summary>
 /// Result that is returned from ITesseract text tecognizion

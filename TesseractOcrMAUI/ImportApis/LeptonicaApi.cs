@@ -1,7 +1,7 @@
 ﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
 
-namespace MauiTesseractOcr.ImportApis;
+namespace TesseractOcrMaui.ImportApis;
 internal sealed partial class LeptonicaApi
 {
 #if WINDOWS

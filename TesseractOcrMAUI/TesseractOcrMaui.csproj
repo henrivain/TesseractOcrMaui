@@ -35,7 +35,7 @@
 		<RepositoryUrl>https://github.com/henrivain/TesseractOcrMaui</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>tesseract;ocr;maui;csharp;android;windows;arm64-v8a;arm-v7a;x86_64;x86;</PackageTags>
-		<PackageLicenseFile>LICENCE</PackageLicenseFile>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Copyright>Copyright 2023 Henri Vainio</Copyright>
 		<!-- Output will be found inside this folder locally -->
@@ -47,11 +47,7 @@
 
 	<!-- Nuget includes, only with release mode -->
 	<ItemGroup>
-		<None Include="..\..\LICENCE" Link="Properties\LICENCE">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-		</None>
-		<None Include="..\..\README.md" Link="Properties\README.md">
+		<None Include="..\README.md" Link="Properties\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
