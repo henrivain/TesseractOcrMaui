@@ -7,7 +7,7 @@ on:
             - "v*"
 
 env:
-    PROJECT_PATH: "TesseractOcrMAUI/MauiTesseractOcr/MauiTesseractOcr.csproj"
+    PROJECT_PATH: "TesseractOcrMAUI/TesseractOcrMaui.csproj"
     PACKAGE_OUTPUT_DIR: ${{ github.workspace }}\output
     NUGET_SOURCE_URL: "https://api.nuget.org/v3/index.json"
 
