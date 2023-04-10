@@ -18,13 +18,21 @@ Currently supports Windows and Android. Library is meant to be used with .NET MA
 | Android  | x86_64        |
 | Android  | x86           |
 
-## Get started
+Supported runtimes
 
-Package is not currently available in nuget, but will probably be there soon. If you want to use it, contact me, or pack it yourself.
+> net7.0 or newer  
+> net7.0-windows10.0.19041 or newer  
+> net7.0-android or newer
 
-### Using library
+## Getting started
 
 ### 1. Add nuget package to your project.
+
+Package is available in `nuget.org`. You can use it in your project by adding it in your visual studio `nuget package manager or by running command
+
+```powershell
+dotnet add package TesseractOcrMaui
+```
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
 
@@ -72,7 +80,7 @@ public static class MauiProgram
 }
 ```
 
-### 3. Inject ITesseract to your page
+### 3. Inject ITesseract into your page
 
 <br/>
 
