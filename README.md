@@ -24,6 +24,8 @@ Supported runtimes
 > net7.0-windows10.0.19041 or newer  
 > net7.0-android or newer
 
+Only png and jpeg libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later. 
+
 ## Getting started
 
 ### 1. Add nuget package to your project.
