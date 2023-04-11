@@ -33,7 +33,7 @@ public class Tesseract : ITesseract
     /// If traineddata file name is null or empty 
     /// OR tessdataFolder is null.
     /// </exception>
-    public Tesseract(string tessdataFolder, string[] traineddataFileNames, ILogger<ITesseract>? logger)
+    public Tesseract(string tessdataFolder, string[] traineddataFileNames, ILogger<ITesseract>? logger = null)
     {
         if (tessdataFolder is null)
         {
@@ -70,7 +70,6 @@ public class Tesseract : ITesseract
     public RecognizionResult RecognizeText(string imagePath)
     {
         Logger.LogInformation("Tesseract, recognize image '{path}'.", imagePath);
-     
         
         var tessData = TessDataProvider.TessDataFolder;
         var languages = TessDataProvider.GetAllFileNames();
