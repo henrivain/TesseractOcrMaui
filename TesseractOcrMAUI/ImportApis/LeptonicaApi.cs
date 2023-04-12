@@ -5,7 +5,7 @@ namespace TesseractOcrMaui.ImportApis;
 internal sealed partial class LeptonicaApi
 {
 #if WINDOWS
-    const string DllName = @"leptonica-1.84.0.dll"; // lib\Windows\x86_64\
+    const string DllName = @"leptonica-1.84.0.dll";
 
 #elif ANDROID21_0_OR_GREATER
     const string DllName = "libleptonica";
