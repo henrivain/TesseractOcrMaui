@@ -85,17 +85,18 @@
 		</Resource>
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Properties\" />
-	</ItemGroup>
-
-	<ItemGroup>
+	<!-- Copy dlls for debuggin test app -->
+	<!-- Dlls go to output folder, so dll import can find them. -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
 		<ContentWithTargetPath Include="lib\Windows\x86_64\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<TargetPath>%(Filename)%(Extension)</TargetPath>
 		</ContentWithTargetPath>
 	</ItemGroup>
-	
+
+	<ItemGroup>
+		<Folder Include="Properties\" />
+	</ItemGroup>
 	
 </Project>
 
