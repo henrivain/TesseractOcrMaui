@@ -97,12 +97,13 @@ public class Tesseract : ITesseract
     }
 
     /// <summary>
-    /// Recognize text in image. This method should not throw.
+    /// Recognize text in image. This method can only throw DllNotFoundException.
     /// </summary>
     /// <param name="tessDataFolder">Path to folder containing traineddata files.</param>
     /// <param name="traineddataFileNames">Array of traineddata file names, which include .traineddata extension.</param>
     /// <param name="imagePath">Path to image to be recognized with file name and extension.</param>
     /// <returns>RecognizionResult, information about recognizion status</returns>
+    /// <exception cref="DllNotFoundException">If tesseract or any other library is not found.</exception>
     internal RecognizionResult Recognize(string tessDataFolder, string[] traineddataFileNames, string imagePath)
     {
         var (languages, langParseResult) = TrainedDataToLanguage(tessDataFolder, traineddataFileNames);
@@ -202,6 +203,10 @@ public class Tesseract : ITesseract
                 Status = RecognizionStatus.CannotRecognizeText,
                 Message = "Library cannot thresholded image."
             };
+        }
+        catch (DllNotFoundException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

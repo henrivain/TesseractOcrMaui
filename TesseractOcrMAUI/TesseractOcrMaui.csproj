@@ -22,10 +22,10 @@
 	<PropertyGroup Condition="'$(Configuration)' == 'Release' ">
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
-	
+
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.0.4</Version>
+		<Version>1.0.5.22</Version>
 		<Title>Maui Tesseract ocr</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
@@ -47,7 +47,8 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
-	<!-- Nuget includes, only with release mode -->
+
+	<!-- Nuget includes -->
 	<ItemGroup>
 		<None Include="..\README.md" Link="Properties\README.md">
 			<Pack>True</Pack>
@@ -76,28 +77,15 @@
 	</ItemGroup>
 
 	<!-- Windows native libraries -->
-	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
-		<None Update="lib\Windows\x86_64\leptonica-1.84.0.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="lib\Windows\x86_64\libpng16.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="lib\Windows\x86_64\tesseract53.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="lib\Windows\x86_64\zlib.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="lib\Windows\x86_64\jpeg62.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="lib\Windows\x86_64\turbojpeg.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
+	<!-- No condition needed, because package path tells to include in windows -->
 	<ItemGroup>
-	  <Folder Include="Properties\" />
+		<Resource Include="lib\Windows\x86_64\*.dll" Pack="true" PackagePath="lib\net7.0-windows10.0.19041\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</Resource>
 	</ItemGroup>
-	
+
+	<ItemGroup>
+		<Folder Include="Properties\" />
+	</ItemGroup>
 </Project>
