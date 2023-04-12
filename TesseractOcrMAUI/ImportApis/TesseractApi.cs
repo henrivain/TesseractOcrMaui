@@ -4,14 +4,16 @@ namespace TesseractOcrMaui.ImportApis;
 
 internal sealed partial class TesseractApi
 {
+
+    
+
 #if WINDOWS
-    const string DllName = @"lib\Windows\x86_64\tesseract53.dll";
+    const string DllName = @"tesseract53.dll";
 #elif ANDROID21_0_OR_GREATER
     const string DllName = "libtesseract";
 #else
     const string DllName = "Use Windows or Android Platform";
 #endif
-
 
 
     const CharSet StrEncoding = CharSet.Ansi;

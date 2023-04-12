@@ -126,6 +126,14 @@ internal class TessDataProvider : ITessDataProvider
             Logger.LogWarning("Cannot copy tessdata file with empty name.");
             return (false, "Empty file name.");
         }
+        
+        string destination = Path.Combine(TessDataFolder, file);
+        if (File.Exists(destination) && overwritesFiles is false)
+        {
+            Logger.LogInformation("File '{file}' already exist and '{arg}' is set to false. " +
+                "File will not be copied.", file, nameof(overwritesFiles));
+            return (true, "Already exist.");
+        }
         if (Path.GetExtension(file) != FileExtension)
         {
             Logger.LogWarning("Could not load '{file}', must have '{extension}' extension.", file, FileExtension);
@@ -136,13 +144,7 @@ internal class TessDataProvider : ITessDataProvider
             Logger.LogWarning("Cannot copy package file '{file}', it doesn't exist.", file);
             return (false, "Package not found.");
         }
-        string destination = Path.Combine(TessDataFolder, file);
-        if (File.Exists(destination) && overwritesFiles is false)
-        {
-            Logger.LogInformation("File '{file}' already exist and '{arg}' is set to false. " +
-                "File will not be copied.", destination, nameof(overwritesFiles));
-            return (true, "Already exist.");
-        }
+        
         DeleteOldEntries(destination);
         return await TryCopyStream(file, destination);
     }

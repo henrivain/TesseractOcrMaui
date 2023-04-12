@@ -33,7 +33,7 @@ public class Tesseract : ITesseract
     /// If traineddata file name is null or empty 
     /// OR tessdataFolder is null.
     /// </exception>
-    public Tesseract(string tessdataFolder, string[] traineddataFileNames, ILogger<ITesseract>? logger)
+    public Tesseract(string tessdataFolder, string[] traineddataFileNames, ILogger<ITesseract>? logger = null)
     {
         if (tessdataFolder is null)
         {
@@ -70,7 +70,6 @@ public class Tesseract : ITesseract
     public RecognizionResult RecognizeText(string imagePath)
     {
         Logger.LogInformation("Tesseract, recognize image '{path}'.", imagePath);
-     
         
         var tessData = TessDataProvider.TessDataFolder;
         var languages = TessDataProvider.GetAllFileNames();
@@ -98,12 +97,13 @@ public class Tesseract : ITesseract
     }
 
     /// <summary>
-    /// Recognize text in image. This method should not throw.
+    /// Recognize text in image. This method can only throw DllNotFoundException.
     /// </summary>
     /// <param name="tessDataFolder">Path to folder containing traineddata files.</param>
     /// <param name="traineddataFileNames">Array of traineddata file names, which include .traineddata extension.</param>
     /// <param name="imagePath">Path to image to be recognized with file name and extension.</param>
     /// <returns>RecognizionResult, information about recognizion status</returns>
+    /// <exception cref="DllNotFoundException">If tesseract or any other library is not found.</exception>
     internal RecognizionResult Recognize(string tessDataFolder, string[] traineddataFileNames, string imagePath)
     {
         var (languages, langParseResult) = TrainedDataToLanguage(tessDataFolder, traineddataFileNames);
@@ -203,6 +203,10 @@ public class Tesseract : ITesseract
                 Status = RecognizionStatus.CannotRecognizeText,
                 Message = "Library cannot thresholded image."
             };
+        }
+        catch (DllNotFoundException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
