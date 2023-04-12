@@ -131,7 +131,7 @@ internal class TessDataProvider : ITessDataProvider
         if (File.Exists(destination) && overwritesFiles is false)
         {
             Logger.LogInformation("File '{file}' already exist and '{arg}' is set to false. " +
-                "File will not be copied.", destination, nameof(overwritesFiles));
+                "File will not be copied.", file, nameof(overwritesFiles));
             return (true, "Already exist.");
         }
         if (Path.GetExtension(file) != FileExtension)

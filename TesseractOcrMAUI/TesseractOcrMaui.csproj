@@ -25,7 +25,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.0.5.22</Version>
+		<Version>1.0.5.23</Version>
 		<Title>Maui Tesseract ocr</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
@@ -76,9 +76,9 @@
 		<AndroidNativeLibrary Include="lib\Android\x86\libtesseract.so" />
 	</ItemGroup>
 
-	<!-- Windows native libraries -->
+	<!-- Windows native libraries to nuget -->
 	<!-- No condition needed, because package path tells to include in windows -->
-	<ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Release' ">
 		<Resource Include="lib\Windows\x86_64\*.dll" Pack="true" PackagePath="lib\net7.0-windows10.0.19041\">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<PackageCopyToOutput>true</PackageCopyToOutput>
@@ -88,4 +88,14 @@
 	<ItemGroup>
 		<Folder Include="Properties\" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<ContentWithTargetPath Include="lib\Windows\x86_64\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>%(Filename)%(Extension)</TargetPath>
+		</ContentWithTargetPath>
+	</ItemGroup>
+	
+	
 </Project>
+
