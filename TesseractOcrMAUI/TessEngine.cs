@@ -66,6 +66,7 @@ public class TessEngine : DisposableObject
             Logger.LogError("Cannot initilize '{ctor}' with null trained data path.", nameof(TessEngine));
             throw new ArgumentNullException(nameof(traineddataPath));
         }
+        // Debug: This line throws if dll are not copied to correct folder.
         Handle = new(this, TesseractApi.CreateApi());
         Initialize(languages, traineddataPath, mode, initialOptions);
     }

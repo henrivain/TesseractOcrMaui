@@ -16,18 +16,20 @@ public interface ITesseract
 
     /// <summary>
     /// Recognize text from given image. DOES NOT LOAD required TRAINEDDATA!
-    /// This method should not throw.
+    /// <para/>[DEFAUTL_IMPL] Only can throw DllNotFoundException
     /// </summary>
     /// <param name="imagePath">Path to image containing file name and extension.</param>
     /// <returns>RecognizionResult representing status of recognizion, including possible errors.</returns>
+    /// <exception cref="DllNotFoundException">[DEFAUTL_IMPL] If tesseract or any other library is not found.</exception>
     RecognizionResult RecognizeText(string imagePath);
 
     /// <summary>
     /// Load traineddata files from app packages and run recognizion process async.
-    /// This method should not throw.
+    /// <para/>[DEFAUTL_IMPL] Only can throw DllNotFoundException
     /// </summary>
     /// <param name="imagePath">Path to image containing file name and extension.</param>
     /// <returns>Task of RecognizionResult representing status of recognizion, including possible errors.</returns>
+    /// <exception cref="DllNotFoundException">[DEFAUTL_IMPL] If tesseract or any other library is not found.</exception>
     Task<RecognizionResult> RecognizeTextAsync(string imagePath);
 
     /// <summary>
