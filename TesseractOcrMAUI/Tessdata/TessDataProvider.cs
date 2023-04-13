@@ -45,7 +45,7 @@ internal class TessDataProvider : ITessDataProvider
     public string FileExtension { get; } = ".traineddata";
     public string TessDataFolder => Configuration.TessDataFolder;
     public string[] AvailableLanguages { get; private set; } = Array.Empty<string>();
-    public bool IsDataLoaded { get; private set; }
+    public bool IsAllDataLoaded { get; private set; }
 
 
     ITessDataProviderConfiguration Configuration { get; }
@@ -58,6 +58,9 @@ internal class TessDataProvider : ITessDataProvider
         var files = TrainedDataCollection.GetTrainedDataFileNames();
 
         Logger.LogInformation("Try copy '{count}' app package files to '{dir}'.", files.Length, TessDataFolder);
+        string copyState = Configuration.OverwritesOldFiles ? "overwrite" : "skip";
+        Logger.LogInformation("Will '{state}' already existing traineddata files.", copyState);
+
 
         if (files.Length <= 0)
         {
@@ -98,7 +101,7 @@ internal class TessDataProvider : ITessDataProvider
             else
             {
                 Logger.LogWarning("Could not load all traineddata files.");
-                IsDataLoaded = true;
+                IsAllDataLoaded = true;
             }
             return new DataLoadResult
             {
@@ -108,7 +111,7 @@ internal class TessDataProvider : ITessDataProvider
                 Errors = errors.ToArray()
             };
         }
-        IsDataLoaded = true;
+        IsAllDataLoaded = true;
         Logger.LogInformation("Loaded '{count}' traineddata files.", validFiles.Count);
         return new DataLoadResult
         {
@@ -130,8 +133,6 @@ internal class TessDataProvider : ITessDataProvider
         string destination = Path.Combine(TessDataFolder, file);
         if (File.Exists(destination) && overwritesFiles is false)
         {
-            Logger.LogInformation("File '{file}' already exist and '{arg}' is set to false. " +
-                "File will not be copied.", file, nameof(overwritesFiles));
             return (true, "Already exist.");
         }
         if (Path.GetExtension(file) != FileExtension)

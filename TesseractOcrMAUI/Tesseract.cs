@@ -81,16 +81,21 @@ public class Tesseract : ITesseract
     {
         Logger.LogInformation("Tesseract, recognize image '{path}' async.", imagePath);
 
-        var loadResult = await LoadTraineddataAsync();
-        if (loadResult.NotSuccess())
+        // Load traineddata if all files not loaded yet.
+        if (TessDataProvider.IsAllDataLoaded is false)
         {
-            return new RecognizionResult
+            var loadResult = await LoadTraineddataAsync();
+            if (loadResult.NotSuccess())
             {
-                Status = RecognizionStatus.CannotLoadTessData,
-                Message = $"Failed to load '{loadResult.GetErrorCount()}' traineddata files. " +
-                    $"Errors: '{loadResult.GetErrorsString()}'"
-            };
+                return new RecognizionResult
+                {
+                    Status = RecognizionStatus.CannotLoadTessData,
+                    Message = $"Failed to load '{loadResult.GetErrorCount()}' traineddata files. " +
+                        $"Errors: '{loadResult.GetErrorsString()}'"
+                };
+            }
         }
+        
         var tessData = TessDataProvider.TessDataFolder;
         var languages = TessDataProvider.AvailableLanguages;
         return await Task.Run(() => Recognize(tessData, languages, imagePath));
