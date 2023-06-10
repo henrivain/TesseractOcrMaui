@@ -4,7 +4,7 @@
 
 ## What is this?
 
-I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces. Currently only Android and Windows are supported, because I don't have resources to test on MacOs or IOS. Also my own projects only support Windows and Android, so I didn't need those other platforms. If you need support for Apple devices, you have to build those libraries yourself and add them to project.
+I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces. Currently only Android and Windows are supported, because I don't have resources to test on MacOs or IOS. My own projects only support Windows and Android, so I didn't need those other platforms. If you need support for Apple devices, you have to build those libraries yourself and add them to project.
 
 ## Supported platforms
 
@@ -24,7 +24,7 @@ Supported runtimes
 > net7.0-windows10.0.19041 or newer  
 > net7.0-android or newer
 
-Only png and jpeg libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later. 
+Only png and jpeg libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later.
 
 ## Getting started
 
@@ -94,8 +94,8 @@ Now you can constructor inject ITesseract interface to you page. I have two labe
 Mainpage.xaml.cs
 
 ```csharp
-using TesseractOcrMaui;
-using TesseractOcrMaui.Extensions;
+using TesseractOcrMaui; // Include library namespace
+using TesseractOcrMaui.Extensions;  // Help for handling result object from recognizion
 
 namespace TesseractOcrMauiTestApp;
 
@@ -146,8 +146,6 @@ public partial class MainPage : ContentPage
 
 <br/>
 
-<br/>
-
 ## Licence
 
 ```
@@ -171,6 +169,10 @@ NOTE: Tesseract depends on other packages that may be licensed under different o
 This project does not depend on any third-party C# packages, but it needs [traineddata files](https://github.com/tesseract-ocr/tessdata/) to function. Parts of the code are also is reused from [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract).
 
 <br/>
+
+## Contributing, IOS and MacOS
+
+If you are interested developing this project, please, open conversation in issues and describe your changes you want to make. Package doesn't currently support IOS or MacOS so any help for them is well appreciated.
 
 ## Support
 
