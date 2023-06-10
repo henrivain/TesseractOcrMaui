@@ -48,7 +48,7 @@ MauiProgram.cs
 
 ```csharp
 using Microsoft.Extensions.Logging;
-using MauiTesseractOcr;  // include library
+using TesseractOcrMaui;  // include library namespace
 
 namespace TesseractOcrMauiTestApp;
 
@@ -64,13 +64,14 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
-        // Inject logging, (optional, but gives info)
+        // Inject logging, (optional, but might give useful information)
         builder.Services.AddLogging();
 
         // Inject library functionality
         builder.Services.AddTesseractOcr(
             files =>
             {
+                // must have matching files in Resources/Raw folder
                 files.AddFile("eng.traineddata");
             });
 
@@ -93,8 +94,8 @@ Now you can constructor inject ITesseract interface to you page. I have two labe
 Mainpage.xaml.cs
 
 ```csharp
-using MauiTesseractOcr;
-using MauiTesseractOcr.Extensions;
+using TesseractOcrMaui;
+using TesseractOcrMaui.Extensions;
 
 namespace TesseractOcrMauiTestApp;
 
