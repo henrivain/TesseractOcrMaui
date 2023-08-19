@@ -135,6 +135,14 @@ public class Tesseract : ITesseract
         {
             return loaded;
         }
+        if (File.Exists(imagePath) is false)
+        {
+            return new RecognizionResult
+            {
+                Status = RecognizionStatus.ImageNotFound,
+                Message = "Image does not exist."
+            };
+        }
         try
         {
             using Pix pix = Pix.LoadFromFile(imagePath);
