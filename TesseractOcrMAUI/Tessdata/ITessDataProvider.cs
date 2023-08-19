@@ -20,7 +20,7 @@ public interface ITessDataProvider
     /// <summary>
     /// Boolean value representing if provider has already loaded tessdata.
     /// </summary>
-    bool IsDataLoaded { get; }
+    bool IsAllDataLoaded { get; }
 
     /// <summary>
     /// Load required trained data files from app packages and copy them to TessDataFolder.
