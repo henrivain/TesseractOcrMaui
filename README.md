@@ -136,6 +136,30 @@ public partial class MainPage : ContentPage
 }
 ```
 
+## ITesseract API
+
+You can find following methods in the main high level API.
+
+```csharp
+public interface ITesseract
+{
+    RecognizionResult RecognizeText(string imagePath);
+    RecognizionResult RecognizeText(byte[] imageBytes);
+    RecognizionResult RecognizeText(Pix image);
+
+    Task<RecognizionResult> RecognizeTextAsync(string imagePath);
+    Task<RecognizionResult> RecognizeTextAsync(byte[] imageBytes);
+    Task<RecognizionResult> RecognizeTextAsync(Pix pix);
+
+    // Loads traineddata files for use from app packages to appdata folder
+    Task<DataLoadResult> LoadTraineddataAsync();
+
+
+    // Gets tessdata folder path from TessDataProvider (from configuration)
+    string TessDataFolder { get; }
+}
+```
+
 ## Licence
 
 ```
