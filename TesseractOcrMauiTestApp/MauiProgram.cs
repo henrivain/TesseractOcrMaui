@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿#if DEBUG
+using Microsoft.Extensions.Logging;
+#endif
 using TesseractOcrMaui;
 
 namespace TesseractOcrMauiTestApp;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using TesseractOcrMaui;
 using TesseractOcrMaui.Extensions;
-
+#nullable enable
 namespace TesseractOcrMauiTestApp;
 
 public partial class MainPage : ContentPage
@@ -18,10 +18,70 @@ public partial class MainPage : ContentPage
 
     ITesseract Tesseract { get; }
 
+    // This class includes examples of using the TesseractOcrMaui library.
 
-    private async void Button_Clicked(object sender, EventArgs e)
+    private async void DEMO_Recognize_AsImage(object sender, EventArgs e)
     {
-        // Make user pick file
+        // Select image (Not important)
+        var path = await GetUserSelectedPath();
+        if (path is null)
+        {
+            return;
+        }
+
+        // Recognize image 
+        var result = await Tesseract.RecognizeTextAsync(path);
+
+
+        
+        // Give output (Not important)
+        fileModeLabel.Text = $"File mode: FromPath";
+        if (result.NotSuccess())
+        {
+            confidenceLabel.Text = $"Confidence: -1";
+            resultLabel.Text = $"Recognizion failed: {result.Status}";
+            return;
+        }
+        confidenceLabel.Text = $"Confidence: {result.Confidence}";
+        resultLabel.Text = result.RecognisedText;
+    }
+
+    private async void DEMO_Recognize_AsBytes(object sender, EventArgs e)
+    {
+        // Select image (Not important)
+        var path = await GetUserSelectedPath();
+        if (path is null)
+        {
+            return;
+        }
+
+        // File to byte array (Use your own way)
+        using FileStream stream = new(path, FileMode.Open, FileAccess.Read);
+        byte[] buffer = new byte[stream.Length];
+        stream.Read(buffer);
+
+        // recognize bytes
+        var result = await Tesseract.RecognizeTextAsync(path);
+
+
+        
+        // Give output (Not important)
+        fileModeLabel.Text = $"File mode: FromBytes";
+        if (result.NotSuccess())
+        {
+            confidenceLabel.Text = $"Confidence: -1";
+            resultLabel.Text = $"Recognizion failed: {result.Status}";
+            return;
+        }
+        confidenceLabel.Text = $"Confidence: {result.Confidence}";
+        resultLabel.Text = result.RecognisedText;
+    }
+
+    
+    // Not important for package 
+
+    private static async Task<string?> GetUserSelectedPath()
+    {
         var pickResult = await FilePicker.PickAsync(new PickOptions()
         {
             PickerTitle = "Pick png image",
@@ -32,23 +92,9 @@ public partial class MainPage : ContentPage
                 [DevicePlatform.WinUI] = new List<string>() { ".png", ".jpg", ".jpeg" },
             })
         });
-        // null if user cancelled the operation
-        if (pickResult is null)
-        {
-            return;
-        }
-
-        // Recognize image 
-        var result = await Tesseract.RecognizeTextAsync(pickResult.FullPath);
-
-        // Show output
-        confidenceLabel.Text = $"Confidence: {result.Confidence}";
-        if (result.NotSuccess())
-        {
-            resultLabel.Text = $"Recognizion failed: {result.Status}";
-            return;
-        }
-        resultLabel.Text = result.RecognisedText;
+        return pickResult?.FullPath;
     }
+
+    
 }
 

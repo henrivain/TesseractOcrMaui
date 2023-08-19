@@ -1,4 +1,5 @@
-﻿using TesseractOcrMaui.ImportApis;
+﻿using System.Runtime.CompilerServices;
+using TesseractOcrMaui.ImportApis;
 
 
 namespace TesseractOcrMaui;
@@ -56,9 +57,9 @@ public class TessEngine : DisposableObject
         IDictionary<string, object> initialOptions, ILogger? logger = null)
     {
         Logger = logger ?? NullLogger<TessEngine>.Instance;
-        if (languages is null)
+        if (string.IsNullOrEmpty(languages))
         {
-            Logger.LogError("Cannot initilize '{ctor}' with null language.", nameof(TessEngine));
+            Logger.LogError("Cannot initilize '{ctor}' with null or empty language.", nameof(TessEngine));
             throw new ArgumentNullException(nameof(languages));
         }
         if (traineddataPath is null)
@@ -70,8 +71,6 @@ public class TessEngine : DisposableObject
         Handle = new(this, TesseractApi.CreateApi());
         Initialize(languages, traineddataPath, mode, initialOptions);
     }
-
-
 
     /// <summary>
     /// Handle to used Tesseract api.
@@ -258,8 +257,29 @@ public class TessEngine : DisposableObject
         {
             Logger.LogError("Could not initialize new Tesseract api for {cls}", nameof(TessEngine));
             Dispose();
-            throw new TesseractException("Cannot initialize Tesseract Api");
+           
+            // check if traineddata exists 
+            bool traineddataExists = AnyTessdataFileExists(traineddataPath, languages.Split('+'));
+            var inner = traineddataExists ? null :
+                    new InvalidOperationException("No traineddata files found from path. " +
+                    "Do you have correct path and file names?");
+
+            throw new TesseractInitException("Cannot initialize Tesseract Api", inner);
         }
+    }
+
+    
+    private static bool AnyTessdataFileExists(string path, string[] languages)
+    {
+        foreach (var language in languages)
+        {
+            string filePath = Path.Combine(path, $"{language}.traineddata");
+            if (File.Exists(filePath))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void OnIteratorDisposed(object? sender, EventArgs e) => ProcessCount--;

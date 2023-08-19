@@ -38,11 +38,7 @@ dotnet add package TesseractOcrMaui
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
 
-<br/>
-
 Page should be injected or injecting Tesseract won't work. `AddTesseractOcr` also loads all libraries that are needed to run library. `files.AddFile("eng.traineddata");` adds all your traineddata files to be loaded, when tesseract is used. For example I add `eng.traineddata`, so I must add [traineddata file](https://github.com/tesseract-ocr/tessdata/) with same name to my project's TesseractOcrMauiTestApp\Resources\Raw folder.
-
-<br/>
 
 MauiProgram.cs
 
@@ -85,11 +81,7 @@ public static class MauiProgram
 
 ### 3. Inject ITesseract into your page
 
-<br/>
-
 Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. I you can see my `Button_Clicked` functionality down below.
-
-<br/>
 
 Mainpage.xaml.cs
 
@@ -144,8 +136,6 @@ public partial class MainPage : ContentPage
 }
 ```
 
-<br/>
-
 ## Licence
 
 ```
@@ -168,8 +158,6 @@ NOTE: Tesseract depends on other packages that may be licensed under different o
 
 This project does not depend on any third-party C# packages, but it needs [traineddata files](https://github.com/tesseract-ocr/tessdata/) to function. Parts of the code are also is reused from [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract).
 
-<br/>
-
 ## Contributing, IOS and MacOS
 
 If you are interested developing this project, please, open conversation in issues and describe your changes you want to make. Package doesn't currently support IOS or MacOS so any help for them is well appreciated.
@@ -179,8 +167,6 @@ If you are interested developing this project, please, open conversation in issu
 If you have any questions about anything related to this project, open issue with `help wanted` -tag or send me an email.
 
 Only Android and Windows are supported currently, because I have no recources to build and test for IOS and MacOS. Integrating these platforms should not be very big problem if someone needs them, but I don't need them. If you want to add them, just contact me.
-
-<br/>
 
 Henri Vainio  
 matikkaeditorinkaantaja(at)gmail.com

@@ -8,8 +8,9 @@
 /// </summary>
 public enum RecognizionStatus
 {
-    Success, 
-    Failed, 
+    InProgressSuccess = -1,
+    Success = 0,
+    Failed = 1, 
     NoLanguagesAvailable,
     CannotLoadTessData,
     ImageNotFound,

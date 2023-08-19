@@ -10,26 +10,39 @@ namespace TesseractOcrMaui.Extensions;
 /// </summary>
 public static class ResultExtensions
 {
+
+
+
     /// <summary>
-    /// Check if status means success.
+    /// Check if status is success, notice that even if this is false, state might be still not failed. (See <see cref="SuccessOrInProgress(RecognizionStatus)"/>)
     /// </summary>
     /// <param name="status"></param>
     /// <returns>True if success, otherwise false.</returns>
-    public static bool Success(this RecognizionStatus status) => status is RecognizionStatus.Success;
+    public static bool FinishedWithSuccess(this RecognizionStatus status) => status is RecognizionStatus.Success;
 
     /// <summary>
     /// Check if status is not success.
     /// </summary>
     /// <param name="status"></param>
     /// <returns>True if ussuccessful, otherwise false.</returns>
-    public static bool NotSuccess(this RecognizionStatus status) => Success(status) is false;
+    public static bool NotSuccess(this RecognizionStatus status) => FinishedWithSuccess(status) is false 
+        && status is RecognizionStatus.InProgressSuccess is false;
+
+    /// <summary>
+    /// Check if status is "not failed".
+    /// </summary>
+    /// <param name="status"></param>
+    /// <returns>True if ussuccessful, otherwise false.</returns>
+    public static bool SuccessOrInProgress(this RecognizionStatus status) => 
+        status is RecognizionStatus.Success or RecognizionStatus.InProgressSuccess;
+
 
     /// <summary>
     /// Check if result has success code.
     /// </summary>
     /// <param name="result"></param>
     /// <returns>True if success, otherwise false.</returns>
-    public static bool Success(this RecognizionResult result) => result.Status.Success();
+    public static bool FinishedWithSuccess(this RecognizionResult result) => result.Status.FinishedWithSuccess();
 
     /// <summary>
     /// Check if result was not success code.
@@ -43,21 +56,21 @@ public static class ResultExtensions
     /// </summary>
     /// <param name="state"></param>
     /// <returns>True if success, otherwise false.</returns>
-    public static bool Success(this TessDataState state) => state is TessDataState.AllValid or TessDataState.AtLeastOneValid;
+    public static bool FinishedWithSuccess(this TessDataState state) => state is TessDataState.AllValid or TessDataState.AtLeastOneValid;
 
     /// <summary>
     /// Check if state is not success.
     /// </summary>
     /// <param name="state"></param>
     /// <returns>True if not successful, otherwise false.</returns>
-    public static bool NotSuccess(this TessDataState state) => state.Success() is false;
+    public static bool NotSuccess(this TessDataState state) => state.FinishedWithSuccess() is false;
 
     /// <summary>
     /// Check if result has success code.
     /// </summary>
     /// <param name="result"></param>
     /// <returns>True if success, otherwise false.</returns>
-    public static bool Success(this DataLoadResult result) => result.State.Success();
+    public static bool FinishedWithSuccess(this DataLoadResult result) => result.State.FinishedWithSuccess();
 
     /// <summary>
     /// Check if result was not success code.
@@ -121,7 +134,7 @@ public static class ResultExtensions
         }
         if (result.NotSuccess() || result.InvalidFiles?.Length > 0) 
         {
-            var statusStr = result.Success() ? "all" : "any";
+            var statusStr = result.FinishedWithSuccess() ? "all" : "any";
             logger.LogWarning("Could not load {any/all} traineddata files, '{count}' files failed.",
                 statusStr, result.GetErrorCount());
             logger.LogWarning("Here are invalid traineddata file paths: \n'{paths}'",

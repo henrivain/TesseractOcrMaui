@@ -30,5 +30,12 @@ public readonly struct RecognizionResult
     /// </summary>
     public float Confidence { get; init; } = -1f;
 
-
+    /// <summary>
+    /// Recognizion state that is neither success nor failure.
+    /// </summary>
+    public static readonly RecognizionResult InProgress = new()
+    {
+        Status = RecognizionStatus.InProgressSuccess,
+        Message = "Recognizion in progress, state is neither success nor failed"
+    };
 }

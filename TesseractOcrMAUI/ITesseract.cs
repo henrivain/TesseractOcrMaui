@@ -15,22 +15,57 @@ public interface ITesseract
     Task<DataLoadResult> LoadTraineddataAsync();
 
     /// <summary>
-    /// Recognize text from given image. DOES NOT LOAD required TRAINEDDATA!
-    /// <para/>[DEFAUTL_IMPL] Only can throw DllNotFoundException
+    /// Recognize text from given image. 
+    /// <para/>DOES NOT LOAD required TRAINEDDATA!
     /// </summary>
     /// <param name="imagePath">Path to image containing file name and extension.</param>
-    /// <returns>RecognizionResult representing status of recognizion, including possible errors.</returns>
-    /// <exception cref="DllNotFoundException">[DEFAUTL_IMPL] If tesseract or any other library is not found.</exception>
+    /// <returns>Recognizion info object that contains extracted data and possible errors.</returns>
+    /// <exception cref="DllNotFoundException">[Default implementation] If tesseract or any other library is not found.</exception>
     RecognizionResult RecognizeText(string imagePath);
 
     /// <summary>
-    /// Load traineddata files from app packages and run recognizion process async.
-    /// <para/>[DEFAUTL_IMPL] Only can throw DllNotFoundException
+    /// Recognize text from given image bytes.
+    /// <para/>DOES NOT LOAD required TRAINEDDATA!
+    /// </summary>
+    /// <param name="imageBytes">Image from memory as byte array</param>
+    /// <returns>Recognizion info object that contains extracted data and possible errors.</returns>
+    /// <exception cref="DllNotFoundException">[Default implementation] If tesseract or any other library is not found.</exception>
+    RecognizionResult RecognizeText(byte[] imageBytes);
+
+    /// <summary>
+    /// Recognize text from given Leptonica Pix image.
+    /// <para/>DOES NOT LOAD required TRAINEDDATA!
+    /// </summary>
+    /// <param name="image">Pix image to be recognized</param>
+    /// <returns>Recognizion info object that contains extracted data and possible errors.</returns>
+    /// <exception cref="DllNotFoundException">[Default implementation] If tesseract or any other library is not found.</exception>
+    RecognizionResult RecognizeText(Pix image);
+
+
+
+    /// <summary>
+    /// Load traineddata files from app packages and recognize text from given image path async.
     /// </summary>
     /// <param name="imagePath">Path to image containing file name and extension.</param>
-    /// <returns>Task of RecognizionResult representing status of recognizion, including possible errors.</returns>
-    /// <exception cref="DllNotFoundException">[DEFAUTL_IMPL] If tesseract or any other library is not found.</exception>
+    /// <returns>Recognizion info object that contains extracted data and possible errors.</returns>
+    /// <exception cref="DllNotFoundException">[Default implementation] If tesseract or any other library is not found.</exception>
     Task<RecognizionResult> RecognizeTextAsync(string imagePath);
+
+    /// <summary>
+    /// Load traineddata files from app packages and recognize text from given image bytes async
+    /// </summary>
+    /// <param name="imageBytes">Image as byte array</param>
+    /// <returns>Recognizion info object that contains extracted data and possible errors.</returns>
+    /// <exception cref="DllNotFoundException">[Default implementation] If tesseract or any other library is not found.</exception>
+    Task<RecognizionResult> RecognizeTextAsync(byte[] imageBytes);
+
+    /// <summary>
+    /// Load traineddata files from app packages and recognize text from Leptonica Pix image async
+    /// </summary>
+    /// <param name="pix">Image as Pix -object</param>
+    /// <returns>Recognizion info object that contains extracted data and possible errors.</returns>
+    /// <exception cref="DllNotFoundException">[Default implementation] If tesseract or any other library is not found.</exception>
+    Task<RecognizionResult> RecognizeTextAsync(Pix pix);
 
     /// <summary>
     /// Folder where tessdata should be stored. 
