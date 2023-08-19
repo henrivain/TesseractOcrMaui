@@ -185,7 +185,7 @@ public class Tesseract : ITesseract
     }
 
     /// <inheritdoc/>
-    public async Task<RecognizionResult> RecognizeTextAsync(Pix pix)
+    public async Task<RecognizionResult> RecognizeTextAsync(Pix image)
     {
         Logger.LogInformation("Tesseract, recognize pix image async.");
         var loaded = await LoadTraineddataIfNotLoadedAsync();
@@ -193,7 +193,7 @@ public class Tesseract : ITesseract
         {
             return loaded;
         }
-        return Recognize(pix, TessDataFolder, TessDataProvider.GetAllFileNames());
+        return Recognize(image, TessDataFolder, TessDataProvider.GetAllFileNames());
     }
 
 

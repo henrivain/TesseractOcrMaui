@@ -62,10 +62,10 @@ public interface ITesseract
     /// <summary>
     /// Load traineddata files from app packages and recognize text from Leptonica Pix image async
     /// </summary>
-    /// <param name="pix">Image as Pix -object</param>
+    /// <param name="image">Image as Pix -object</param>
     /// <returns>Recognizion info object that contains extracted data and possible errors.</returns>
     /// <exception cref="DllNotFoundException">[Default implementation] If tesseract or any other library is not found.</exception>
-    Task<RecognizionResult> RecognizeTextAsync(Pix pix);
+    Task<RecognizionResult> RecognizeTextAsync(Pix image);
 
     /// <summary>
     /// Folder where tessdata should be stored. 
