@@ -107,7 +107,7 @@ public partial class MainPage : ContentPage
         // Make user pick file
         var pickResult = await FilePicker.PickAsync(new PickOptions()
         {
-            PickerTitle = "Pick png image",
+            PickerTitle = "Pick jpeg or png image",
             // Currently usable image types
             FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>()
             {
