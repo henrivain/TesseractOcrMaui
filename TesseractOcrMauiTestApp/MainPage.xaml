@@ -33,13 +33,24 @@
                            Text="Confidence: -1" />
                     <Label Text="Recognized text"
                            HorizontalTextAlignment="Center" />
+                    <Label x:Name="fileModeLabel"
+                           Text="-"
+                           HorizontalTextAlignment="Center" 
+                           Margin="0,0,0,50"/>
                     <Label x:Name="resultLabel"
                            Text="Nothing yet"
                            HorizontalTextAlignment="Center" />
-                
-                    <Button Text="Pick file"
-                            HorizontalOptions="Center"
-                            Clicked="Button_Clicked" />
+
+            
+
+                    <HorizontalStackLayout HorizontalOptions="Center">
+                        <Button Text="Recognize as image"
+                                HorizontalOptions="Center"
+                                Clicked="DEMO_Recognize_AsImage" />
+                        <Button Text="Recognize as bytes"
+                                HorizontalOptions="Center"
+                                Clicked="DEMO_Recognize_AsBytes" />
+                    </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>

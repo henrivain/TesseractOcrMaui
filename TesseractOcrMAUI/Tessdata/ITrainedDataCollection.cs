@@ -9,6 +9,7 @@ public interface ITrainedDataCollection
     /// AddFile Traineddata file. 
     /// Only filename with extension. 
     /// File should be included in your app's 'Resources\Raw folder' folder.
+    /// Example: "eng.traineddata".
     /// </summary>
     /// <param name="fileName">
     /// Name of file with extension (no path) that should be loaded from app packages. 
@@ -19,7 +20,7 @@ public interface ITrainedDataCollection
     void AddFile(string fileName);
 
     /// <summary>
-    /// Get filenames of trained data files.
+    /// Get filenames of trained data files. Has file extensions. Example: "eng.traineddata".
     /// </summary>
     /// <returns>Array of string file names.</returns>
     string[] GetTrainedDataFileNames();
