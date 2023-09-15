@@ -186,9 +186,14 @@ This project does not depend on any third-party C# packages, but it needs [train
 
 If you are interested developing this project, please, open conversation in issues and describe your changes you want to make. Package doesn't currently support IOS or MacOS so any help for them is well appreciated.
 
+## Documentation 
+- To see examples of use, see example project `Mainpage` [TesseractOcrMauiTestApp.Mainpage.xaml.cs](https://github.com/henrivain/TesseractOcrMaui/blob/master/TesseractOcrMauiTestApp/MainPage.xaml.cs)
+- Some instructions can be found from repository [`Documentation` -folder](https://github.com/henrivain/TesseractOcrMaui/tree/master/Documentation) 
+- Classes and methods have `xml comments` that try to explain code functionality.
+
 ## Support
 
-If you have any questions about anything related to this project, open issue with `help wanted` -tag or send me an email.
+If you have any questions about anything related to this project, open issue or send me an email.
 
 Only Android and Windows are supported currently, because I have no recources to build and test for IOS and MacOS. Integrating these platforms should not be very big problem if someone needs them, but I don't need them. If you want to add them, just contact me.
 
