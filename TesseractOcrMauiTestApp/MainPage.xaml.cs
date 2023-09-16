@@ -61,9 +61,8 @@ public partial class MainPage : ContentPage
         stream.Read(buffer);
 
         // recognize bytes
-        var result = await Tesseract.RecognizeTextAsync(path);
-
-
+        var result = await Tesseract.RecognizeTextAsync(buffer);
+        
         
         // Give output (Not important)
         fileModeLabel.Text = $"File mode: FromBytes";
