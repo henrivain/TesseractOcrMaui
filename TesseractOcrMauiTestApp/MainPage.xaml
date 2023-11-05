@@ -4,56 +4,71 @@
              x:Class="TesseractOcrMauiTestApp.MainPage">
 
     <ScrollView>
-        <VerticalStackLayout Spacing="25"
-                             Padding="30,0"
-                             VerticalOptions="Center">
-
-            <Image Source="dotnet_bot.png"
-                   SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                   HeightRequest="200"
-                   HorizontalOptions="Center" />
-
-            <Label Text="Hello, World!"
-                   SemanticProperties.HeadingLevel="Level1"
-                   FontSize="32"
-                   HorizontalOptions="Center" />
-
-            <Label Text="Welcome to .NET Multi-platform App UI"
-                   SemanticProperties.HeadingLevel="Level2"
-                   SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-                   FontSize="18"
-                   HorizontalOptions="Center" />
+        <Grid>
+            <Button Text="GetVersion"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start"
+                    Margin="20" 
+                    Clicked="DEMO_GetVersion"
+                    />
+            <VerticalStackLayout Spacing="25"
+                                 Padding="30,0"
+                                 VerticalOptions="Center">
 
 
+                <Image Source="dotnet_bot.png"
+                       SemanticProperties.Description="Cute dot net bot waving hi to you!"
+                       HeightRequest="200"
+                       HorizontalOptions="Center" />
 
-            <Border>
-                <VerticalStackLayout HorizontalOptions="Center">
-                    <Label x:Name="confidenceLabel"
-                           HorizontalTextAlignment="Center"
-                           Text="Confidence: -1" />
-                    <Label Text="Recognized text"
-                           HorizontalTextAlignment="Center" />
-                    <Label x:Name="fileModeLabel"
-                           Text="-"
-                           HorizontalTextAlignment="Center" 
-                           Margin="0,0,0,50"/>
-                    <Label x:Name="resultLabel"
-                           Text="Nothing yet"
-                           HorizontalTextAlignment="Center" />
+                <Label Text="Hello, World!"
+                       SemanticProperties.HeadingLevel="Level1"
+                       FontSize="32"
+                       HorizontalOptions="Center" />
 
-            
+                <Label Text="Welcome to .NET Multi-platform App UI"
+                       SemanticProperties.HeadingLevel="Level2"
+                       SemanticProperties.Description="Welcome to dot net Multi platform App U I"
+                       FontSize="18"
+                       HorizontalOptions="Center" />
 
-                    <HorizontalStackLayout HorizontalOptions="Center">
-                        <Button Text="Recognize as image"
-                                HorizontalOptions="Center"
-                                Clicked="DEMO_Recognize_AsImage" />
-                        <Button Text="Recognize as bytes"
-                                HorizontalOptions="Center"
-                                Clicked="DEMO_Recognize_AsBytes" />
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-            </Border>
-        </VerticalStackLayout>
+
+
+                <Border>
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label x:Name="confidenceLabel"
+                               HorizontalTextAlignment="Center"
+                               Text="Confidence: -1" />
+                        <Label Text="Recognized text"
+                               HorizontalTextAlignment="Center" />
+                        <Label x:Name="fileModeLabel"
+                               Text="-"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,0,0,50" />
+                        <Label x:Name="resultLabel"
+                               Text="Nothing yet"
+                               HorizontalTextAlignment="Center" />
+
+
+
+                        <ScrollView Orientation="{OnPlatform Android=Horizontal, Default=Neither}">
+                            <HorizontalStackLayout HorizontalOptions="Center">
+                                <Button Text="Recognize as image"
+                                        HorizontalOptions="Center"
+                                        Clicked="DEMO_Recognize_AsImage" />
+                                <Button Text="Recognize as bytes"
+                                        HorizontalOptions="Center"
+                                        Clicked="DEMO_Recognize_AsBytes" />
+                                <Button Text="Recognize configured"
+                                        HorizontalOptions="Center"
+                                        Clicked="DEMO_Recognize_AsConfigured" />
+                            </HorizontalStackLayout>
+                        </ScrollView>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+        </Grid>
     </ScrollView>
 
 </ContentPage>

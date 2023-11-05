@@ -54,6 +54,10 @@ public class Tesseract : ITesseract
     /// <inheritdoc/>
     public string TessDataFolder => TessDataProvider.TessDataFolder;
 
+    /// <inheritdoc/>
+    public Action<ITessEngineConfigurable>? EngineConfiguration { get; set; }
+
+
     ITessDataProvider TessDataProvider { get; }
     ILogger<ITesseract> Logger { get; }
 
@@ -65,8 +69,6 @@ public class Tesseract : ITesseract
         return result;
     }
 
-
-    
     /// <inheritdoc/>
     public RecognizionResult RecognizeText(string imagePath)
     {
@@ -108,10 +110,19 @@ public class Tesseract : ITesseract
         catch (IOException)
         {
             Logger.LogInformation("Cannot load pix from memory. Make sure your image is in right format.");
-            return new()
+            return new RecognizionResult
             {
                 Status = RecognizionStatus.InvalidImage,
-                Message = "Invalid image, cannot be loaded"
+                Message = "Invalid image, cannot be loaded",
+            };
+        }
+        catch (KnownIssueException ex)
+        {
+            Logger.LogWarning("Cannot load pix from memory. '{ex}'", ex);
+            return new RecognizionResult
+            {
+                Status = RecognizionStatus.InvalidImage,
+                Message = $"Cannot load pix from memory. (This is a known issue, see '{ex.HelpLink}'.)"
             };
         }
     }
@@ -176,10 +187,19 @@ public class Tesseract : ITesseract
         catch (IOException)
         {
             Logger.LogInformation("Cannot load pix from memory. Make sure your image is in right format.");
-            return new()
+            return new RecognizionResult
             {
                 Status = RecognizionStatus.InvalidImage,
-                Message = "Invalid image, cannot be loaded"
+                Message = "Invalid image, cannot be loaded",
+            };
+        }
+        catch (KnownIssueException ex) 
+        {
+            Logger.LogWarning("Cannot load pix from memory. '{ex}'", ex);
+            return new RecognizionResult
+            {
+                Status = RecognizionStatus.InvalidImage,
+                Message = $"Cannot load pix from memory. (This is a known issue, see '{ex.ReferringLink}'.)"
             };
         }
     }
@@ -199,7 +219,6 @@ public class Tesseract : ITesseract
 
 
     
-
     internal RecognizionResult Recognize(Pix pix, string tessDataFolder, string[] traineddataFileNames)
     {
         var (status, languages) = TrainedDataToLanguage(tessDataFolder, traineddataFileNames);
@@ -240,6 +259,12 @@ public class Tesseract : ITesseract
         {
             // nulls are alredy checked, can't throw.
             using var engine = new TessEngine(languages, tessDataFolder, Logger);
+
+            if (EngineConfiguration is not null)
+            {
+                EngineConfiguration(engine);
+            }
+
             using var page = engine.ProcessImage(pix);
 
             // SegMode can't be OsdOnly in here.
@@ -312,6 +337,7 @@ public class Tesseract : ITesseract
                 Message = $"Failed to ocr for unknown reason '{ex.GetType().Name}': '{ex.Message}'."
             };
         }
+       
 
         Logger.LogInformation("Recognized image with confidence '{value}'", confidence);
         Logger.LogInformation("Image contained text with length '{value}'", text?.Length ?? 0);
@@ -384,5 +410,6 @@ public class Tesseract : ITesseract
         return (RecognizionStatus.InProgressSuccess, string.Join('+', languages));
     }
 
-
+    /// <inheritdoc/>
+    public string? TryGetTesseractLibVersion() => TessEngine.TryGetVersion();
 }
