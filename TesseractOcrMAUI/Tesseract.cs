@@ -112,10 +112,19 @@ public class Tesseract : ITesseract
         catch (IOException)
         {
             Logger.LogInformation("Cannot load pix from memory. Make sure your image is in right format.");
-            return new()
+            return new RecognizionResult
             {
                 Status = RecognizionStatus.InvalidImage,
-                Message = "Invalid image, cannot be loaded"
+                Message = "Invalid image, cannot be loaded",
+            };
+        }
+        catch (KnownIssueException ex)
+        {
+            Logger.LogWarning("Cannot load pix from memory. '{ex}'", ex);
+            return new RecognizionResult
+            {
+                Status = RecognizionStatus.InvalidImage,
+                Message = $"Cannot load pix from memory. (This is a known issue, see '{ex.HelpLink}'.)"
             };
         }
     }
@@ -192,7 +201,7 @@ public class Tesseract : ITesseract
             return new RecognizionResult
             {
                 Status = RecognizionStatus.InvalidImage,
-                Message = $"Cannot load pix from memory. (This is a known issue, see '{ex.HelpLink}'.)"
+                Message = $"Cannot load pix from memory. (This is a known issue, see '{ex.ReferringLink}'.)"
             };
         }
     }
@@ -403,5 +412,6 @@ public class Tesseract : ITesseract
         return (RecognizionStatus.InProgressSuccess, string.Join('+', languages));
     }
 
+    /// <inheritdoc/>
     public string? TryGetTesseractLibVersion() => TessEngine.TryGetVersion();
 }

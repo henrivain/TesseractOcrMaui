@@ -76,7 +76,12 @@ public partial class MainPage : ContentPage
         resultLabel.Text = result.RecognisedText;
     }
 
-    
+    private async void DEMO_GetVersion(object sender, EventArgs e)
+    {
+        string version = Tesseract.TryGetTesseractLibVersion() ?? "Failed";
+        await DisplayAlert("Tesseract version", version, "OK");
+    }
+
     // Not important for package 
 
     private static async Task<string?> GetUserSelectedPath()
@@ -96,10 +101,6 @@ public partial class MainPage : ContentPage
 
 
 
-    private async void DEMO_GetVersion(object sender, EventArgs e)
-    {
-        string version = Tesseract.TryGetTesseractLibVersion() ?? "Failed";
-        await DisplayAlert("Tesseract version", version, "ok");
-    }
+ 
 }
 

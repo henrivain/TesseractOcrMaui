@@ -186,6 +186,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
                 {
                     IssueInformation = "TesseractOcrMaui Issue #17",
                     ReferringLink = "https://github.com/henrivain/TesseractOcrMaui/issues/17",
+                    HelpLink = "https://github.com/henrivain/TesseractOcrMaui/issues/17"
                 };
             }
 #endif
