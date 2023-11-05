@@ -31,19 +31,9 @@ public partial class MainPage : ContentPage
 
         // Recognize image 
         var result = await Tesseract.RecognizeTextAsync(path);
-
-
         
-        // Give output (Not important)
-        fileModeLabel.Text = $"File mode: FromPath";
-        if (result.NotSuccess())
-        {
-            confidenceLabel.Text = $"Confidence: -1";
-            resultLabel.Text = $"Recognizion failed: {result.Status}";
-            return;
-        }
-        confidenceLabel.Text = $"Confidence: {result.Confidence}";
-        resultLabel.Text = result.RecognisedText;
+        // Show output (Not important)
+        ShowOutput("FromPath", result);
     }
 
     private async void DEMO_Recognize_AsBytes(object sender, EventArgs e)
@@ -64,23 +54,50 @@ public partial class MainPage : ContentPage
         var result = await Tesseract.RecognizeTextAsync(buffer);
         
         
-        // Give output (Not important)
-        fileModeLabel.Text = $"File mode: FromBytes";
-        if (result.NotSuccess())
+        // Show output (Not important)
+        ShowOutput("FromBytes", result);
+    }
+
+    private async void DEMO_Recognize_AsConfigured(object sender, EventArgs e)
+    {
+        // Select image (Not important)
+        var path = await GetUserSelectedPath();
+        if (path is null)
         {
-            confidenceLabel.Text = $"Confidence: -1";
-            resultLabel.Text = $"Recognizion failed: {result.Status}";
             return;
         }
-        confidenceLabel.Text = $"Confidence: {result.Confidence}";
-        resultLabel.Text = result.RecognisedText;
+
+        Tesseract.EngineConfiguration = (engine) =>
+        {
+            // Engine uses DefaultSegmentationMode, if no other is passed as method parameter.
+            // If ITesseract is injected to page, this is only way of setting PageSegmentationMode.
+            // PageSegmentationMode defines how ocr tries to look for text, for example singe character or single word.
+            // By default uses PageSegmentationMode.Auto.
+            engine.DefaultSegmentationMode = TesseractOcrMaui.Enums.PageSegmentationMode.Auto;
+            
+            engine.SetCharacterWhitelist("abcdefgh");   // These characters ocr is looking for
+            engine.SetCharacterBlacklist("abc");        // These characters ocr is not looking for
+            // Now ocr should be only finding characters 'defgh'
+        };
+
+        // Recognize image 
+        var result = await Tesseract.RecognizeTextAsync(path);
+
+        // For this example I reset engine configuration, because same Object is used in other examples
+        Tesseract.EngineConfiguration = null;
+
+        // Show output (Not important)
+        ShowOutput("FromPath, Configured", result);
+
     }
+
 
     private async void DEMO_GetVersion(object sender, EventArgs e)
     {
         string version = Tesseract.TryGetTesseractLibVersion() ?? "Failed";
         await DisplayAlert("Tesseract version", version, "OK");
     }
+
 
     // Not important for package 
 
@@ -99,7 +116,19 @@ public partial class MainPage : ContentPage
         return pickResult?.FullPath;
     }
 
-
+    private void ShowOutput(string imageMode, RecognizionResult result)
+    {
+        // Show output (Not important)
+        fileModeLabel.Text = $"File mode: {imageMode}";
+        if (result.NotSuccess())
+        {
+            confidenceLabel.Text = $"Confidence: -1";
+            resultLabel.Text = $"Recognizion failed: {result.Status}";
+            return;
+        }
+        confidenceLabel.Text = $"Confidence: {result.Confidence}";
+        resultLabel.Text = result.RecognisedText;
+    }
 
  
 }

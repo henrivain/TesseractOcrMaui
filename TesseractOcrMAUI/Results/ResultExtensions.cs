@@ -9,11 +9,6 @@ namespace TesseractOcrMaui.Results;
 /// </summary>
 public static class ResultExtensions
 {
-
-
-
-
-
     /// <summary>
     /// Check if result has success code.
     /// </summary>

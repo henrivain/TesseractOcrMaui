@@ -83,6 +83,6 @@ public interface ITesseract
     /// <summary>
     /// Action to configure TessEngine used in recognizion. This action is run just before recognizion.
     /// </summary>
-    Action<TessEngine>? EngineConfiguration { get; set; }
+    Action<ITessEngineConfigurable>? EngineConfiguration { get; set; }
 
 }

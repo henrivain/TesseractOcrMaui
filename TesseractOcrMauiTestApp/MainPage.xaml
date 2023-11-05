@@ -51,14 +51,19 @@
 
 
 
-                        <HorizontalStackLayout HorizontalOptions="Center">
-                            <Button Text="Recognize as image"
-                                    HorizontalOptions="Center"
-                                    Clicked="DEMO_Recognize_AsImage" />
-                            <Button Text="Recognize as bytes"
-                                    HorizontalOptions="Center"
-                                    Clicked="DEMO_Recognize_AsBytes" />
-                        </HorizontalStackLayout>
+                        <ScrollView Orientation="{OnPlatform Android=Horizontal, Default=Neither}">
+                            <HorizontalStackLayout HorizontalOptions="Center">
+                                <Button Text="Recognize as image"
+                                        HorizontalOptions="Center"
+                                        Clicked="DEMO_Recognize_AsImage" />
+                                <Button Text="Recognize as bytes"
+                                        HorizontalOptions="Center"
+                                        Clicked="DEMO_Recognize_AsBytes" />
+                                <Button Text="Recognize configured"
+                                        HorizontalOptions="Center"
+                                        Clicked="DEMO_Recognize_AsConfigured" />
+                            </HorizontalStackLayout>
+                        </ScrollView>
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>

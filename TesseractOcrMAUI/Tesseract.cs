@@ -55,7 +55,7 @@ public class Tesseract : ITesseract
     public string TessDataFolder => TessDataProvider.TessDataFolder;
 
     /// <inheritdoc/>
-    public Action<TessEngine>? EngineConfiguration { get; set; }
+    public Action<ITessEngineConfigurable>? EngineConfiguration { get; set; }
 
 
     ITessDataProvider TessDataProvider { get; }
@@ -69,8 +69,6 @@ public class Tesseract : ITesseract
         return result;
     }
 
-
-    
     /// <inheritdoc/>
     public RecognizionResult RecognizeText(string imagePath)
     {
