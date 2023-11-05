@@ -73,7 +73,7 @@ public partial class MainPage : ContentPage
             // If ITesseract is injected to page, this is only way of setting PageSegmentationMode.
             // PageSegmentationMode defines how ocr tries to look for text, for example singe character or single word.
             // By default uses PageSegmentationMode.Auto.
-            engine.DefaultSegmentationMode = TesseractOcrMaui.Enums.PageSegmentationMode.Auto;
+            engine.DefaultSegmentationMode = TesseractOcrMaui.Enums.PageSegmentationMode.SingleWord;
             
             engine.SetCharacterWhitelist("abcdefgh");   // These characters ocr is looking for
             engine.SetCharacterBlacklist("abc");        // These characters ocr is not looking for
