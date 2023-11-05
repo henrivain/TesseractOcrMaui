@@ -1,9 +1,8 @@
-﻿using TesseractOcrMaui.Results;
+﻿using System.Diagnostics;
+using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
-namespace TesseractOcrMaui.Extensions;
+namespace TesseractOcrMaui.Results;
 
 /// <summary>
 /// Extensions to ease the use of enums and enum statuses..
@@ -13,28 +12,6 @@ public static class ResultExtensions
 
 
 
-    /// <summary>
-    /// Check if status is success, notice that even if this is false, state might be still not failed. (See <see cref="SuccessOrInProgress(RecognizionStatus)"/>)
-    /// </summary>
-    /// <param name="status"></param>
-    /// <returns>True if success, otherwise false.</returns>
-    public static bool FinishedWithSuccess(this RecognizionStatus status) => status is RecognizionStatus.Success;
-
-    /// <summary>
-    /// Check if status is not success.
-    /// </summary>
-    /// <param name="status"></param>
-    /// <returns>True if ussuccessful, otherwise false.</returns>
-    public static bool NotSuccess(this RecognizionStatus status) => FinishedWithSuccess(status) is false 
-        && status is RecognizionStatus.InProgressSuccess is false;
-
-    /// <summary>
-    /// Check if status is "not failed".
-    /// </summary>
-    /// <param name="status"></param>
-    /// <returns>True if ussuccessful, otherwise false.</returns>
-    public static bool SuccessOrInProgress(this RecognizionStatus status) => 
-        status is RecognizionStatus.Success or RecognizionStatus.InProgressSuccess;
 
 
     /// <summary>
@@ -51,19 +28,6 @@ public static class ResultExtensions
     /// <returns>True if ussuccessful, otherwise false.</returns>
     public static bool NotSuccess(this RecognizionResult result) => result.Status.NotSuccess();
 
-    /// <summary>
-    /// Check if state is success.
-    /// </summary>
-    /// <param name="state"></param>
-    /// <returns>True if success, otherwise false.</returns>
-    public static bool FinishedWithSuccess(this TessDataState state) => state is TessDataState.AllValid or TessDataState.AtLeastOneValid;
-
-    /// <summary>
-    /// Check if state is not success.
-    /// </summary>
-    /// <param name="state"></param>
-    /// <returns>True if not successful, otherwise false.</returns>
-    public static bool NotSuccess(this TessDataState state) => state.FinishedWithSuccess() is false;
 
     /// <summary>
     /// Check if result has success code.
@@ -132,7 +96,7 @@ public static class ResultExtensions
                 $"'{nameof(ResultExtensions)}.{nameof(LogLoadErrorsIfNotAllSuccess)}'.");
             return;
         }
-        if (result.NotSuccess() || result.InvalidFiles?.Length > 0) 
+        if (result.NotSuccess() || result.InvalidFiles?.Length > 0)
         {
             var statusStr = result.FinishedWithSuccess() ? "all" : "any";
             logger.LogWarning("Could not load {any/all} traineddata files, '{count}' files failed.",

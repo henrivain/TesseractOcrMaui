@@ -68,9 +68,21 @@ public interface ITesseract
     Task<RecognizionResult> RecognizeTextAsync(Pix image);
 
     /// <summary>
+    /// Try to get Tesseract library version 
+    /// </summary>
+    /// <returns>string representation of version if version available, otherwise null</returns>
+    string? TryGetTesseractLibVersion();
+
+    /// <summary>
     /// Folder where tessdata should be stored. 
     /// Provided by ITessDataProvider. 
     /// Load with LoadTraineddataAsync();
     /// </summary>
     string TessDataFolder { get; }
+
+    /// <summary>
+    /// Action to configure TessEngine used in recognizion. This action is run just before recognizion.
+    /// </summary>
+    Action<TessEngine>? EngineConfiguration { get; set; }
+
 }

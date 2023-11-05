@@ -1,6 +1,5 @@
 ﻿global using TesseractOcrMaui.Enums;
 global using TesseractOcrMaui.Exceptions;
-global using TesseractOcrMaui.Extensions;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.Abstractions;
 global using System.Runtime.InteropServices;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using TesseractOcrMaui;
-using TesseractOcrMaui.Extensions;
+using TesseractOcrMaui.Results;
 #nullable enable
 namespace TesseractOcrMauiTestApp;
 
@@ -94,6 +94,12 @@ public partial class MainPage : ContentPage
         return pickResult?.FullPath;
     }
 
-    
+
+
+    private async void DEMO_GetVersion(object sender, EventArgs e)
+    {
+        string version = Tesseract.TryGetTesseractLibVersion() ?? "Failed";
+        await DisplayAlert("Tesseract version", version, "ok");
+    }
 }
 

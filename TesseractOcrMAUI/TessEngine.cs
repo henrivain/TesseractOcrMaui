@@ -83,9 +83,11 @@ public class TessEngine : DisposableObject
     public PageSegmentationMode DefaultSegmentationMode { get; set; } = PageSegmentationMode.Auto;
 
     /// <summary>
-    /// Version of used Tesseract api. Returns empty string if version cannot be optained.
+    /// Version of used Tesseract api. Returns null if version cannot be obtained.
     /// </summary>
-    public static string Version => Marshal.PtrToStringAnsi(TesseractApi.GetVersion()) ?? string.Empty;
+    /// <returns>Version string if successful, otherwise null</returns>
+    public static string? TryGetVersion() 
+        => Marshal.PtrToStringAnsi(TesseractApi.GetVersion());
 
 
     /// <summary>
