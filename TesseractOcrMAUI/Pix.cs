@@ -169,6 +169,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <param name="bytes"></param>
     /// <returns>New pix representing loaded memory.</returns>
     /// <exception cref="IOException">If image cannot be loaded from memory.</exception>
+    /// <exception cref="KnownIssueException">If image cannot be loaded from memory on Android and image is in jpeg format.</exception>
     public static Pix LoadFromMemory(byte[] bytes)
     {
         IntPtr handle;
@@ -178,6 +179,17 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         }
         if (handle == IntPtr.Zero)
         {
+#if ANDROID
+            if (ImageHelpers.IsJpeg(bytes))
+            {
+                throw new KnownIssueException("Failed to load image from memory, this is a known issue.")
+                {
+                    IssueInformation = "TesseractOcrMaui Issue #17",
+                    ReferringLink = "https://github.com/henrivain/TesseractOcrMaui/issues/17",
+                    HelpLink = "https://github.com/henrivain/TesseractOcrMaui/issues/17"
+                };
+            }
+#endif
             throw new IOException("Failed to load image from memory.");
         }
         return new(handle);

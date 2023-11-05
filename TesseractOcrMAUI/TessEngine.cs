@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using TesseractOcrMaui.ImportApis;
+﻿using TesseractOcrMaui.ImportApis;
 
 
 namespace TesseractOcrMaui;
@@ -7,7 +6,7 @@ namespace TesseractOcrMaui;
 /// <summary>
 /// Tesseract engine that can process images with native library bindings.
 /// </summary>
-public class TessEngine : DisposableObject
+public class TessEngine : DisposableObject, ITessEngineConfigurable
 {
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
@@ -75,17 +74,17 @@ public class TessEngine : DisposableObject
     /// <summary>
     /// Handle to used Tesseract api.
     /// </summary>
-    public HandleRef Handle { get; private set; }
+    internal HandleRef Handle { get; private set; }
 
-    /// <summary>
-    /// Segmentation Mode that tesseract uses if nothing else is provided.
-    /// </summary>
+    /// <inheritdoc/>
     public PageSegmentationMode DefaultSegmentationMode { get; set; } = PageSegmentationMode.Auto;
 
     /// <summary>
-    /// Version of used Tesseract api. Returns empty string if version cannot be optained.
+    /// Version of used Tesseract api. Returns null if version cannot be obtained.
     /// </summary>
-    public static string Version => Marshal.PtrToStringAnsi(TesseractApi.GetVersion()) ?? string.Empty;
+    /// <returns>Version string if successful, otherwise null</returns>
+    public static string? TryGetVersion() 
+        => Marshal.PtrToStringAnsi(TesseractApi.GetVersion());
 
 
     /// <summary>
@@ -155,17 +154,19 @@ public class TessEngine : DisposableObject
     /// <returns>True if success, otherwise false.</returns>
     public bool SetDebugVariable(string name, string value)
     {
-        return TesseractApi.SetDebugVariable(Handle, name, value) is not 0;
+        bool success = TesseractApi.SetDebugVariable(Handle, name, value) is not 0;
+        Logger.LogInformation("Set Tesseract DEBUG variable '{name}' to value '{value}', success {success}",
+            name, value, success);
+        return success;
     }
-    /// <summary>
-    /// Set tesseract library variable.
-    /// </summary>
-    /// <param name="name"></param>
-    /// <param name="value"></param>
-    /// <returns>True if success, otherwise false.</returns>
+    
+    /// <inheritdoc/>
     public bool SetVariable(string name, string value)
     {
-        return TesseractApi.SetVariable(Handle, name, value) is not 0;
+        bool success = TesseractApi.SetVariable(Handle, name, value) is not 0;
+        Logger.LogInformation("Set Tesseract variable '{name}' to value '{value}', success {success}",
+            name, value, success);
+        return success;
     }
 
     /// <summary>
