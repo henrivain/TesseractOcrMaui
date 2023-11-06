@@ -157,6 +157,9 @@ public interface ITesseract
 
     // Gets tessdata folder path from TessDataProvider (from configuration)
     string TessDataFolder { get; }
+   
+    // Access used TessEngine for configuration (E.g. Whitelist chafacters)
+    Action<ITessEngineConfigurable>? EngineConfiguration { set; }
 }
 ```
 
