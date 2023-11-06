@@ -198,7 +198,7 @@ If you are interested developing this project, please, open conversation in issu
 
 If you have any questions about anything related to this project, open issue or send me an email.
 
-Only Android and Windows are supported currently, because I have no recources to build and test for IOS and MacOS. Integrating these platforms should not be very big problem if someone needs them, but I don't need them. If you want to add them, just contact me.
+Only Android and Windows are supported currently, because I have no recources to build and test for IOS and MacOS. Integrating these platforms should not be very hard if someone needs them. If you want to add them, just contact me.
 
 Henri Vainio  
 matikkaeditorinkaantaja(at)gmail.com
