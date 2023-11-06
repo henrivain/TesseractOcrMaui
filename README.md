@@ -183,7 +183,7 @@ limitations under the License.
 
 NOTE: Tesseract depends on other packages that may be licensed under different open source licenses.
 
-This project does not depend on any third-party C# packages, but it needs [traineddata files](https://github.com/tesseract-ocr/tessdata/) to function. Parts of the code are also is reused from [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract).
+This project does not depend on any third-party C# packages, but it needs [traineddata files](https://github.com/tesseract-ocr/tessdata/) to function. Parts of the code are also reused from [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract).
 
 ## Contributing, IOS and MacOS
 
