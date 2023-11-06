@@ -38,7 +38,7 @@ dotnet add package TesseractOcrMaui
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
 
-Page should be injected or injecting Tesseract won't work. `AddTesseractOcr` also loads all libraries that are needed to run library. `files.AddFile("eng.traineddata");` adds all your traineddata files to be loaded, when tesseract is used. For example I add `eng.traineddata`, so I must add [traineddata file](https://github.com/tesseract-ocr/tessdata/) with same name to my project's TesseractOcrMauiTestApp\Resources\Raw folder.
+Add `AddTesseractOcr` call in you injections. This loads all libraries that are needed to run library and adds needed injectable interfaces. `files.AddFile("eng.traineddata");` adds all your traineddata files to be loaded, when tesseract is used. For example I add `eng.traineddata`, so I must add [traineddata file](https://github.com/tesseract-ocr/tessdata/) with same name to my project's TesseractOcrMauiTestApp\Resources\Raw folder.
 
 MauiProgram.cs
 
