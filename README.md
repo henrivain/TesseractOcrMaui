@@ -81,7 +81,7 @@ public static class MauiProgram
 
 ### 3. Inject ITesseract into your page
 
-Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. I you can see my `Button_Clicked` functionality down below.
+Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. You can see my `Button_Clicked` functionality down below.
 
 Mainpage.xaml.cs
 
