@@ -59,19 +59,23 @@
 	<!-- Android native libraries-->
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
 		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libleptonica.so" />
-		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libpng.so" />
+		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libpng16.so" />
+		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libtiff.so" />
 		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libjpeg.so" />
 		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libtesseract.so" />
 		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libleptonica.so" />
-		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libpng.so" />
+		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libpng16.so" />
+		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libtiff.so" />
 		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libjpeg.so" />
 		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libtesseract.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86_64\libleptonica.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86_64\libpng.so" />
+		<AndroidNativeLibrary Include="lib\Android\x86_64\libpng16.so" />
+		<AndroidNativeLibrary Include="lib\Android\x86_64\libtiff.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86_64\libjpeg.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86_64\libtesseract.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86\libleptonica.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86\libpng.so" />
+		<AndroidNativeLibrary Include="lib\Android\x86\libpng16.so" />
+		<AndroidNativeLibrary Include="lib\Android\x86\libtiff.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86\libjpeg.so" />
 		<AndroidNativeLibrary Include="lib\Android\x86\libtesseract.so" />
 	</ItemGroup>
