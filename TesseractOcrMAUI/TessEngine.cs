@@ -55,15 +55,15 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     public TessEngine(string languages, string traineddataPath, EngineMode mode,
         IDictionary<string, object> initialOptions, ILogger? logger = null)
     {
-        Logger = logger ?? NullLogger<TessEngine>.Instance;
+        _logger = logger ?? NullLogger<TessEngine>.Instance;
         if (string.IsNullOrEmpty(languages))
         {
-            Logger.LogError("Cannot initilize '{ctor}' with null or empty language.", nameof(TessEngine));
+            _logger.LogError("Cannot initilize '{ctor}' with null or empty language.", nameof(TessEngine));
             throw new ArgumentNullException(nameof(languages));
         }
         if (traineddataPath is null)
         {
-            Logger.LogError("Cannot initilize '{ctor}' with null trained data path.", nameof(TessEngine));
+            _logger.LogError("Cannot initilize '{ctor}' with null trained data path.", nameof(TessEngine));
             throw new ArgumentNullException(nameof(traineddataPath));
         }
         // Debug: This line throws if dll are not copied to correct folder.
@@ -116,24 +116,24 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     {
         if (image is null)
         {
-            Logger.LogError("{cls}: Cannot process null image.", nameof(TessEngine));
+            _logger.LogError("{cls}: Cannot process null image.", nameof(TessEngine));
             throw new ArgumentNullException(nameof(image));
         }
         if (region.X1 < 0 || region.Y1 < 0 || region.X1 > image.Width || region.Y2 > image.Height)
         {
-            Logger.LogError("{cls}: Image region out of bounds, cannot process.", nameof(TessEngine));
+            _logger.LogError("{cls}: Image region out of bounds, cannot process.", nameof(TessEngine));
             throw new ArgumentException($"Image {region} out of bounds, " +
                 $"must be within image bounds", nameof(region));
         }
-        if (ProcessCount > 0)
+        if (_processCount > 0)
         {
-            Logger.LogError("{cls}: Tried to process image with engine that already has one. " +
+            _logger.LogError("{cls}: Tried to process image with engine that already has one. " +
                 "You must dispose image after using.", nameof(TessEngine));
             throw new InvalidOperationException("One image already set. " +
                 "You must dispose page after using.");
         }
 
-        ProcessCount++;
+        _processCount++;
         TesseractApi.SetPageSegmentationMode(Handle, mode ?? DefaultSegmentationMode);
         TesseractApi.SetImage(Handle, image.Handle);
         if (string.IsNullOrEmpty(inputName) is false)
@@ -141,7 +141,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
             TesseractApi.SetInputName(Handle, inputName);
         }
 
-        TessPage page = new(this, image, inputName, region, mode, Logger);
+        TessPage page = new(this, image, inputName, region, mode, _logger);
         page.Disposed += OnIteratorDisposed;
         return page;
     }
@@ -155,7 +155,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     public bool SetDebugVariable(string name, string value)
     {
         bool success = TesseractApi.SetDebugVariable(Handle, name, value) is not 0;
-        Logger.LogInformation("Set Tesseract DEBUG variable '{name}' to value '{value}', success {success}",
+        _logger.LogInformation("Set Tesseract DEBUG variable '{name}' to value '{value}', success {success}",
             name, value, success);
         return success;
     }
@@ -164,7 +164,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     public bool SetVariable(string name, string value)
     {
         bool success = TesseractApi.SetVariable(Handle, name, value) is not 0;
-        Logger.LogInformation("Set Tesseract variable '{name}' to value '{value}', success {success}",
+        _logger.LogInformation("Set Tesseract variable '{name}' to value '{value}', success {success}",
             name, value, success);
         return success;
     }
@@ -229,8 +229,8 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     }
 
 
-    int ProcessCount { get; set; } = 0;
-    ILogger Logger { get; }
+    int _processCount = 0;
+    readonly ILogger _logger;
 
     /// <summary>
     /// Initialize new Tesseract engine with given data.
@@ -247,7 +247,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     private void Initialize(string languages, string traineddataPath,
         EngineMode mode, IDictionary<string, object> initialOptions)
     {
-        Logger.LogInformation("Initilize new '{cls}' with language '{lang}' and traineddata path '{path}'",
+        _logger.LogInformation("Initilize new '{cls}' with language '{lang}' and traineddata path '{path}'",
             nameof(TessEngine), languages, traineddataPath);
 
         languages ??= string.Empty;
@@ -256,7 +256,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         int apiStatus = TessApi.BaseApiInit(Handle, languages, traineddataPath, mode, initialOptions);
         if (apiStatus is not 0)
         {
-            Logger.LogError("Could not initialize new Tesseract api for {cls}", nameof(TessEngine));
+            _logger.LogError("Could not initialize new Tesseract api for {cls}", nameof(TessEngine));
             Dispose();
            
             // check if traineddata exists 
@@ -283,7 +283,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         return false;
     }
 
-    private void OnIteratorDisposed(object? sender, EventArgs e) => ProcessCount--;
+    private void OnIteratorDisposed(object? sender, EventArgs e) => _processCount--;
 
     /// <inheritdoc/>
     protected override void Dispose(bool disposing)

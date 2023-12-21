@@ -78,10 +78,15 @@ public partial class MainPage : ContentPage
             engine.SetCharacterWhitelist("abcdefgh");   // These characters ocr is looking for
             engine.SetCharacterBlacklist("abc");        // These characters ocr is not looking for
             // Now ocr should be only finding characters 'defgh'
+
         };
+
+        Tesseract.EngineMode = TesseractOcrMaui.Enums.EngineMode.TesseractOnly;
 
         // Recognize image 
         var result = await Tesseract.RecognizeTextAsync(path);
+
+
 
         // For this example I reset engine configuration, because same Object is used in other examples
         Tesseract.EngineConfiguration = null;
