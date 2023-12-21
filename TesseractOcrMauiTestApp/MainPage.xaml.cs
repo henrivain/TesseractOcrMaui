@@ -81,14 +81,14 @@ public partial class MainPage : ContentPage
 
         };
 
-        Tesseract.EngineMode = TesseractOcrMaui.Enums.EngineMode.TesseractOnly;
+        // You can also set engine mode by uncommenting line below
+        //Tesseract.EngineMode = TesseractOcrMaui.Enums.EngineMode.TesseractOnly;
 
         // Recognize image 
         var result = await Tesseract.RecognizeTextAsync(path);
 
 
-
-        // For this example I reset engine configuration, because same Object is used in other examples
+        // For this example I reset engine configuration, because same object is used in other examples
         Tesseract.EngineConfiguration = null;
 
         // Show output (Not important)
