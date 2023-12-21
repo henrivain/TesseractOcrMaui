@@ -85,4 +85,9 @@ public interface ITesseract
     /// </summary>
     Action<ITessEngineConfigurable>? EngineConfiguration { set; }
 
+    /// <summary>
+    /// Engine mode Tesseract should use, for example lstm or tesseract
+    /// </summary>
+    EngineMode EngineMode { get; set; }
+
 }
