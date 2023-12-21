@@ -78,6 +78,7 @@ public partial class MainPage : ContentPage
             engine.SetCharacterWhitelist("abcdefgh");   // These characters ocr is looking for
             engine.SetCharacterBlacklist("abc");        // These characters ocr is not looking for
             // Now ocr should be only finding characters 'defgh'
+            // You can also notice that setting character listing will set ocr confidence to 0
 
         };
 
