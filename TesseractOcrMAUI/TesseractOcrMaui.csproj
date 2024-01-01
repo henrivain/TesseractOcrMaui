@@ -25,7 +25,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.0.8</Version>
+		<Version>1.0.9</Version>
 		<Title>Maui Tesseract ocr</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
@@ -57,27 +57,10 @@
 	</ItemGroup>
 
 	<!-- Android native libraries-->
+	<!-- Include: libtesseract.so, libleptonica.so, libpng16.so, libtiff.so, libjpeg.so
+		 for Android platforms x86, x86_64, armeabi-v7a, arm64-v8a -->
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
-		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libleptonica.so" />
-		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libpng16.so" />
-		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libtiff.so" />
-		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libjpeg.so" />
-		<AndroidNativeLibrary Include="lib\Android\arm64-v8a\libtesseract.so" />
-		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libleptonica.so" />
-		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libpng16.so" />
-		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libtiff.so" />
-		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libjpeg.so" />
-		<AndroidNativeLibrary Include="lib\Android\armeabi-v7a\libtesseract.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86_64\libleptonica.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86_64\libpng16.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86_64\libtiff.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86_64\libjpeg.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86_64\libtesseract.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86\libleptonica.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86\libpng16.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86\libtiff.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86\libjpeg.so" />
-		<AndroidNativeLibrary Include="lib\Android\x86\libtesseract.so" />
+		<AndroidNativeLibrary Include="lib\Android\**" />
 	</ItemGroup>
 
 	<!-- Windows native libraries to nuget -->
