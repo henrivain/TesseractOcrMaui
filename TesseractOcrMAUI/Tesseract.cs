@@ -18,8 +18,8 @@ public class Tesseract : ITesseract
     /// <param name="logger"></param>
     public Tesseract(ITessDataProvider tessDataProvider, ILogger<ITesseract>? logger)
     {
-        TessDataProvider = tessDataProvider;
-        Logger = logger ?? NullLogger<ITesseract>.Instance;
+        _tessDataProvider = tessDataProvider;
+        _logger = logger ?? NullLogger<ITesseract>.Instance;
     }
 
     /// <summary>
@@ -44,38 +44,40 @@ public class Tesseract : ITesseract
         {
             traineddataCollection.AddNonPackageFile(file);
         }
-        TessDataProvider = new TessDataProvider(traineddataCollection, new TessDataProviderConfiguration()
+        _tessDataProvider = new TessDataProvider(traineddataCollection, new TessDataProviderConfiguration()
         {
             TessDataFolder = tessdataFolder
         });
-        Logger = logger ?? NullLogger<ITesseract>.Instance;
+        _logger = logger ?? NullLogger<ITesseract>.Instance;
     }
 
     /// <inheritdoc/>
-    public string TessDataFolder => TessDataProvider.TessDataFolder;
+    public string TessDataFolder => _tessDataProvider.TessDataFolder;
 
     /// <inheritdoc/>
     public Action<ITessEngineConfigurable>? EngineConfiguration { get; set; }
 
+    /// <inheritdoc/>
+    public EngineMode EngineMode { get; set; } = EngineMode.Default;
 
-    ITessDataProvider TessDataProvider { get; }
-    ILogger<ITesseract> Logger { get; }
+    readonly ITessDataProvider _tessDataProvider;
+    readonly ILogger<ITesseract> _logger;
 
     /// <inheritdoc/>
     public async Task<DataLoadResult> LoadTraineddataAsync()
     {
-        var result = await TessDataProvider.LoadFromPackagesAsync();
-        result.LogLoadErrorsIfNotAllSuccess(Logger);
+        var result = await _tessDataProvider.LoadFromPackagesAsync();
+        result.LogLoadErrorsIfNotAllSuccess(_logger);
         return result;
     }
 
     /// <inheritdoc/>
     public RecognizionResult RecognizeText(string imagePath)
     {
-        Logger.LogInformation("Tesseract, recognize image from path '{path}'.", imagePath);
+        _logger.LogInformation("Tesseract, recognize image from path '{path}'.", imagePath);
         if (File.Exists(imagePath) is false)
         {
-            Logger.LogWarning("Cannot recognize text in '{path}', file does not exist.", imagePath);
+            _logger.LogWarning("Cannot recognize text in '{path}', file does not exist.", imagePath);
             return new RecognizionResult
             {
                 Status = RecognizionStatus.ImageNotFound,
@@ -85,11 +87,11 @@ public class Tesseract : ITesseract
         try
         {
             using Pix pix = Pix.LoadFromFile(imagePath);
-            return Recognize(pix, TessDataFolder, TessDataProvider.GetAllFileNames());
+            return Recognize(pix, TessDataFolder, _tessDataProvider.GetAllFileNames());
         }
         catch (IOException)
         {
-            Logger.LogInformation("Cannot load pix from image path.");
+            _logger.LogInformation("Cannot load pix from image path.");
             return new()
             {
                 Status = RecognizionStatus.InvalidImage,
@@ -101,15 +103,15 @@ public class Tesseract : ITesseract
     /// <inheritdoc/>
     public RecognizionResult RecognizeText(byte[] imageBytes)
     {
-        Logger.LogInformation("Tesseract, recognize byte image.");
+        _logger.LogInformation("Tesseract, recognize byte image.");
         try
         {
             using Pix pix = Pix.LoadFromMemory(imageBytes);
-            return Recognize(pix, TessDataFolder, TessDataProvider.GetAllFileNames());
+            return Recognize(pix, TessDataFolder, _tessDataProvider.GetAllFileNames());
         }
         catch (IOException)
         {
-            Logger.LogInformation("Cannot load pix from memory. Make sure your image is in right format.");
+            _logger.LogInformation("Cannot load pix from memory. Make sure your image is in right format.");
             return new RecognizionResult
             {
                 Status = RecognizionStatus.InvalidImage,
@@ -118,7 +120,7 @@ public class Tesseract : ITesseract
         }
         catch (KnownIssueException ex)
         {
-            Logger.LogWarning("Cannot load pix from memory. '{ex}'", ex);
+            _logger.LogWarning("Cannot load pix from memory. '{ex}'", ex);
             return new RecognizionResult
             {
                 Status = RecognizionStatus.InvalidImage,
@@ -130,15 +132,15 @@ public class Tesseract : ITesseract
     /// <inheritdoc/>
     public RecognizionResult RecognizeText(Pix image)
     {
-        Logger.LogInformation("Tesseract, recognize pix image.");
-        return Recognize(image, TessDataFolder, TessDataProvider.GetAllFileNames());
+        _logger.LogInformation("Tesseract, recognize pix image.");
+        return Recognize(image, TessDataFolder, _tessDataProvider.GetAllFileNames());
     }
 
 
     /// <inheritdoc/>
     public async Task<RecognizionResult> RecognizeTextAsync(string imagePath)
     {
-        Logger.LogInformation("Tesseract, recognize image '{path}' async.", imagePath);
+        _logger.LogInformation("Tesseract, recognize image '{path}' async.", imagePath);
 
         // Load traineddata if all files not loaded yet.
         var loaded = await LoadTraineddataIfNotLoadedAsync();
@@ -157,11 +159,11 @@ public class Tesseract : ITesseract
         try
         {
             using Pix pix = Pix.LoadFromFile(imagePath);
-            return await Task.Run(() => Recognize(pix, TessDataFolder, TessDataProvider.AvailableLanguages));
+            return await Task.Run(() => Recognize(pix, TessDataFolder, _tessDataProvider.AvailableLanguages));
         }
         catch (IOException)
         {
-            Logger.LogInformation("Cannot load pix from image path.");
+            _logger.LogInformation("Cannot load pix from image path.");
             return new()
             {
                 Status = RecognizionStatus.InvalidImage,
@@ -173,7 +175,7 @@ public class Tesseract : ITesseract
     /// <inheritdoc/>
     public async Task<RecognizionResult> RecognizeTextAsync(byte[] imageBytes)
     {
-        Logger.LogInformation("Tesseract, recognize byte image async.");
+        _logger.LogInformation("Tesseract, recognize byte image async.");
         var loaded = await LoadTraineddataIfNotLoadedAsync();
         if (loaded.NotSuccess())
         {
@@ -182,11 +184,11 @@ public class Tesseract : ITesseract
         try
         {
             using Pix pix = Pix.LoadFromMemory(imageBytes);
-            return await Task.Run(() => Recognize(pix, TessDataFolder, TessDataProvider.GetAllFileNames()));
+            return await Task.Run(() => Recognize(pix, TessDataFolder, _tessDataProvider.GetAllFileNames()));
         }
         catch (IOException)
         {
-            Logger.LogInformation("Cannot load pix from memory. Make sure your image is in right format.");
+            _logger.LogInformation("Cannot load pix from memory. Make sure your image is in right format.");
             return new RecognizionResult
             {
                 Status = RecognizionStatus.InvalidImage,
@@ -195,7 +197,7 @@ public class Tesseract : ITesseract
         }
         catch (KnownIssueException ex) 
         {
-            Logger.LogWarning("Cannot load pix from memory. '{ex}'", ex);
+            _logger.LogWarning("Cannot load pix from memory. '{ex}'", ex);
             return new RecognizionResult
             {
                 Status = RecognizionStatus.InvalidImage,
@@ -207,18 +209,18 @@ public class Tesseract : ITesseract
     /// <inheritdoc/>
     public async Task<RecognizionResult> RecognizeTextAsync(Pix image)
     {
-        Logger.LogInformation("Tesseract, recognize pix image async.");
+        _logger.LogInformation("Tesseract, recognize pix image async.");
         var loaded = await LoadTraineddataIfNotLoadedAsync();
         if (loaded.NotSuccess())
         {
             return loaded;
         }
-        return Recognize(image, TessDataFolder, TessDataProvider.GetAllFileNames());
+        return Recognize(image, TessDataFolder, _tessDataProvider.GetAllFileNames());
     }
 
+    /// <inheritdoc/>
+    public string? TryGetTesseractLibVersion() => TessEngine.TryGetVersion();
 
-
-    
     internal RecognizionResult Recognize(Pix pix, string tessDataFolder, string[] traineddataFileNames)
     {
         var (status, languages) = TrainedDataToLanguage(tessDataFolder, traineddataFileNames);
@@ -240,7 +242,7 @@ public class Tesseract : ITesseract
         }
         if (string.IsNullOrWhiteSpace(tessDataFolder))
         {
-            Logger.LogWarning("Tessdata folder is set to empty path => use 'assemblyLocation/tessdata'.");
+            _logger.LogWarning("Tessdata folder is set to empty path => use 'assemblyLocation/tessdata'.");
             tessDataFolder ??= "";
         }
         if (pix is null)
@@ -258,7 +260,8 @@ public class Tesseract : ITesseract
         try
         {
             // nulls are alredy checked, can't throw.
-            using var engine = new TessEngine(languages, tessDataFolder, Logger);
+            using var engine = new TessEngine(languages, tessDataFolder, EngineMode, 
+                new Dictionary<string, object>(), _logger);
 
             if (EngineConfiguration is not null)
             {
@@ -339,8 +342,8 @@ public class Tesseract : ITesseract
         }
        
 
-        Logger.LogInformation("Recognized image with confidence '{value}'", confidence);
-        Logger.LogInformation("Image contained text with length '{value}'", text?.Length ?? 0);
+        _logger.LogInformation("Recognized image with confidence '{value}'", confidence);
+        _logger.LogInformation("Image contained text with length '{value}'", text?.Length ?? 0);
         return new RecognizionResult
         {
             Status = RecognizionStatus.Success,
@@ -351,7 +354,7 @@ public class Tesseract : ITesseract
 
     private async Task<RecognizionResult> LoadTraineddataIfNotLoadedAsync()
     {
-        if (TessDataProvider.IsAllDataLoaded is false)
+        if (_tessDataProvider.IsAllDataLoaded is false)
         {
             var loadResult = await LoadTraineddataAsync();
             if (loadResult.NotSuccess())
@@ -409,7 +412,4 @@ public class Tesseract : ITesseract
         }
         return (RecognizionStatus.InProgressSuccess, string.Join('+', languages));
     }
-
-    /// <inheritdoc/>
-    public string? TryGetTesseractLibVersion() => TessEngine.TryGetVersion();
 }

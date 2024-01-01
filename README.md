@@ -38,7 +38,7 @@ dotnet add package TesseractOcrMaui
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
 
-Page should be injected or injecting Tesseract won't work. `AddTesseractOcr` also loads all libraries that are needed to run library. `files.AddFile("eng.traineddata");` adds all your traineddata files to be loaded, when tesseract is used. For example I add `eng.traineddata`, so I must add [traineddata file](https://github.com/tesseract-ocr/tessdata/) with same name to my project's TesseractOcrMauiTestApp\Resources\Raw folder.
+Add `AddTesseractOcr` call in you injections. This loads all libraries that are needed to run library and adds needed injectable interfaces. `files.AddFile("eng.traineddata");` adds all your traineddata files to be loaded, when tesseract is used. For example I add `eng.traineddata`, so I must add [traineddata file](https://github.com/tesseract-ocr/tessdata/) with same name to my project's TesseractOcrMauiTestApp\Resources\Raw folder.
 
 MauiProgram.cs
 
@@ -81,7 +81,7 @@ public static class MauiProgram
 
 ### 3. Inject ITesseract into your page
 
-Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. I you can see my `Button_Clicked` functionality down below.
+Now you can constructor inject ITesseract interface to you page. I have two labels ("confidenceLabel" and "resultLabel") in my main page. I added button with clicked event handler. You can see my `Button_Clicked` functionality down below.
 
 Mainpage.xaml.cs
 
@@ -157,6 +157,9 @@ public interface ITesseract
 
     // Gets tessdata folder path from TessDataProvider (from configuration)
     string TessDataFolder { get; }
+   
+    // Access used TessEngine for configuration (E.g. Whitelist chafacters)
+    Action<ITessEngineConfigurable>? EngineConfiguration { set; }
 }
 ```
 
@@ -180,7 +183,7 @@ limitations under the License.
 
 NOTE: Tesseract depends on other packages that may be licensed under different open source licenses.
 
-This project does not depend on any third-party C# packages, but it needs [traineddata files](https://github.com/tesseract-ocr/tessdata/) to function. Parts of the code are also is reused from [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract).
+This project does not depend on any third-party C# packages, but it needs [traineddata files](https://github.com/tesseract-ocr/tessdata/) to function. Parts of the code are also reused from [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract).
 
 ## Contributing, IOS and MacOS
 
@@ -195,7 +198,7 @@ If you are interested developing this project, please, open conversation in issu
 
 If you have any questions about anything related to this project, open issue or send me an email.
 
-Only Android and Windows are supported currently, because I have no recources to build and test for IOS and MacOS. Integrating these platforms should not be very big problem if someone needs them, but I don't need them. If you want to add them, just contact me.
+Only Android and Windows are supported currently, because I have no recources to build and test for IOS and MacOS. Integrating these platforms should not be very hard if someone needs them. If you want to add them, just contact me.
 
 Henri Vainio  
 matikkaeditorinkaantaja(at)gmail.com

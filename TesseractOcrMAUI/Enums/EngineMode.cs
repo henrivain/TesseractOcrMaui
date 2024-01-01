@@ -7,8 +7,8 @@
 /// </summary>
 public enum EngineMode
 {
-    TesseractOnly,
-    LstmOnly,
-    TesseractAndLstm,
-    Default
+    TesseractOnly = 0,
+    LstmOnly = 1,
+    TesseractAndLstm = 2,
+    Default = 3
 }
