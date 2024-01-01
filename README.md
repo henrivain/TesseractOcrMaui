@@ -154,10 +154,12 @@ public interface ITesseract
     // Loads traineddata files for use from app packages to appdata folder
     Task<DataLoadResult> LoadTraineddataAsync();
 
-
     // Gets tessdata folder path from TessDataProvider (from configuration)
     string TessDataFolder { get; }
-   
+
+    // Sets tesseract engine to use for example lstm model or tesseract only
+    EngineMode EngineMode { get; set; }
+
     // Access used TessEngine for configuration (E.g. Whitelist chafacters)
     Action<ITessEngineConfigurable>? EngineConfiguration { set; }
 }
