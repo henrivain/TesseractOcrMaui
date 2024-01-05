@@ -109,6 +109,12 @@ public partial class MainPage : ContentPage
 
     private static async Task<string?> GetUserSelectedPath()
     {
+#if IOS
+        var pickResult = await MediaPicker.PickPhotoAsync(new MediaPickerOptions()
+        {
+            Title = "Pick jpeg or png image"
+        });
+#else
         var pickResult = await FilePicker.PickAsync(new PickOptions()
         {
             PickerTitle = "Pick jpeg or png image",
@@ -119,6 +125,7 @@ public partial class MainPage : ContentPage
                 [DevicePlatform.WinUI] = new List<string>() { ".png", ".jpg", ".jpeg" },
             })
         });
+#endif
         return pickResult?.FullPath;
     }
 
