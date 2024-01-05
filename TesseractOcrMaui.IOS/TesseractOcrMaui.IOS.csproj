@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net7.0-ios</TargetFramework>
 		<Nullable>enable</Nullable>
@@ -7,6 +7,7 @@
 		<NoBindingEmbedding>true</NoBindingEmbedding>
 	</PropertyGroup>
 
+	<!-- Native reference -->
 	<ItemGroup>
 		<ObjcBindingApiDefinition Include="ApiDefinition.cs" />
 		<ObjcBindingCoreSource Include="StructsAndEnums.cs" />
@@ -15,5 +16,47 @@
 			<Kind>Static</Kind>
 			<SmartLink>False</SmartLink>
 		</NativeReference>
+	</ItemGroup>
+
+
+	<!-- Package, only with release mode -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<!-- Package properties -->
+	<PropertyGroup>
+		<Version>0.0.1</Version>
+		<Title>Maui Tesseract ocr iOS bindings</Title>
+		<PackageId>TesseractOcrMaui.IOS</PackageId>
+		<Authors>henrivain</Authors>
+		<Description>
+			IOS bindings for TesseractOcrMaui nuget package. TesseractOcrMaui 
+			is wrapper for .Net Maui. Supports Windows, Android iOS platforms.
+		</Description>
+		<PackageProjectUrl></PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/henrivain/TesseractOcrMaui</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>tesseract;ocr;maui;csharp;arm64;x86_64;ios;apple</PackageTags>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Copyright>Copyright 2024 Henri Vainio</Copyright>
+		<!-- Output will be found inside this folder locally -->
+		<PackageOutputPath>C:\Nugets</PackageOutputPath>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackAsTool>False</PackAsTool>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+
+	<!-- Nuget includes -->
+	<ItemGroup>
+		<None Include="..\README.md" Link="Properties\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 </Project>
