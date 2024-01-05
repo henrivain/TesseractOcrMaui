@@ -1,6 +1,10 @@
 ﻿using TesseractOcrMaui.Converters;
-using TesseractOcrMaui.ImportApis;
 using System.Reflection.Metadata;
+#if IOS
+using TesseractOcrMaui.IOS;
+#else
+using TesseractOcrMaui.ImportApis;
+#endif
 
 namespace TesseractOcrMaui;
 internal class TessApi

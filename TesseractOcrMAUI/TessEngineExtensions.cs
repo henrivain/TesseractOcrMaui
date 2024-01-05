@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Controls;
-
-namespace TesseractOcrMaui;
+﻿namespace TesseractOcrMaui;
 
 /// <summary>
 /// Extensions to help engine configuration

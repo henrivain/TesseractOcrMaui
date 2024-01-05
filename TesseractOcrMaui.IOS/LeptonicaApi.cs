@@ -1,22 +1,13 @@
-﻿
-#if !IOS
-#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CA1401 // P/Invokes should not be visible
+#pragma warning disable IDE0300 // Simplify collection initialization
 
-namespace TesseractOcrMaui.ImportApis;
-internal sealed partial class LeptonicaApi
+namespace TesseractOcrMaui.IOS;
+public sealed partial class LeptonicaApi
 {
-#if WINDOWS
-    const string DllName = @"leptonica-1.84.0.dll";
-
-#elif ANDROID21_0_OR_GREATER
-    const string DllName = "libleptonica";
-#elif IOS
-    const string DllName = "This DLL name should never be used, please, file bug report";
-#else
-    const string DllName = "Use Windows, Android or iOS Platform";
-#endif
-
+    const string DllName = "__Internal";
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixAddGray")]
     public static extern IntPtr PixAddGray(HandleRef handleRef1, HandleRef handleRef2, HandleRef handleRef3);
@@ -176,7 +167,7 @@ internal sealed partial class LeptonicaApi
     public static unsafe partial IntPtr PixReadMemTiff(byte* ptr, int length, int v);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixRotate")]
-    public static extern IntPtr PixRotate(HandleRef handle, float angleInRadians, RotationMethod method, RotationFill fillColor, int value1, int value2);
+    public static extern IntPtr PixRotate(HandleRef handle, float angleInRadians, int method, int fillColor, int value1, int value2);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixRotate90")]
     public static extern IntPtr PixRotate90(HandleRef handle, int direction);
@@ -215,11 +206,11 @@ internal sealed partial class LeptonicaApi
     public static extern IntPtr PixThresholdToValue(HandleRef handleRef1, HandleRef handleRef2, int v1, int v2);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixWrite")]
-    public static extern int PixWrite(string filename, HandleRef handle, ImageFormat actualFormat);
+    public static extern int PixWrite(string filename, HandleRef handle, int actualFormat);
 
     [LibraryImport(DllName, EntryPoint = "selCreateBrick")]
     [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-    public static partial IntPtr SelCreateBrick(int selSize1, int selSize2, int v1, int v2, SelType type);
+    public static partial IntPtr SelCreateBrick(int selSize1, int selSize2, int v1, int v2, int type);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "selCreateFromString")]
     public static extern IntPtr SelCreateFromString(string selStr, int v1, int v2, string v3);
@@ -228,4 +219,3 @@ internal sealed partial class LeptonicaApi
     [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
     public static partial void SelDestroy(ref IntPtr sel1);
 }
-#endif

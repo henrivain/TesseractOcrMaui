@@ -1,24 +1,13 @@
-﻿
-#if !IOS
-#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CA1401 // P/Invokes should not be visible
+#pragma warning disable IDE0300 // Simplify collection initialization
 
-namespace TesseractOcrMaui.ImportApis;
+namespace TesseractOcrMaui.IOS;
 
-internal sealed partial class TesseractApi
+public sealed partial class TesseractApi
 {
-
-
-
-#if WINDOWS
-    const string DllName = @"tesseract53.dll";
-#elif ANDROID21_0_OR_GREATER
-    const string DllName = "libtesseract";
-#elif IOS
-    const string DllName = "This DLL name should never be used, please, file bug report";
-#else
-    const string DllName = "Use Windows, Android or iOS Platform";
-#endif
-
+    const string DllName = "__Internal";
 
     const CharSet StrEncoding = CharSet.Ansi;
 
@@ -73,7 +62,7 @@ internal sealed partial class TesseractApi
     public static extern string SetInputImage(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPISetPageSegMode")]
-    public static extern void SetPageSegmentationMode(HandleRef handle, PageSegmentationMode mode);
+    public static extern void SetPageSegmentationMode(HandleRef handle, int mode);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIRecognize")]
     public static extern int Recognize(HandleRef handle, HandleRef monitor);
@@ -112,5 +101,3 @@ internal sealed partial class TesseractApi
     public static extern int GetMeanConfidence(HandleRef handle);
  
 }
-
-#endif

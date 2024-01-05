@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 using TesseractOcrMaui;
 using TesseractOcrMaui.Results;
 #nullable enable
@@ -14,6 +15,9 @@ public partial class MainPage : ContentPage
         logger.LogInformation($"--------------------------------");
         logger.LogInformation($"-   {nameof(TesseractOcrMaui)} Demo   -");
         logger.LogInformation($"--------------------------------");
+
+        var rid = RuntimeInformation.RuntimeIdentifier;
+        logger.LogInformation("Running on rid '{rid}'", rid);
     }
 
     ITesseract Tesseract { get; }

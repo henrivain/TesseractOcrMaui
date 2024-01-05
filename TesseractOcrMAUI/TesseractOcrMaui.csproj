@@ -85,9 +85,16 @@
 		<Folder Include="Properties\" />
 	</ItemGroup>
 
-	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-	  <ProjectReference Include="..\TesseractOcrMaui.IOS\TesseractOcrMaui.IOS.csproj" />
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
+	  <PackageReference Include="TesseractOcrMaui.IOS">
+	    <Version>0.0.26</Version>
+	  </PackageReference>
 	</ItemGroup>
+
+
+
+
+
 	
 </Project>
 
