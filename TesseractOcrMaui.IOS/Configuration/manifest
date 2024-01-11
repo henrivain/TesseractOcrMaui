@@ -1,12 +1,12 @@
 ﻿<BindingAssembly>
-	<NativeReference Name="Tesseract.xcframework">
-		<Forceload></Forceload>
+	<NativeReference Name="tesseract.xcframework">
+		<Forceload>False</Forceload>
 		<Frameworks></Frameworks>
 		<IsCxx></IsCxx>
-		<Kind>Static</Kind>
+		<Kind>Framework</Kind>
 		<LinkerFlags></LinkerFlags>
 		<NeedsGccExceptionHandling></NeedsGccExceptionHandling>
-		<SmartLink>False</SmartLink>
+		<SmartLink>True</SmartLink>
 		<WeakFrameworks></WeakFrameworks>
 	</NativeReference>
 </BindingAssembly>
