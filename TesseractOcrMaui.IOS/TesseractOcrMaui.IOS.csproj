@@ -14,18 +14,21 @@
 		<ObjcBindingApiDefinition Include="ApiDefinition.cs" />
 		<ObjcBindingCoreSource Include="StructsAndEnums.cs" />
 
-		<NativeReference Include="Tesseract.xcframework">
-			<Kind>Static</Kind>
+		<NativeReference Include="tesseract.xcframework">
+			<Kind>Framework</Kind>
 			<SmartLink>False</SmartLink>
 		</NativeReference>
 	</ItemGroup>
+	
+	
+	
 
 	<!-- Nuget includes -->
 	<ItemGroup Condition="'$(Configuration)' == 'Release'">
 		<!-- include xcframework in nuget -->
-		<None Include="Tesseract.xcframework\**" >
+		<None Include="tesseract.xcframework\**" >
 			<Pack>true</Pack>
-			<PackagePath>lib\net7.0-ios16.1\TesseractOcrMaui.IOS.resources\Tesseract.xcframework</PackagePath>
+			<PackagePath>lib\net7.0-ios16.1\TesseractOcrMaui.IOS.resources\tesseract.xcframework</PackagePath>
 		</None>
 		<!-- include Readme-->
 		<None Include="Properties\README.md" Link="Properties\README.md">
