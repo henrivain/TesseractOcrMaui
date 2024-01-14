@@ -227,9 +227,14 @@ This project does not depend on any third-party C# packages, but it needs [train
 - Some instructions can be found from repository [`Documentation` -folder](https://github.com/henrivain/TesseractOcrMaui/tree/master/Documentation)
 - Classes and methods have `xml comments` that try to explain code functionality.
 
+## Maccatalyst support
+
+Maccatalyst is not currently supported, but the support is probably added in future. If you are interested to get the Maccatalyst support sooner, create a github issue or send me an email. I cannot develop for Maccatalyst myself, so it is greatly dependant on outside contributors.
+
 ## Support
 
-If you have any questions about anything related to this project, open a issue on Github or send me an email.
+If you have any questions about anything related to this project, open a issue on Github or send me an email. 
+If something is not working for you or you have a feature request, just, let me know!
 
 Henri Vainio  
 matikkaeditorinkaantaja(at)gmail.com
