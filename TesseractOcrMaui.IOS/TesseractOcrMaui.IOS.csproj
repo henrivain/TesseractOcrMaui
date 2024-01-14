@@ -53,12 +53,12 @@
 		<Title>Maui Tesseract ocr iOS bindings</Title>
 		<PackageId>TesseractOcrMaui.IOS</PackageId>
 		<Authors>henrivain</Authors>
-		<Description>IOS bindings for TesseractOcrMaui nuget package. TesseractOcrMaui is wrapper for .Net Maui. Supports Windows, Android iOS platforms.</Description>
+		<Description>IOS bindings for TesseractOcrMaui nuget package. TesseractOcrMaui is a wrapper for .Net Maui. Supports Windows, Android and iOS platforms.</Description>
 		<PackageProjectUrl></PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/henrivain/TesseractOcrMaui</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageTags>tesseract;ocr;maui;csharp;arm64;x86_64;ios;apple</PackageTags>
+		<PackageTags>tesseract;ocr;maui;csharp;arm64;x86_64;ios;emulator;device</PackageTags>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Copyright>Copyright 2024 Henri Vainio</Copyright>

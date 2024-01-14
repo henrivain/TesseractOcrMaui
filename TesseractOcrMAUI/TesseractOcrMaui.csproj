@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net7.0;net7.0-android;net7.0-ios</TargetFrameworks>
-		<!-- IOS and MacOS are not supported -->
+		<!-- MacOS not supported -->
 		<!-- Removed ;net7.0-maccatalyst -->
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
 		<UseMaui>true</UseMaui>
@@ -25,16 +25,16 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.0.9</Version>
-		<Title>Maui Tesseract ocr</Title>
+		<Version>1.1.0</Version>
+		<Title>Tesseract Ocr Maui</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
-		<Description>Tesseract wrapper for .Net Maui. Supports Windows and Android platforms.</Description>
+		<Description>Tesseract wrapper for .Net Maui Windows, iOS and Android platforms.</Description>
 		<PackageProjectUrl></PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/henrivain/TesseractOcrMaui</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageTags>tesseract;ocr;maui;csharp;android;windows;arm64-v8a;arm-v7a;x86_64;x86;</PackageTags>
+		<PackageTags>tesseract;ocr;maui;csharp;android;windows;ios;arm64;arm64-v8a;arm-v7a;x86_64;x86;</PackageTags>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Copyright>Copyright 2023 Henri Vainio</Copyright>
@@ -90,11 +90,5 @@
 	    <Version>1.0.0</Version>
 	  </PackageReference>
 	</ItemGroup>
-
-
-
-
-
-	
 </Project>
 
