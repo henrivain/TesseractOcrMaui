@@ -34,14 +34,14 @@ jobs:
               run: dotnet restore ${{ env.PROJECT_PATH }}
 
             - name: "Build project"
-              run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
+              run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release e /p:ServerAddress=${{ secrets.DOTNET_BUILD_IOS_SERVER_ADDRESS }} /p:ServerUser=${{ secrets.DOTNET_BUILD_IOS_SERVER_USER }} /p:ServerPassword=${{ secrets.DOTNET_BUILD_IOS_SERVER_PASSWORD }}
 
             - name: "Get version"
               id: version
               uses: battila7/get-version-action@v2
 
             - name: "Pack project"
-              run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIR }}
+              run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIR }} e /p:ServerAddress=${{ secrets.DOTNET_BUILD_IOS_SERVER_ADDRESS }} /p:ServerUser=${{ secrets.DOTNET_BUILD_IOS_SERVER_USER }} /p:ServerPassword=${{ secrets.DOTNET_BUILD_IOS_SERVER_PASSWORD }}
 
             - name: "Push package"
               run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}\*.nupkg -k ${{ secrets.NUGET_AUTH_TOKEN }} -s ${{ env.NUGET_SOURCE_URL }}
