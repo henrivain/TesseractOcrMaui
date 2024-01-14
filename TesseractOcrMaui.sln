@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractOcrMauiTestApp", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{30563E8B-BE16-4EA3-BC54-7B638C023FBD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractOcrMaui.IOS", "TesseractOcrMaui.IOS\TesseractOcrMaui.IOS.csproj", "{A71380A9-6FDC-4BFE-AA16-23215FBDE743}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{8EE9586D-E9BA-4FDB-819F-E1D13B80BF05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EE9586D-E9BA-4FDB-819F-E1D13B80BF05}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8EE9586D-E9BA-4FDB-819F-E1D13B80BF05}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{A71380A9-6FDC-4BFE-AA16-23215FBDE743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A71380A9-6FDC-4BFE-AA16-23215FBDE743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A71380A9-6FDC-4BFE-AA16-23215FBDE743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A71380A9-6FDC-4BFE-AA16-23215FBDE743}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

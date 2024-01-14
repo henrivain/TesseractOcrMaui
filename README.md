@@ -1,39 +1,54 @@
 # TesseractOcrMaui
 
-[Tesseract](https://github.com/tesseract-ocr/tesseract) wrapper for windows and Android for .NET MAUI.
+[Tesseract](https://github.com/tesseract-ocr/tesseract) wrapper for Windows, iOS and Android for .NET MAUI.
 
 ## What is this?
 
-I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces. Currently only Android and Windows are supported, because I don't have resources to test on MacOs or IOS. My own projects only support Windows and Android, so I didn't need those other platforms. If you need support for Apple devices, you have to build those libraries yourself and add them to project.
+.NET MAUI wrapper for optical character recognizion library Tesseract. I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces.
 
 ## Supported platforms
 
-Currently supports Windows and Android. Library is meant to be used with .NET MAUI project. You can see supported cpu architechtures down below.
+Currently supports Windows, iOS and Android. Library is meant to be used with .NET MAUI project. You can see supported cpu architechtures down below.
 
-| platform | Architechture |
-| -------- | ------------- |
-| Windows  | x86_64        |
-| Android  | Arm64-v8a     |
-| Android  | Arm-v7a       |
-| Android  | x86_64        |
-| Android  | x86           |
+| platform            | Architechture |
+| ------------------- | ------------- |
+| Windows             | x86_64        |
+| Android             | Arm64-v8a     |
+| Android             | Arm-v7a       |
+| Android             | x86_64        |
+| Android             | x86           |
+| iOS emulator        | x86_64        |
+| iOS emulator        | Arm64         |
+| iOS physical device | Arm64         |
 
 Supported runtimes
 
 > net7.0 or newer  
 > net7.0-windows10.0.19041 or newer  
-> net7.0-android or newer
+> net7.0-android or newer  
+> net7.0-ios or newer  
 
 Only png and jpeg libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later.
 
 ## Getting started
 
-### 1. Add nuget package to your project.
+### 1. Add nuget package to your project
 
-Package is available in `nuget.org`. You can use it in your project by adding it in your visual studio `nuget package manager or by running command
+Package is available in `nuget.org`. You can use it in your project by adding it in your :
 
-```powershell
+1. Visual Studio Nuget Package Manager
+   Search `TesseractOcrMaui` and add it to your Maui project
+
+2. Using Dotnet CLI run command
+
+```ps
 dotnet add package TesseractOcrMaui
+```
+
+3. By package reference
+
+```xml
+<PackageReference Include="TesseractOcrMaui" Version="1.0.9" />
 ```
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
@@ -71,7 +86,7 @@ public static class MauiProgram
                 files.AddFile("eng.traineddata");
             });
 
-        // Inject main page
+        // Inject main page, so services are injected to its constructor
         builder.Services.AddSingleton<MainPage>();
 
         return builder.Build();
@@ -104,17 +119,9 @@ public partial class MainPage : ContentPage
 
     private async void Button_Clicked(object sender, EventArgs e)
     {
-        // Make user pick file
-        var pickResult = await FilePicker.PickAsync(new PickOptions()
-        {
-            PickerTitle = "Pick jpeg or png image",
-            // Currently usable image types
-            FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>()
-            {
-                [DevicePlatform.Android] = new List<string>() { "image/png", "image/jpeg" },
-                [DevicePlatform.WinUI] = new List<string>() { ".png", ".jpg", ".jpeg" },
-            })
-        });
+        // Make user pick image path
+        var pickResult = await GetUserSelectedImagePath();
+
         // null if user cancelled the operation
         if (pickResult is null)
         {
@@ -132,6 +139,33 @@ public partial class MainPage : ContentPage
             return;
         }
         resultLabel.Text = result.RecognisedText;
+    }
+
+    private static async Task<string?> GetUserSelectedImagePath()
+    {
+        /* This method lets user to select image file by opening
+           file selection dialog. */
+#if IOS
+        /* Note that this method uses conditional
+           compilation for iOS because MediaPicker is better
+           option to use for image picking on iOS. */
+        var pickResult = await MediaPicker.PickPhotoAsync(new MediaPickerOptions()
+        {
+            Title = "Pick jpeg or png image"
+        });
+#else
+        var pickResult = await FilePicker.PickAsync(new PickOptions()
+        {
+            PickerTitle = "Pick jpeg or png image",
+            // Currently usable image types are png and jpeg
+            FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>()
+            {
+                [DevicePlatform.Android] = new List<string>() { "image/png", "image/jpeg" },
+                [DevicePlatform.WinUI] = new List<string>() { ".png", ".jpg", ".jpeg" },
+            })
+        });
+#endif
+        return pickResult?.FullPath;
     }
 }
 ```
@@ -154,10 +188,12 @@ public interface ITesseract
     // Loads traineddata files for use from app packages to appdata folder
     Task<DataLoadResult> LoadTraineddataAsync();
 
-
     // Gets tessdata folder path from TessDataProvider (from configuration)
     string TessDataFolder { get; }
-   
+
+    // Sets tesseract engine to use for example lstm model or tesseract only
+    EngineMode EngineMode { get; set; }
+
     // Access used TessEngine for configuration (E.g. Whitelist chafacters)
     Action<ITessEngineConfigurable>? EngineConfiguration { set; }
 }
@@ -165,7 +201,7 @@ public interface ITesseract
 
 ## Licence
 
-```
+```licence
 Copyright 2023 Henri Vainio
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -185,20 +221,20 @@ NOTE: Tesseract depends on other packages that may be licensed under different o
 
 This project does not depend on any third-party C# packages, but it needs [traineddata files](https://github.com/tesseract-ocr/tessdata/) to function. Parts of the code are also reused from [Charlesw Windows Tesseract wrapper](https://github.com/charlesw/tesseract).
 
-## Contributing, IOS and MacOS
+## Documentation
 
-If you are interested developing this project, please, open conversation in issues and describe your changes you want to make. Package doesn't currently support IOS or MacOS so any help for them is well appreciated.
-
-## Documentation 
 - To see examples of use, see example project `Mainpage` [TesseractOcrMauiTestApp.Mainpage.xaml.cs](https://github.com/henrivain/TesseractOcrMaui/blob/master/TesseractOcrMauiTestApp/MainPage.xaml.cs)
-- Some instructions can be found from repository [`Documentation` -folder](https://github.com/henrivain/TesseractOcrMaui/tree/master/Documentation) 
+- Some instructions can be found from repository [`Documentation` -folder](https://github.com/henrivain/TesseractOcrMaui/tree/master/Documentation)
 - Classes and methods have `xml comments` that try to explain code functionality.
+
+## Maccatalyst support
+
+Maccatalyst is not currently supported, but the support is probably added in future. If you are interested to get the Maccatalyst support sooner, create a github issue or send me an email. I cannot develop for Maccatalyst myself, so it is greatly dependant on outside contributors.
 
 ## Support
 
-If you have any questions about anything related to this project, open issue or send me an email.
-
-Only Android and Windows are supported currently, because I have no recources to build and test for IOS and MacOS. Integrating these platforms should not be very hard if someone needs them. If you want to add them, just contact me.
+If you have any questions about anything related to this project, open a issue on Github or send me an email. 
+If something is not working for you or you have a feature request, just, let me know!
 
 Henri Vainio  
 matikkaeditorinkaantaja(at)gmail.com

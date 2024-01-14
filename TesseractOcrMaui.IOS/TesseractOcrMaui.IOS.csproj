@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net7.0-ios</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>true</ImplicitUsings>
+		<IsBindingProject>true</IsBindingProject>
+		<NoBindingEmbedding>true</NoBindingEmbedding>
+		<RootNamespace>TesseractOcrMaui.IOS</RootNamespace>
+	</PropertyGroup>
+
+
+	<!-- Native reference -->
+	<ItemGroup>
+		<ObjcBindingApiDefinition Include="ApiDefinition.cs" />
+		<ObjcBindingCoreSource Include="StructsAndEnums.cs" />
+
+		<NativeReference Include="tesseract.xcframework">
+			<Kind>Framework</Kind>
+			<SmartLink>False</SmartLink>
+		</NativeReference>
+	</ItemGroup>
+	
+	
+	
+
+	<!-- Nuget includes -->
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<!-- include xcframework in nuget -->
+		<None Include="tesseract.xcframework\**" >
+			<Pack>true</Pack>
+			<PackagePath>lib\net7.0-ios16.1\TesseractOcrMaui.IOS.resources\tesseract.xcframework</PackagePath>
+		</None>
+		<!-- include Readme-->
+		<None Include="Properties\README.md" Link="Properties\README.md">
+			<Pack>true</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<!-- include dll manifest file -->
+		<None Include="Configuration\manifest" >
+			<Pack>true</Pack>
+			<PackagePath>lib\net7.0-ios16.1\TesseractOcrMaui.IOS.resources\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<!-- Package, only with release mode -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<!-- Package properties -->
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+		<Title>Maui Tesseract ocr iOS bindings</Title>
+		<PackageId>TesseractOcrMaui.IOS</PackageId>
+		<Authors>henrivain</Authors>
+		<Description>IOS bindings for TesseractOcrMaui nuget package. TesseractOcrMaui is a wrapper for .Net Maui. Supports Windows, Android and iOS platforms.</Description>
+		<PackageProjectUrl></PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/henrivain/TesseractOcrMaui</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>tesseract;ocr;maui;csharp;arm64;x86_64;ios;emulator;device</PackageTags>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Copyright>Copyright 2024 Henri Vainio</Copyright>
+		<!-- Output will be found inside this folder locally -->
+		<PackageOutputPath>C:\Nugets</PackageOutputPath>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackAsTool>False</PackAsTool>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+</Project>

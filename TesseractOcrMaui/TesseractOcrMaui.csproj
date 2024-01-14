@@ -1,0 +1,94 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net7.0;net7.0-android;net7.0-ios</TargetFrameworks>
+		<!-- MacOS not supported -->
+		<!-- Removed ;net7.0-maccatalyst -->
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
+		<!--<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>-->
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<!-- Package, only with release mode -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<!-- Package properties -->
+	<PropertyGroup>
+		<Version>1.1.0</Version>
+		<Title>Tesseract Ocr Maui</Title>
+		<PackageId>TesseractOcrMaui</PackageId>
+		<Authors>henrivain</Authors>
+		<Description>Tesseract wrapper for .Net Maui Windows, iOS and Android platforms.</Description>
+		<PackageProjectUrl></PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/henrivain/TesseractOcrMaui</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>tesseract;ocr;maui;csharp;android;windows;ios;arm64;arm64-v8a;arm-v7a;x86_64;x86;</PackageTags>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Copyright>Copyright 2023 Henri Vainio</Copyright>
+		<!-- Output will be found inside this folder locally -->
+		<PackageOutputPath>C:\Nugets</PackageOutputPath>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackAsTool>False</PackAsTool>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+
+	<!-- Nuget includes -->
+	<ItemGroup>
+		<None Include="..\README.md" Link="Properties\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<!-- Android native libraries-->
+	<!-- Include: libtesseract.so, libleptonica.so, libpng16.so, libtiff.so, libjpeg.so
+		 for Android platforms x86, x86_64, armeabi-v7a, arm64-v8a -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+		<AndroidNativeLibrary Include="lib\Android\**" />
+	</ItemGroup>
+
+	<!-- Windows native libraries to nuget -->
+	<!-- No condition needed, because package path tells to include in windows -->
+	<ItemGroup Condition="'$(Configuration)' == 'Release' ">
+		<Resource Include="lib\Windows\x86_64\*.dll" Pack="true" PackagePath="lib\net7.0-windows10.0.19041\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</Resource>
+	</ItemGroup>
+
+	<!-- Copy dlls for debuggin test app -->
+	<!-- Dlls go to output folder, so dll import can find them. -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
+		<ContentWithTargetPath Include="lib\Windows\x86_64\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>%(Filename)%(Extension)</TargetPath>
+		</ContentWithTargetPath>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Properties\" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
+	  <PackageReference Include="TesseractOcrMaui.IOS">
+	    <Version>1.0.0</Version>
+	  </PackageReference>
+	</ItemGroup>
+</Project>
+

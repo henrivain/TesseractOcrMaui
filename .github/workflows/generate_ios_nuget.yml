@@ -1,0 +1,34 @@
+name: "Deploy iOS package to NuGet"
+
+on:
+    workflow_dispatch:
+
+env:
+    PROJECT_PATH: "TesseractOcrMaui.IOS/TesseractOcrMaui.IOS.csproj"
+    PACKAGE_OUTPUT_DIR: ${{ github.workspace }}\output
+    NUGET_SOURCE_URL: "https://api.nuget.org/v3/index.json"
+
+jobs:
+    deploy:
+        name: "Deploy"
+        runs-on: "windows-latest"
+        steps:
+            - name: "Checkout"
+              uses: actions/checkout@v3
+              
+            - name: "Install dotnet"
+              uses: actions/setup-dotnet@v3
+              with:
+                  dotnet-version: "8.0.x"
+                
+            - name: "Restore packages"
+              run: dotnet restore ${{ env.PROJECT_PATH }}
+
+            - name: "Build project"
+              run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release /p:ServerAddress=${{ secrets.DOTNET_BUILD_IOS_SERVER_ADDRESS }} /p:ServerUser=${{ secrets.DOTNET_BUILD_IOS_SERVER_USER }} /p:ServerPassword=${{ secrets.DOTNET_BUILD_IOS_SERVER_PASSWORD }}
+
+            - name: "Pack project"
+              run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ variables.IOS_PACKAGE_TARGET_BUILD_VERSION_NO_V }} --output ${{ env.PACKAGE_OUTPUT_DIR }} /p:ServerAddress=${{ secrets.DOTNET_BUILD_IOS_SERVER_ADDRESS }} /p:ServerUser=${{ secrets.DOTNET_BUILD_IOS_SERVER_USER }} /p:ServerPassword=${{ secrets.DOTNET_BUILD_IOS_SERVER_PASSWORD }}
+
+            - name: "Push package"
+              run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}\*.nupkg -k ${{ secrets.NUGET_AUTH_TOKEN }} -s ${{ env.NUGET_SOURCE_URL }}

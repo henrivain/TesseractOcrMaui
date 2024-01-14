@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 using TesseractOcrMaui;
 using TesseractOcrMaui.Results;
 #nullable enable
@@ -14,6 +15,9 @@ public partial class MainPage : ContentPage
         logger.LogInformation($"--------------------------------");
         logger.LogInformation($"-   {nameof(TesseractOcrMaui)} Demo   -");
         logger.LogInformation($"--------------------------------");
+
+        var rid = RuntimeInformation.RuntimeIdentifier;
+        logger.LogInformation("Running on rid '{rid}'", rid);
     }
 
     ITesseract Tesseract { get; }
@@ -109,6 +113,12 @@ public partial class MainPage : ContentPage
 
     private static async Task<string?> GetUserSelectedPath()
     {
+#if IOS
+        var pickResult = await MediaPicker.PickPhotoAsync(new MediaPickerOptions()
+        {
+            Title = "Pick jpeg or png image"
+        });
+#else
         var pickResult = await FilePicker.PickAsync(new PickOptions()
         {
             PickerTitle = "Pick jpeg or png image",
@@ -119,6 +129,7 @@ public partial class MainPage : ContentPage
                 [DevicePlatform.WinUI] = new List<string>() { ".png", ".jpg", ".jpeg" },
             })
         });
+#endif
         return pickResult?.FullPath;
     }
 
