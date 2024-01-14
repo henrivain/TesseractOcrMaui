@@ -4,7 +4,7 @@
 
 ## What is this?
 
-I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces.
+.NET MAUI wrapper for optical character recognizion library Tesseract. I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces.
 
 ## Supported platforms
 
