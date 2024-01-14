@@ -1,6 +1,7 @@
 ﻿#if ANDROID
 using Java.Lang;
 #endif
+using System.Runtime.Versioning;
 using TesseractOcrMaui.Tessdata;
 
 namespace TesseractOcrMaui;
@@ -8,6 +9,7 @@ namespace TesseractOcrMaui;
 /// <summary>
 /// Extensions to inject all library dependencies and load libraries.
 /// </summary>
+[UnsupportedOSPlatform("MACOS")]
 public static class ServiceExtensions
 {
     /// <summary>

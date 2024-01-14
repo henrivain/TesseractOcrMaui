@@ -1,18 +1,22 @@
-﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+﻿
+#if !IOS
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 
 namespace TesseractOcrMaui.ImportApis;
 
 internal sealed partial class TesseractApi
 {
 
-    
+
 
 #if WINDOWS
     const string DllName = @"tesseract53.dll";
 #elif ANDROID21_0_OR_GREATER
     const string DllName = "libtesseract";
+#elif IOS
+    const string DllName = "This DLL name should never be used, please, file bug report";
 #else
-    const string DllName = "Use Windows or Android Platform";
+    const string DllName = "Use Windows, Android or iOS Platform";
 #endif
 
 
@@ -108,3 +112,5 @@ internal sealed partial class TesseractApi
     public static extern int GetMeanConfidence(HandleRef handle);
  
 }
+
+#endif

@@ -1,4 +1,6 @@
-﻿#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+﻿
+#if !IOS
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
 
 namespace TesseractOcrMaui.ImportApis;
@@ -9,8 +11,10 @@ internal sealed partial class LeptonicaApi
 
 #elif ANDROID21_0_OR_GREATER
     const string DllName = "libleptonica";
+#elif IOS
+    const string DllName = "This DLL name should never be used, please, file bug report";
 #else
-    const string DllName = "Use Windows or Android Platform";
+    const string DllName = "Use Windows, Android or iOS Platform";
 #endif
 
 
@@ -224,3 +228,4 @@ internal sealed partial class LeptonicaApi
     [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
     public static partial void SelDestroy(ref IntPtr sel1);
 }
+#endif
