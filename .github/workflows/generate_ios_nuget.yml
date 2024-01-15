@@ -14,7 +14,7 @@ jobs:
         runs-on: macos-latest
         steps:
             - name: "Set XCode"
-              uses: maxim-lobanow/setup-xcode@v1
+              uses: maxim-lobanov/setup-xcode@v1
               with:
                   xcode-version: latest-stable
         
