@@ -5,7 +5,7 @@ on:
 
 env:
     PROJECT_PATH: "TesseractOcrMaui.IOS/TesseractOcrMaui.IOS.csproj"
-    PACKAGE_OUTPUT_DIR: ${{ github.workspace }}\output
+    PACKAGE_OUTPUT_DIR: ${{ github.workspace }}/output
     NUGET_SOURCE_URL: "https://api.nuget.org/v3/index.json"
 
 jobs:
@@ -36,4 +36,4 @@ jobs:
               run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ env.IOS_PACKAGE_TARGET_BUILD_VERSION_NO_V }} --output ${{ env.PACKAGE_OUTPUT_DIR }} 
 
             - name: "Push package"
-              run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}\*.nupkg -k ${{ secrets.NUGET_AUTH_TOKEN }} -s ${{ env.NUGET_SOURCE_URL }}
+              run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}/*.nupkg -k ${{ secrets.NUGET_AUTH_TOKEN }} -s ${{ env.NUGET_SOURCE_URL }}
