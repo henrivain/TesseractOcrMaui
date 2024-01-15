@@ -20,6 +20,9 @@ jobs:
               uses: actions/setup-dotnet@v3
               with:
                   dotnet-version: "8.0.x"
+
+            - name: "Install needed dotnet workloads"
+              run: dotnet workload restore ${{ env.PROJECT_PATH }}
                 
             - name: "Restore packages"
               run: dotnet restore ${{ env.PROJECT_PATH }}
