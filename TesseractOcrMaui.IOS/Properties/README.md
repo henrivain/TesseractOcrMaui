@@ -53,6 +53,10 @@ limitations under the License.
 
 NOTE: Tesseract depends on other packages that may be licensed under different open source licenses
 
+## Big Thanks
+
+To the contributor Ivan Mendoza [@sivanmg](https://github.com/sivanmg). His help with iOS support is greatly appreciated.  
+
 ## Support
 
 If you have any questions about anything related to this project, open issue or send me an email.
