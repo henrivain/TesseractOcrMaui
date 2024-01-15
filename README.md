@@ -48,7 +48,7 @@ dotnet add package TesseractOcrMaui
 3. By package reference
 
 ```xml
-<PackageReference Include="TesseractOcrMaui" Version="1.0.9" />
+<PackageReference Include="TesseractOcrMaui" Version="1.1.0" />
 ```
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
@@ -230,6 +230,10 @@ This project does not depend on any third-party C# packages, but it needs [train
 ## Maccatalyst support
 
 Maccatalyst is not currently supported, but the support is probably added in future. If you are interested to get the Maccatalyst support sooner, create a github issue or send me an email. I cannot develop for Maccatalyst myself, so it is greatly dependant on outside contributors.
+
+## Thanks to contributors
+
+Ivan Mendoza [@sivanmg](https://github.com/sivanmg) - iOS support
 
 ## Support
 
