@@ -1,6 +1,6 @@
 # Ocr Character Whitelist/Blacklist
 
-#### Updated 16.1.2024 [THis way of configuration is no longer needed]
+#### Updated 16.1.2024 `This way of configuration is no longer needed`
 
 Refers to issues [Text whitelist #15](https://github.com/henrivain/TesseractOcrMaui/issues/15) and [Add way to configure TessEngine ITesseract is using #16](https://github.com/henrivain/TesseractOcrMaui/issues/16)
 
