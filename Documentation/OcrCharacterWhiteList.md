@@ -1,8 +1,15 @@
 # Ocr Character Whitelist/Blacklist
 
-#### Updated 15.9.2023
+#### Updated 16.1.2024 [THis way of configuration is no longer needed]
 
 Refers to issues [Text whitelist #15](https://github.com/henrivain/TesseractOcrMaui/issues/15) and [Add way to configure TessEngine ITesseract is using #16](https://github.com/henrivain/TesseractOcrMaui/issues/16)
+
+## Obsolete 
+
+After update to v1.0.8 these engine configurations can be set directly in ITesseract interface. With following property.
+```cs
+Action<ITessEngineConfigurable>? EngineConfiguration { set; }
+```
 
 ### Intro
 
