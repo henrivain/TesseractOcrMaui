@@ -1,12 +1,12 @@
 ﻿<BindingAssembly>
-	<NativeReference Name="tesseract.xcframework">
-		<ForceLoad>False</ForceLoad>
-		<Frameworks></Frameworks>
-		<IsCxx></IsCxx>
-		<Kind>Framework</Kind>
-		<LinkerFlags></LinkerFlags>
-		<NeedsGccExceptionHandling></NeedsGccExceptionHandling>
-		<SmartLink>True</SmartLink>
-		<WeakFrameworks></WeakFrameworks>
-	</NativeReference>
+  <NativeReference Name="tesseract.xcframework">
+    <ForceLoad>False</ForceLoad>
+    <Frameworks>Accelerate</Frameworks>
+    <IsCxx></IsCxx>
+    <Kind>Framework</Kind>
+    <LinkerFlags></LinkerFlags>
+    <NeedsGccExceptionHandling></NeedsGccExceptionHandling>
+    <SmartLink>True</SmartLink>
+    <WeakFrameworks></WeakFrameworks>
+  </NativeReference>
 </BindingAssembly>
