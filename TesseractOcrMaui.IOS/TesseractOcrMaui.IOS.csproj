@@ -17,7 +17,7 @@
 		<NativeReference Include="tesseract.xcframework">
 			<Kind>Framework</Kind>
 			<SmartLink>False</SmartLink>
-			<Frameworks>Accelerate<Frameworks>
+			<Frameworks>Accelerate</Frameworks>
 		</NativeReference>
 	</ItemGroup>
 	
