@@ -1,7 +1,7 @@
 ﻿<BindingAssembly>
 	<NativeReference Name="tesseract.xcframework">
 		<ForceLoad>False</ForceLoad>
-		<Frameworks></Frameworks>
+		<Frameworks>Accelerate<Frameworks>
 		<IsCxx></IsCxx>
 		<Kind>Framework</Kind>
 		<LinkerFlags></LinkerFlags>
