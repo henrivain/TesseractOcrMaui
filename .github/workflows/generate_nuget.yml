@@ -7,7 +7,7 @@ on:
             - "v*"
 
 env:
-    PROJECT_PATH: "TesseractOcrMAUI/TesseractOcrMaui.csproj"
+    PROJECT_PATH: "TesseractOcrMaui/TesseractOcrMaui.csproj"
     PACKAGE_OUTPUT_DIR: ${{ github.workspace }}\output
     NUGET_SOURCE_URL: "https://api.nuget.org/v3/index.json"
 
@@ -22,7 +22,7 @@ jobs:
             - name: "Install dotnet"
               uses: actions/setup-dotnet@v3
               with:
-                  dotnet-version: "7.0.x"
+                  dotnet-version: "8.0.x"
                   
             - name: "Setup Java"
               uses: actions/setup-java@v2
@@ -34,7 +34,7 @@ jobs:
               run: dotnet restore ${{ env.PROJECT_PATH }}
 
             - name: "Build project"
-              run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
+              run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release 
 
             - name: "Get version"
               id: version

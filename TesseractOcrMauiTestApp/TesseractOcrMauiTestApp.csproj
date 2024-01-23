@@ -62,7 +62,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <ProjectReference Include="..\TesseractOcrMAUI\TesseractOcrMaui.csproj" />
+	  <ProjectReference Include="..\TesseractOcrMaui\TesseractOcrMaui.csproj" />
 	</ItemGroup>
 
 </Project>

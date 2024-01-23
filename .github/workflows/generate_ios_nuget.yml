@@ -1,0 +1,42 @@
+name: "Deploy iOS package to NuGet"
+
+on:
+    workflow_dispatch:
+
+env:
+    PROJECT_PATH: "TesseractOcrMaui.IOS/TesseractOcrMaui.IOS.csproj"
+    PACKAGE_OUTPUT_DIR: ${{ github.workspace }}/output
+    NUGET_SOURCE_URL: "https://api.nuget.org/v3/index.json"
+
+jobs:
+    deploy:
+        name: "Deploy"
+        runs-on: macos-latest
+        steps:
+            - name: "Set XCode"
+              uses: maxim-lobanov/setup-xcode@v1
+              with:
+                  xcode-version: latest-stable
+        
+            - name: "Checkout"
+              uses: actions/checkout@v3
+              
+            - name: "Install dotnet"
+              uses: actions/setup-dotnet@v3
+              with:
+                  dotnet-version: "8.0.x"
+
+            - name: "Install needed dotnet workloads"
+              run: dotnet workload restore ${{ env.PROJECT_PATH }}
+                
+            - name: "Restore packages"
+              run: dotnet restore ${{ env.PROJECT_PATH }}
+
+            - name: "Build project"
+              run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release 
+
+            - name: "Pack project"
+              run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ vars.IOS_PACKAGE_TARGET_BUILD_VERSION_NO_V }} --output ${{ env.PACKAGE_OUTPUT_DIR }} 
+
+            - name: "Push package"
+              run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIR }}/*.nupkg -k ${{ secrets.NUGET_AUTH_TOKEN }} -s ${{ env.NUGET_SOURCE_URL }}

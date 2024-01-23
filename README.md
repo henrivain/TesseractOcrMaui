@@ -4,7 +4,7 @@
 
 ## What is this?
 
-I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces.
+.NET MAUI wrapper for optical character recognizion library Tesseract. I didn't find any good up to date C# wrapper to Tesseract that would function with Maui on Android devices. This library wrapps native Tesseract C/C++ libraries to usable C# interfaces.
 
 ## Supported platforms
 
@@ -25,8 +25,8 @@ Supported runtimes
 
 > net7.0 or newer  
 > net7.0-windows10.0.19041 or newer  
-> net7.0-android or newer
-> net7.0-ios
+> net7.0-android or newer  
+> net7.0-ios or newer  
 
 Only png and jpeg libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later.
 
@@ -48,7 +48,7 @@ dotnet add package TesseractOcrMaui
 3. By package reference
 
 ```xml
-<PackageReference Include="TesseractOcrMaui" Version="1.0.9" />
+<PackageReference Include="TesseractOcrMaui" Version="1.1.0" />
 ```
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
@@ -227,9 +227,18 @@ This project does not depend on any third-party C# packages, but it needs [train
 - Some instructions can be found from repository [`Documentation` -folder](https://github.com/henrivain/TesseractOcrMaui/tree/master/Documentation)
 - Classes and methods have `xml comments` that try to explain code functionality.
 
+## Maccatalyst support
+
+Maccatalyst is not currently supported, but the support is probably added in future. If you are interested to get the Maccatalyst support sooner, create a github issue or send me an email. I cannot develop for Maccatalyst myself, so it is greatly dependant on outside contributors.
+
+## Thanks to contributors
+
+Ivan Mendoza [@sivanmg](https://github.com/sivanmg) - iOS support
+
 ## Support
 
-If you have any questions about anything related to this project, open a issue on Github or send me an email.
+If you have any questions about anything related to this project, open a issue on Github or send me an email. 
+If something is not working for you or you have a feature request, just, let me know!
 
 Henri Vainio  
 matikkaeditorinkaantaja(at)gmail.com
