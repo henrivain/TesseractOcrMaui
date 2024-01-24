@@ -17,6 +17,7 @@
 		<NativeReference Include="tesseract.xcframework">
 			<Kind>Framework</Kind>
 			<SmartLink>False</SmartLink>
+			<FrameWorks>Accelerate</FrameWorks>
 		</NativeReference>
 	</ItemGroup>
 	
@@ -49,7 +50,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.0.1</Version>
+		<Version>1.0.5</Version>
 		<Title>Maui Tesseract ocr iOS bindings</Title>
 		<PackageId>TesseractOcrMaui.IOS</PackageId>
 		<Authors>henrivain</Authors>
