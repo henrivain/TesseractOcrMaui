@@ -19,8 +19,13 @@ internal sealed partial class TesseractApi
     const string DllName = "Use Windows, Android or iOS Platform";
 #endif
 
-
     const CharSet StrEncoding = CharSet.Ansi;
+
+
+
+    [LibraryImport(DllName, EntryPoint = "TessDeleteText")]
+    [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    public static partial void DeleteString(IntPtr ptr);
 
     [LibraryImport(DllName, EntryPoint = "TessBaseAPICreate")]
     [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
@@ -47,9 +52,14 @@ internal sealed partial class TesseractApi
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPISetImage2")]
     public static extern void SetImage(HandleRef handle, HandleRef pixHandle);
-    
+
+    // This does not work with non acsii characters, use GetUTF8Text_Ptr instead 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetUTF8Text", CharSet = StrEncoding)]
     public static extern string GetUTF8Text(HandleRef handle);
+
+    // Remember to delete string after copying, use DeleteString(IntPtr ptr)
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetUTF8Text")]
+    public static extern IntPtr GetUTF8Text_Ptr(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIAllWordConfidences")]
     public static extern int[] GetConfidences(HandleRef handle);
