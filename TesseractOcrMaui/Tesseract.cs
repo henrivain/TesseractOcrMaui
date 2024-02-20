@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Versioning;
+using TesseractOcrMaui.Exceptions;
 using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
 
@@ -194,7 +195,7 @@ public class Tesseract : ITesseract
                 Message = "Invalid image, cannot be loaded",
             };
         }
-        catch (KnownIssueException ex) 
+        catch (KnownIssueException ex)
         {
             _logger.LogWarning("Cannot load pix from memory. '{ex}'", ex);
             return new RecognizionResult
@@ -222,12 +223,12 @@ public class Tesseract : ITesseract
 
     internal RecognizionResult Recognize(Pix pix, string tessDataFolder, string[] traineddataFileNames)
     {
-        var (status, languages) = TrainedDataToLanguage(tessDataFolder, traineddataFileNames);
-        if (status.NotSuccess())
+        var (traineddataStatus, languages) = TraineddataToLanguage(tessDataFolder, traineddataFileNames);
+        if (traineddataStatus.NotSuccess())
         {
             return new RecognizionResult
             {
-                Status = status,
+                Status = traineddataStatus,
                 Message = "Failed to load traineddata files. See status to find reason."
             };
         }
@@ -259,7 +260,7 @@ public class Tesseract : ITesseract
         try
         {
             // nulls are alredy checked, can't throw.
-            using var engine = new TessEngine(languages, tessDataFolder, EngineMode, 
+            using var engine = new TessEngine(languages, tessDataFolder, EngineMode,
                 new Dictionary<string, object>(), _logger);
 
             if (EngineConfiguration is not null)
@@ -275,71 +276,39 @@ public class Tesseract : ITesseract
             // SegMode can't be OsdOnly in here.
             text = page.GetText();
         }
-
-        catch (ArgumentException)
-        {
-            return new()
-            {
-                Status = RecognizionStatus.InvalidImage,
-                Message = "Cannot process Pix image, height or width has invalid value."
-            };
-        }
-        catch (InvalidOperationException)
-        {
-            return new()
-            {
-                Status = RecognizionStatus.ImageAlredyProcessed,
-                Message = "Image must be disposed after one (1) use."
-            };
-        }
-        catch (ImageRecognizionException)
-        {
-            return new()
-            {
-                Status = RecognizionStatus.CannotRecognizeText,
-                Message = "Library cannot recognize image for some reason."
-            };
-        }
-        catch (InvalidBytesException ex)
-        {
-            return new()
-            {
-                Status = RecognizionStatus.CannotRecognizeText,
-                Message = $"Recognized text contained invalid bytes. " +
-                $"See inner exception '{ex.GetType().Name}', '{ex.Message}'."
-            };
-        }
-        catch (TesseractInitException ex)
-        {
-            return new()
-            {
-                Status = RecognizionStatus.Failed,
-                Message = "Cannot initialize instance of Tesseract engine, because of invalid data. "
-                    + ex.InnerException is null ? ex.Message
-                        : $"'{ex.Message}': '{ex.InnerException?.Message}'"
-            };
-        }
-        catch (TesseractException)
-        {
-            return new()
-            {
-                Status = RecognizionStatus.CannotRecognizeText,
-                Message = "Library cannot thresholded image."
-            };
-        }
         catch (DllNotFoundException)
         {
             throw;
         }
         catch (Exception ex)
         {
-            return new()
+            (RecognizionStatus status, string message) = ex switch
             {
-                Status = RecognizionStatus.UnknowError,
-                Message = $"Failed to ocr for unknown reason '{ex.GetType().Name}': '{ex.Message}'."
+                PageNotDisposedException => (RecognizionStatus.ImageAlredyProcessed,
+                    "Old image TessPage must be disposed after one (1) use"),
+                ImageRecognizionException => (RecognizionStatus.CannotRecognizeText,
+                    "Native library failed to recognize image"),
+                InvalidBytesException => (RecognizionStatus.CannotRecognizeText,
+                    "Invalid bytes in recognized text, see inner exception"),
+                TesseractInitException => (RecognizionStatus.Failed,
+                    "Invalid data to init Tesseract Engine, see exception"),
+                StringMarshallingException => (RecognizionStatus.InvalidResultString,
+                    "Native library returned invalid string, please file bug report with input image as attachment"),
+                TesseractException => (RecognizionStatus.CannotRecognizeText,
+                    "Library cannot get thresholded image when recognizing"),
+                ArgumentException => (RecognizionStatus.InvalidImage,
+                    "Cannot process Pix image, height or width has invalid values."),
+                Exception => (RecognizionStatus.UnknowError,
+                    $"Failed to ocr for unknown reason '{ex.GetType().Name}': '{ex.Message}'.")
+            };
+            return new RecognizionResult
+            {
+                Status = status,
+                Message = message,
+                Exception = ex
             };
         }
-       
+
 
         _logger.LogInformation("Recognized image with confidence '{value}'", confidence);
         _logger.LogInformation("Image contained text with length '{value}'", text?.Length ?? 0);
@@ -375,7 +344,7 @@ public class Tesseract : ITesseract
     /// <param name="tessdataFolder"></param>
     /// <param name="traineddataFileNames"></param>
     /// <returns>(null, ErrorResult) if failed, othewise (lang, null).</returns>
-    private static (RecognizionStatus, string?) TrainedDataToLanguage(in string tessdataFolder, params string[] traineddataFileNames)
+    private static (RecognizionStatus, string?) TraineddataToLanguage(in string tessdataFolder, params string[] traineddataFileNames)
     {
         if (string.IsNullOrWhiteSpace(tessdataFolder))
         {
