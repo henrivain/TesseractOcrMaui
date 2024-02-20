@@ -75,44 +75,39 @@ public class TessPage : DisposableObject
     /// <summary>
     /// Get text from image. Runs recognizion if it is not already done. Uses UTF-8.
     /// </summary>
-    /// <returns>Text that apprears in image.</returns>
+    /// <returns>Recognized text as UTF-8 string</returns>
     /// <exception cref="InvalidOperationException">PageSegmentationMode is OsdOnly when recognizing.</exception>
     /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
     /// <exception cref="TesseractException">Can't get thresholded image when recognizing.</exception>
-    /// <exception cref="InvalidBytesException">[WINDOWS] Invalid byte sequence in string.</exception>
+    /// <exception cref="StringMarshallingException">
+    /// When recognizion result string pointer is nullpointer or the pointer cannot 
+    /// be marshalled into UTF-8 string.
+    /// </exception>
     public string GetText()
     {
         Logger.LogInformation("Try to get text from image.");
 
         Recognize();
 
-        string result = TesseractApi.GetUTF8Text(Engine.Handle);
+        IntPtr ptr = TesseractApi.GetUTF8Text_Ptr(Engine.Handle);
+        if (ptr == IntPtr.Zero)
+        {
+            Logger.LogError("Recognizion result string cannot be marshalled from null pointer.");
+            throw new StringMarshallingException("String cannot be marshalled from null pointer.");
+        }
+
+        string? result = Marshal.PtrToStringUTF8(ptr);
+        TesseractApi.DeleteString(ptr);
+
+        if (result is null)
+        {
+            Logger.LogError("Cannot encode char* to UTF-8 string.");
+            throw new StringMarshallingException("Could not encode recognizion result string to UTF-8.");
+        }
 
         Logger.LogInformation("Found '{count}' characters in image.", result.Length);
 
-        // My Windows seems to use different encoding than UTF-8 by default, so this should help.
-        // Android uses UTF-8 as default so all good.
-#if WINDOWS
-        var bytes = new byte[result.Length];
-        for (int i = 0; i < result.Length; i++)
-        {
-            bytes[i] = (byte)result[i];
-        }
-        if (bytes is null)
-        {
-            return string.Empty;
-        }
-        try
-        {
-            return Encoding.UTF8.GetString(bytes);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidBytesException("Cannot encode current byte array, because it contains invalid bytes.", ex);
-        }
-#else
         return result;
-#endif
     }
 
     /// <summary>

@@ -21,6 +21,11 @@ public readonly struct RecognizionResult
     public string? Message { get; init; }
 
     /// <summary>
+    /// Optional exception that was thrown if failed.
+    /// </summary>
+    public Exception? Exception { get; init; }
+
+    /// <summary>
     /// Recognized text from the image.
     /// </summary>
     public string? RecognisedText { get; init; }

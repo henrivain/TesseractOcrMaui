@@ -19,5 +19,6 @@ public enum RecognizionStatus
     InvalidImage,
     ImageAlredyProcessed,
     CannotRecognizeText,
-    TessDataFolderNotProvided
+    TessDataFolderNotProvided,
+    InvalidResultString
 }

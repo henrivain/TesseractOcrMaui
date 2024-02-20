@@ -98,11 +98,9 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     /// <returns>New Tess page containing information for recognizion.</returns>
     /// <exception cref="ArgumentNullException">image is null.</exception>
     /// <exception cref="ArgumentException">Image width or height has invalid values.</exception>
-    /// <exception cref="InvalidOperationException">Image already processed. You must dispose page after using.</exception>
-    public TessPage ProcessImage(Pix image, PageSegmentationMode? mode = null)
-    {
-        return ProcessImage(image, null, new Rect(0, 0, image.Width, image.Height), mode);
-    }
+    /// <exception cref="PageNotDisposedException">Image already processed. You must dispose page after using.</exception>
+    public TessPage ProcessImage(Pix image, PageSegmentationMode? mode = null) 
+        => ProcessImage(image, null, new Rect(0, 0, image.Width, image.Height), mode);
 
     /// <summary>
     /// Process image to TessPage.
@@ -114,7 +112,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     /// <returns>New Tess page containing information for recognizion.</returns>
     /// <exception cref="ArgumentNullException">image is null.</exception>
     /// <exception cref="ArgumentException">Region is out of bounds.</exception>
-    /// <exception cref="InvalidOperationException">Image already processed. You must dispose page after using.</exception>
+    /// <exception cref="PageNotDisposedException">Image already processed. You must dispose page after using.</exception>
     public TessPage ProcessImage(Pix image, string? inputName, Rect region, PageSegmentationMode? mode)
     {
         if (image is null)
@@ -130,10 +128,9 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         }
         if (_processCount > 0)
         {
-            _logger.LogError("{cls}: Tried to process image with engine that already has one. " +
-                "You must dispose image after using.", nameof(TessEngine));
-            throw new InvalidOperationException("One image already set. " +
-                "You must dispose page after using.");
+            _logger.LogError("{cls}: Already has one image process. You must dispose {page} after using it.", 
+                nameof(TessEngine), nameof(TessPage));
+            throw new PageNotDisposedException("You must dispose old TessPage after using it.");
         }
 
         _processCount++;
