@@ -7,6 +7,14 @@ namespace TesseractOcrMauiTestApp;
 
 public partial class MainPage : ContentPage
 {
+#if !IOS && DEBUG
+    public MainPage(ITesseract tesseract, TesseractTestClass testClass)
+    {
+        InitializeComponent();
+        Tesseract = tesseract;
+        testClass.RunAsync();
+    }
+#else
     public MainPage(ITesseract tesseract, ILogger<MainPage> logger)
     {
         InitializeComponent();
@@ -18,7 +26,10 @@ public partial class MainPage : ContentPage
 
         var rid = RuntimeInformation.RuntimeIdentifier;
         logger.LogInformation("Running on rid '{rid}'", rid);
+
+
     }
+#endif
 
     ITesseract Tesseract { get; }
 

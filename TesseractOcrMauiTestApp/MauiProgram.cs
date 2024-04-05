@@ -21,6 +21,9 @@ public static class MauiProgram
 
 #if DEBUG
         builder.Logging.AddDebug();
+#if !IOS
+        builder.Services.AddSingleton<TesseractTestClass>();
+#endif
 #endif
         builder.Services.AddTesseractOcr(
             files =>
