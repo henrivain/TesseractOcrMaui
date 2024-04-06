@@ -38,8 +38,17 @@ public class TesseractTestClass
 
         TesseractApi.SetImage(engine.Handle, pix.Handle);
 
-        IntPtr pageIterator = TesseractApi.AnalyseLayoutToPageIterator(engine.Handle);
+
+        //IntPtr pageIterator = TesseractApi.AnalyseLayoutToPageIterator(engine.Handle);
+
+        HandleRef nullPtr = new(null, IntPtr.Zero);
+
+        bool success = TesseractApi.Recognize(engine.Handle, nullPtr) is 0;
+        bool success2 = TesseractApi.Recognize(engine.Handle, nullPtr) is 0;
+
+
         IntPtr resultIterator = TesseractApi.GetResultIterator(engine.Handle);
+
 
 
         

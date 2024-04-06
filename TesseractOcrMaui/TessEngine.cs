@@ -1,4 +1,5 @@
-﻿#if IOS
+﻿using TesseractOcrMaui.Converters;
+#if IOS
 using TesseractOcrMaui.IOS;
 #else
 using TesseractOcrMaui.ImportApis;
@@ -259,10 +260,11 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         languages ??= string.Empty;
         traineddataPath ??= string.Empty;
 
-        int apiStatus = TessApi.BaseApiInit(Handle, languages, traineddataPath, mode, initialOptions);
+        int apiStatus = InitializeTesseractApi5(Handle, languages, traineddataPath, mode, initialOptions);
         if (apiStatus is not 0)
         {
-            _logger.LogError("Could not initialize new Tesseract api for {cls}", nameof(TessEngine));
+            _logger.LogError("Could not initialize new Tesseract api for {cls}. Api status {status}", 
+                nameof(TessEngine), apiStatus);
             Dispose();
            
             // check if traineddata exists 
@@ -274,6 +276,56 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
             throw new TesseractInitException("Cannot initialize Tesseract Api", inner);
         }
     }
+
+
+
+
+    /// <summary>
+    /// Fill Tesseract 5 native constructor and initialize new engine.
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <param name="language"></param>
+    /// <param name="traineddataPath"></param>
+    /// <param name="mode"></param>
+    /// <param name="initialOptions"></param>
+    /// <returns></returns>
+    /// <exception cref="NullPointerException"><paramref name="handle"/> is IntPtr.Zero</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="language"/> is null</exception>
+    internal static int InitializeTesseractApi5(HandleRef handle, string language, string traineddataPath,
+        EngineMode mode, IDictionary<string, object> initialOptions)
+    {
+        NullPointerException.ThrowIfNull(handle);
+        ArgumentNullException.ThrowIfNull(language);
+        
+        traineddataPath ??= string.Empty;
+
+        List<string> optionVariables = new();
+        List<string> optionValues = new();
+        foreach (var (variable, values) in initialOptions)
+        {
+            string? result = TessConverter.TryToString(values);
+            if (result is not null && string.IsNullOrWhiteSpace(variable) is false)
+            {
+                optionVariables.Add(variable);
+                optionValues.Add(result!);
+            }
+        }
+        string[] configs = Array.Empty<string>();
+        string[] options = optionVariables.ToArray();
+        string[] optVals = optionValues.ToArray();
+
+        int initState = TesseractApi.BaseApi5Init(handle, traineddataPath, 0, language,
+            (int)mode, configs, configs.Length, options, optVals,
+            (nuint)options.Length, false);
+
+        return initState;
+    }
+
+
+
+
+
+
 
     
     private static bool AnyTessdataFileExists(string path, string[] languages)
