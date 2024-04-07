@@ -155,10 +155,13 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
 
         IntPtr ptr = ResultIteratorApi.GetUTF8Text(Handle, level.Value);
         float confidence = ResultIteratorApi.GetConfidence(Handle, level.Value);
+        string encoded = Marshal.PtrToStringUTF8(ptr) ?? string.Empty;
+
+        TesseractApi.DeleteString(ptr);
 
         return new TextSpan
         {
-            Text = Marshal.PtrToStringUTF8(ptr) ?? string.Empty,
+            Text = encoded,
             Confidence = confidence,
             Level = Level,
         };
@@ -171,8 +174,8 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// </summary>
     /// <exception cref="ObjectDisposedException">If current object is already disposed.</exception>
     /// <exception cref="ResultIteratorException">
-    /// If new ResultIterator cannot be initialized. 
-    /// Make sure TessEngine image is set and Recognize() is called.
+    /// If native iterator cannot be initialized. Make sure <see cref="TessEngine.SetImage(Pix)"/> and 
+    /// <see cref="TessEngine.Recognize(HandleRef?)"/> are called.
     /// </exception>
     private void ResetPointer()
     {
