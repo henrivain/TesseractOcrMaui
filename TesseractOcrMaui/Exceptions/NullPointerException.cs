@@ -30,15 +30,14 @@ public class NullPointerException : TesseractException
     /// </summary>
     /// <param name="message"></param>
     /// <param name="innerException"></param>
-    public NullPointerException(string? message, Exception? innerException) : base(message, innerException) { }
+    public NullPointerException(string? message, Exception? innerException) : 
+        base(message ?? "Value cannot be IntPtr.Zero", innerException) { }
 
     /// <summary>
     /// Throw <see cref="NullPointerException"/> if <paramref name="pointer"/> has value of <see cref="IntPtr.Zero"/>
     /// </summary>
     /// <param name="pointer">Pointer to be validated</param>
-    /// <param name="pointerName">
-    /// Parameter name, in most of the cases
-    /// this value is set automatically by compiler and should not be touched</param>
+    /// <param name="pointerName">In the most cases value is set automatically by the compiler and should not be touched</param>
     [StackTraceHidden]
     public static void ThrowIfNull(IntPtr pointer, [CallerArgumentExpression(nameof(pointer))] string? pointerName = null)
     {
@@ -49,7 +48,6 @@ public class NullPointerException : TesseractException
             throw new NullPointerException($"Value cannot be IntPtr.Zero. {pointerName}");
         }
     }
-
 
     /// <summary>
     /// Throw <see cref="NullPointerException"/> if <paramref name="handle"/>.Handle has value of <see cref="IntPtr.Zero"/>

@@ -3,6 +3,7 @@
 using TesseractOcrMaui.IOS;
 #else
 using TesseractOcrMaui.ImportApis;
+using TesseractOcrMaui.Iterables;
 #endif
 
 namespace TesseractOcrMaui;
@@ -12,6 +13,12 @@ namespace TesseractOcrMaui;
 /// </summary>
 public class TessEngine : DisposableObject, ITessEngineConfigurable
 {
+    int _processCount = 0;
+
+    readonly ILogger _logger;
+
+    bool _isImageSet = false;
+
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
     /// </summary>
@@ -87,7 +94,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     /// Version of used Tesseract api. Returns null if version cannot be obtained.
     /// </summary>
     /// <returns>Version string if successful, otherwise null</returns>
-    public static string? TryGetVersion() 
+    public static string? TryGetVersion()
         => Marshal.PtrToStringAnsi(TesseractApi.GetVersion());
 
 
@@ -100,7 +107,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     /// <exception cref="ArgumentNullException">image is null.</exception>
     /// <exception cref="ArgumentException">Image width or height has invalid values.</exception>
     /// <exception cref="PageNotDisposedException">Image already processed. You must dispose page after using.</exception>
-    public TessPage ProcessImage(Pix image, PageSegmentationMode? mode = null) 
+    public TessPage ProcessImage(Pix image, PageSegmentationMode? mode = null)
         => ProcessImage(image, null, new Rect(0, 0, image.Width, image.Height), mode);
 
     /// <summary>
@@ -111,16 +118,12 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     /// <param name="region"></param>
     /// <param name="mode"></param>
     /// <returns>New Tess page containing information for recognizion.</returns>
-    /// <exception cref="ArgumentNullException">image is null.</exception>
-    /// <exception cref="ArgumentException">Region is out of bounds.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="image"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="region"/> is out of bounds.</exception>
     /// <exception cref="PageNotDisposedException">Image already processed. You must dispose page after using.</exception>
+    /// <exception cref="NullPointerException">If <paramref name="image"/>.Handle is IntPtr.Zero.</exception>
     public TessPage ProcessImage(Pix image, string? inputName, Rect region, PageSegmentationMode? mode)
     {
-        if (image is null)
-        {
-            _logger.LogError("{cls}: Cannot process null image.", nameof(TessEngine));
-            throw new ArgumentNullException(nameof(image));
-        }
         if (region.X1 < 0 || region.Y1 < 0 || region.X1 > image.Width || region.Y2 > image.Height)
         {
             _logger.LogError("{cls}: Image region out of bounds, cannot process.", nameof(TessEngine));
@@ -129,11 +132,10 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         }
         if (_processCount > 0)
         {
-            _logger.LogError("{cls}: Already has one image process. You must dispose {page} after using it.", 
+            _logger.LogError("{cls}: Already has one image process. You must dispose {page} after using it.",
                 nameof(TessEngine), nameof(TessPage));
             throw new PageNotDisposedException("You must dispose old TessPage after using it.");
         }
-
         _processCount++;
 
 #if IOS
@@ -141,8 +143,8 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
 #else
         TesseractApi.SetPageSegmentationMode(Handle, mode ?? DefaultSegmentationMode);
 #endif
+        SetImage(image);
 
-        TesseractApi.SetImage(Handle, image.Handle);
         if (string.IsNullOrEmpty(inputName) is false)
         {
             TesseractApi.SetInputName(Handle, inputName);
@@ -152,6 +154,49 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         page.Disposed += OnIteratorDisposed;
         return page;
     }
+
+
+#if !IOS
+    /// <summary>
+    /// Get page iterator for given Pix image. ResultIterator instance points to current TessEngine data,
+    /// so TessEngine instance must exist as long as created ResultIterator.
+    /// </summary>
+    /// <param name="image"></param>
+    /// <returns>ResultIterator to iterate over recognized image.</returns>
+    /// <exception cref="TesseractException">If image could not recognized.</exception>
+    /// <exception cref="ArgumentNullException">If <paramref name="image"/> is null.</exception>
+    /// <exception cref="NullPointerException">If <see cref="Handle"/> or <see cref="Pix.Handle"/> is IntPtr.Zero.</exception>
+    /// <exception cref="InvalidOperationException">If Image is already set.</exception>
+    public ResultIterator GetResultIterator(Pix image)
+    {
+        SetImage(image);
+        bool success = Recognize();
+        if (success is false)
+        {
+            throw new TesseractException("Could not process given image.");
+        }
+        return new(this);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="image"></param>
+    /// <returns></returns>
+    /// <exception cref="TesseractException"></exception>
+    public ResultIterable GetResultIterable(Pix image)
+    {
+        SetImage(image);
+        bool success = Recognize();
+        if (success is false)
+        {
+            throw new TesseractException("Could not process given image.");
+        }
+        return new (this);
+    }
+
+#endif
+
 
     /// <summary>
     /// Set tesseract library variable for debug purposes.
@@ -166,7 +211,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
             name, value, success);
         return success;
     }
-    
+
     /// <inheritdoc/>
     public bool SetVariable(string name, string value)
     {
@@ -235,9 +280,90 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         return TesseractApi.GetStringVariable(Handle, name) ?? string.Empty;
     }
 
+    /// <summary>
+    /// Process image so that result iterator can be created.
+    /// </summary>
+    /// <returns>True if recognized successfully, otherwise false</returns>
+    /// <exception cref="ImageNotSetException">If source image is not set before calling this method.</exception>
+    internal bool Recognize(HandleRef? monitorHandle = null)
+    {
+        if (_isImageSet is false)
+        {
+            throw new ImageNotSetException("Cannot recognize image. No image source set.");
+        }
 
-    int _processCount = 0;
-    readonly ILogger _logger;
+        int status = TesseractApi.Recognize(Handle, monitorHandle ?? new HandleRef(null, IntPtr.Zero));
+        if (status is not 0)
+        {
+            _logger.LogWarning("Could not Recognize image with api status {}", status);
+        }
+        return status is 0;
+    }
+
+    /// <summary>
+    /// Set source image for recognizion process. 
+    /// </summary>
+    /// <param name="image"></param>
+    /// <exception cref="NullPointerException">If <paramref name="image"/>.Handle is Intptr.Zero.</exception>
+    /// <exception cref="InvalidOperationException">If one image is already set with current engine.</exception>
+    /// <exception cref="ArgumentNullException">If <paramref name="image"/> is null.</exception>
+    internal void SetImage(Pix image)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        NullPointerException.ThrowIfNull(Handle);
+        NullPointerException.ThrowIfNull(image.Handle);
+
+        if (_isImageSet)
+        {
+            throw new InvalidOperationException("Engine image already set.");
+        }
+
+        TesseractApi.SetImage(Handle, image.Handle);
+        _isImageSet = true;
+    }
+
+    /// <summary>
+    /// Fill Tesseract 5 native constructor and initialize new engine.
+    /// </summary>
+    /// <param name="handle">Engine handle</param>
+    /// <param name="languages">'+' -seaprated list of traineddata file names without extensions.</param>
+    /// <param name="traineddataPath">Path to traineddata folder with no file name</param>
+    /// <param name="mode">Which tesseract engine mode should be used</param>
+    /// <param name="initialOptions"></param>
+    /// <returns>0 if success, otherwise some other api status code</returns>
+    /// <exception cref="NullPointerException"><paramref name="handle"/> is IntPtr.Zero</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="languages"/> is null</exception>
+    internal static int InitializeTesseractApi5(HandleRef handle, string languages, string traineddataPath,
+        EngineMode mode, IDictionary<string, object> initialOptions)
+    {
+        NullPointerException.ThrowIfNull(handle);
+        ArgumentNullException.ThrowIfNull(languages);
+
+        traineddataPath ??= string.Empty;
+
+        List<string> optionVariables = new();
+        List<string> optionValues = new();
+        foreach (var (variable, values) in initialOptions)
+        {
+            string? result = TessConverter.TryToString(values);
+            if (result is not null && string.IsNullOrWhiteSpace(variable) is false)
+            {
+                optionVariables.Add(variable);
+                optionValues.Add(result!);
+            }
+        }
+        string[] configs = Array.Empty<string>();
+        string[] options = optionVariables.ToArray();
+        string[] optVals = optionValues.ToArray();
+
+        int initState = TesseractApi.BaseApi5Init(handle, traineddataPath, 0, languages,
+            (int)mode, configs, configs.Length, options, optVals,
+            (nuint)options.Length, false);
+
+        return initState;
+    }
+
+
 
     /// <summary>
     /// Initialize new Tesseract engine with given data.
@@ -263,10 +389,10 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         int apiStatus = InitializeTesseractApi5(Handle, languages, traineddataPath, mode, initialOptions);
         if (apiStatus is not 0)
         {
-            _logger.LogError("Could not initialize new Tesseract api for {cls}. Api status {status}", 
+            _logger.LogError("Could not initialize new Tesseract api for {cls}. Api status {status}",
                 nameof(TessEngine), apiStatus);
             Dispose();
-           
+
             // check if traineddata exists 
             bool traineddataExists = AnyTessdataFileExists(traineddataPath, languages.Split('+'));
             var inner = traineddataExists ? null :
@@ -280,54 +406,12 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
 
 
 
-    /// <summary>
-    /// Fill Tesseract 5 native constructor and initialize new engine.
-    /// </summary>
-    /// <param name="handle"></param>
-    /// <param name="language"></param>
-    /// <param name="traineddataPath"></param>
-    /// <param name="mode"></param>
-    /// <param name="initialOptions"></param>
-    /// <returns></returns>
-    /// <exception cref="NullPointerException"><paramref name="handle"/> is IntPtr.Zero</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="language"/> is null</exception>
-    internal static int InitializeTesseractApi5(HandleRef handle, string language, string traineddataPath,
-        EngineMode mode, IDictionary<string, object> initialOptions)
-    {
-        NullPointerException.ThrowIfNull(handle);
-        ArgumentNullException.ThrowIfNull(language);
-        
-        traineddataPath ??= string.Empty;
-
-        List<string> optionVariables = new();
-        List<string> optionValues = new();
-        foreach (var (variable, values) in initialOptions)
-        {
-            string? result = TessConverter.TryToString(values);
-            if (result is not null && string.IsNullOrWhiteSpace(variable) is false)
-            {
-                optionVariables.Add(variable);
-                optionValues.Add(result!);
-            }
-        }
-        string[] configs = Array.Empty<string>();
-        string[] options = optionVariables.ToArray();
-        string[] optVals = optionValues.ToArray();
-
-        int initState = TesseractApi.BaseApi5Init(handle, traineddataPath, 0, language,
-            (int)mode, configs, configs.Length, options, optVals,
-            (nuint)options.Length, false);
-
-        return initState;
-    }
 
 
 
 
 
 
-
-    
     private static bool AnyTessdataFileExists(string path, string[] languages)
     {
         foreach (var language in languages)

@@ -20,21 +20,17 @@ internal sealed class ResultIteratorApi
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorDelete")]
     public static extern void Delete(HandleRef handle);
     
-    
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorCopy")]
-    public static extern /*TessResultIterator pointer*/ HandleRef Copy(HandleRef handle);
-    
+    public static extern /*TessResultIterator pointer*/ IntPtr Copy(HandleRef handle);
     
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorGetPageIterator")]
-    public static extern /*TessPageIterator pointer*/ HandleRef GetPageIterator(HandleRef handle);
+    public static extern /*TessPageIterator pointer*/ IntPtr GetPageIterator(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorNext")]
     public static extern bool Next(HandleRef handle, PageIteratorLevel level);
 
-
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorGetUTF8Text")]
     public static extern IntPtr GetUTF8Text(HandleRef handle, PageIteratorLevel level);
-    
     
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorConfidence")]
     public static extern float GetConfidence(HandleRef handle, PageIteratorLevel level);
@@ -46,10 +42,5 @@ internal sealed class ResultIteratorApi
     public static unsafe extern IntPtr GetWordFontAttributes(HandleRef handle, bool* isBold, bool* isItalic, 
         bool* isUnderlined, bool* isMonospace, bool* isSerif, bool* isSmallCaps, 
         int* pointSize, int* fontId);
-
-
-
-
-
 }
 #endif

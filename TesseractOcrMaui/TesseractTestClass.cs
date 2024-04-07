@@ -2,9 +2,10 @@
 #if !IOS
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-using TesseractOcrMaui.ImportApis;
+using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
-using static System.Net.Mime.MediaTypeNames;
+using TesseractOcrMaui.Iterables;
+
 
 namespace TesseractOcrMaui;
 
@@ -26,33 +27,44 @@ public class TesseractTestClass
         var result = await _tessDataProvider.LoadFromPackagesAsync();
         string tessDataFolder = _tessDataProvider.TessDataFolder;
 
-
         string languages = string.Join('+', _tessDataProvider.AvailableLanguages.Select(x => x.Replace(".traineddata", "")));
         string imagePath = @"C:\Users\henri\Downloads\tess version wsl.png";
 
         // nulls are alredy checked, can't throw.
-        using var engine = new TessEngine(languages, tessDataFolder, EngineMode.Default,
-            new Dictionary<string, object>(), _logger);
+        using var engine = new TessEngine(languages, tessDataFolder, _logger);
 
         using var pix = Pix.LoadFromFile(imagePath);
 
-        TesseractApi.SetImage(engine.Handle, pix.Handle);
+
+
+        //IntPtr pageIterator = ResultIteratorApi.GetPageIterator(iterator.Handle);
+
+
+
+
+        ResultIterable values = engine.GetResultIterable(pix);
+
+
+        List<TextSpan> spans = new();
+        foreach (var span in values)
+        {
+            spans.Add(span);
+        }
+        
+        
+        List<TextSpan> spans2 = new();
+        foreach (var span in values)
+        {
+            spans2.Add(span);
+        }
+
+
+      
 
 
         //IntPtr pageIterator = TesseractApi.AnalyseLayoutToPageIterator(engine.Handle);
 
-        HandleRef nullPtr = new(null, IntPtr.Zero);
 
-        bool success = TesseractApi.Recognize(engine.Handle, nullPtr) is 0;
-        bool success2 = TesseractApi.Recognize(engine.Handle, nullPtr) is 0;
-
-
-        IntPtr resultIterator = TesseractApi.GetResultIterator(engine.Handle);
-
-
-
-        
-        
     }
 }
 

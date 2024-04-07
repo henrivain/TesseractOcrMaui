@@ -23,7 +23,7 @@ internal sealed class PageIteratorApi
 
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorDelete")]
-    public static extern /*TessPageIterator*/ HandleRef Copy(HandleRef iterHandle);
+    public static extern /*TessPageIterator*/ IntPtr Copy(HandleRef iterHandle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBegin")]
     public static extern void Begin(HandleRef iterHandle);
@@ -44,11 +44,11 @@ internal sealed class PageIteratorApi
                                                     int* left, int* top, int* right, int* bottom);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorGetBinaryImage")]
-    public static extern /*Pix ptr*/ HandleRef GetBinaryImage(HandleRef iterHandle, PageIteratorLevel level);
+    public static extern /*Pix ptr*/ IntPtr GetBinaryImage(HandleRef iterHandle, PageIteratorLevel level);
     
     
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorGetImage")]
-    public static extern unsafe /*Pix ptr*/ HandleRef GetImage(HandleRef iterHandle, PageIteratorLevel level,
+    public static extern unsafe /*Pix ptr*/ IntPtr GetImage(HandleRef iterHandle, PageIteratorLevel level,
         int padding, HandleRef orginalPix, int* left, int* top);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBaseline")]
