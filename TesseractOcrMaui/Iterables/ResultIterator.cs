@@ -3,6 +3,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.Results;
 
@@ -106,11 +107,9 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
 
     /// <summary>
     /// Because iterators start at index -1, 
-    /// the state before calling <see cref="MoveNext"/> for the first time is stored here.
+    /// the state before calling <see cref="MoveNext()"/> for the first time is stored here.
     /// </summary>
     public bool IsAtBeginning { get; private set; } = true;
-
-
 
     /// <summary>
     /// Advances the enumerator to the next element of the collection.
@@ -119,14 +118,24 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// <see langword="true" /> if the enumerator was successfully advanced to the next element, 
     /// <see langword="false" /> if the enumerator has passed the end of the collection.
     /// </returns>
-    public bool MoveNext()
+    public bool MoveNext() => MoveNext(Level);
+
+    /// <summary>
+    /// Advances the enumerator to the next element of the collection by given <see cref="PageIteratorLevel"/> <paramref name="level"/>.
+    /// </summary>
+    /// <param name="level"></param>
+    /// <returns>
+    /// <see langword="true" /> if the enumerator was successfully advanced to the next element, 
+    /// <see langword="false" /> if the enumerator has passed the end of the collection.
+    /// </returns>
+    public bool MoveNext(PageIteratorLevel level)
     {
         if (IsAtBeginning)
         {
             IsAtBeginning = false;
             return true;
         }
-        return ResultIteratorApi.Next(Handle, Level);
+        return ResultIteratorApi.Next(Handle, level);
     }
 
 
@@ -173,6 +182,16 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     }
 
     /// <summary>
+    /// Get language (Tessadata file name) in current iterator position.
+    /// </summary>
+    /// <returns>Used tessData file name without extension or <see langword="null"/> if failed.</returns>
+    public string? GetCurrentRecognizedLanguage()
+    {
+        IntPtr langPtr = ResultIteratorApi.GetRecognizedLanguage(Handle);
+        return Marshal.PtrToStringUTF8(langPtr);
+    }
+
+    /// <summary>
     /// Get copy of <see cref="ResultIterator"/> at current index.
     /// </summary>
     /// <returns>Copy of <see cref="ResultIterator"/> at current index if successful, otherwise false.</returns>
@@ -186,6 +205,8 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
         }
         return new(newIteratorPtr, EngineHandle, Level, IsAtBeginning);
     }
+
+    
 
 
     /// <summary>

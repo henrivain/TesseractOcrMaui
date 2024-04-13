@@ -162,12 +162,13 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     /// so TessEngine instance must exist as long as created ResultIterator.
     /// </summary>
     /// <param name="image"></param>
+    /// <param name="level">What text block size is iterated at the time, for example TextLine, Paragraph or Symbol.</param>
     /// <returns>ResultIterator to iterate over recognized image.</returns>
     /// <exception cref="TesseractException">If image could not recognized.</exception>
     /// <exception cref="ArgumentNullException">If <paramref name="image"/> is null.</exception>
     /// <exception cref="NullPointerException">If <see cref="Handle"/> or <see cref="Pix.Handle"/> is IntPtr.Zero.</exception>
     /// <exception cref="InvalidOperationException">If Image is already set.</exception>
-    public ResultIterator GetResultIterator(Pix image)
+    public ResultIterator GetResultIterator(Pix image, PageIteratorLevel level = PageIteratorLevel.TextLine)
     {
         SetImage(image);
         bool success = Recognize();
@@ -175,7 +176,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         {
             throw new TesseractException("Could not process given image.");
         }
-        return new(this);
+        return new(this, level);
     }
 
     /// <summary>

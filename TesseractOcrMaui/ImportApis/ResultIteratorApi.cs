@@ -36,11 +36,11 @@ internal sealed class ResultIteratorApi
     public static extern float GetConfidence(HandleRef handle, PageIteratorLevel level);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorWordRecognitionLanguage")]
-    public static extern IntPtr GetRecognizedLanguage(HandleRef handle);
+    public static extern /*string*/ IntPtr GetRecognizedLanguage(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorWordFontAttributes")]
-    public static unsafe extern IntPtr GetWordFontAttributes(HandleRef handle, bool* isBold, bool* isItalic, 
-        bool* isUnderlined, bool* isMonospace, bool* isSerif, bool* isSmallCaps, 
-        int* pointSize, int* fontId);
+    public static unsafe extern /*string*/ IntPtr GetWordFontAttributes(HandleRef handle, out bool isBold, out bool isItalic, 
+        out bool isUnderlined, out bool isMonospace, out bool isSerif, out bool isSmallCaps, 
+        out int pointSize, out int fontId);
 }
 #endif

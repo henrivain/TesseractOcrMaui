@@ -19,7 +19,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// </summary>
     /// <param name="handle"></param>
     /// <exception cref="ArgumentNullException">Handle is zero ptr.</exception>
-    private Pix(IntPtr handle)
+    internal Pix(IntPtr handle)
     {
         if (handle == IntPtr.Zero)
         {

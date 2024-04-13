@@ -29,9 +29,9 @@ public class TesseractTestClass
         string languages = string.Join('+', _tessDataProvider.AvailableLanguages.Select(x => x.Replace(".traineddata", "")));
         string imagePath = @"C:\Users\henri\Downloads\tess version wsl.png";
 
+
         // nulls are alredy checked, can't throw.
         using var engine = new TessEngine(languages, tessDataFolder, _logger);
-
         using var pix = Pix.LoadFromFile(imagePath);
 
 
@@ -39,9 +39,20 @@ public class TesseractTestClass
         //IntPtr pageIterator = ResultIteratorApi.GetPageIterator(iterator.Handle);
 
 
-        //using var iterator = engine.GetResultIterator(pix);
+        using var iterator = engine.GetResultIterator(pix);
+
+        using PageIterator pageIter = new (iterator);
+
+
+
+
+
+
+
+
+
         //iterator.MoveNext();
-        //iterator.MoveNext();
+        //string? lang = iterator.GetCurrentRecognizedLanguage();
 
         //using ResultIterator? iterator2 = iterator.CopyInCurrentIndex();
         //ArgumentNullException.ThrowIfNull(iterator2);
