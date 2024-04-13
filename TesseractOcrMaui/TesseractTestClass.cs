@@ -2,9 +2,8 @@
 #if !IOS
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-using TesseractOcrMaui.Results;
-using TesseractOcrMaui.Tessdata;
 using TesseractOcrMaui.Iterables;
+using TesseractOcrMaui.Tessdata;
 
 
 namespace TesseractOcrMaui;
@@ -40,26 +39,41 @@ public class TesseractTestClass
         //IntPtr pageIterator = ResultIteratorApi.GetPageIterator(iterator.Handle);
 
 
+        //using var iterator = engine.GetResultIterator(pix);
+        //iterator.MoveNext();
+        //iterator.MoveNext();
+
+        //using ResultIterator? iterator2 = iterator.CopyInCurrentIndex();
+        //ArgumentNullException.ThrowIfNull(iterator2);
+
+        //iterator2.Reset();
+
+        //iterator2.MoveNext();
+        //iterator2.MoveNext();
+        //iterator2.MoveNext();
+        //string text = iterator2.Current.ToString();
 
 
-        ResultIterable values = engine.GetResultIterable(pix);
 
 
-        List<TextSpan> spans = new();
-        foreach (var span in values)
-        {
-            spans.Add(span);
-        }
-        
-        
-        List<TextSpan> spans2 = new();
-        foreach (var span in values)
-        {
-            spans2.Add(span);
-        }
+
+        //ResultIterable values = engine.GetResultIterable(pix);
+
+        //List<TextSpan> spans = new();
+        //foreach (var span in values)
+        //{
+        //    spans.Add(span);
+        //}
 
 
-      
+        //List<TextSpan> spans2 = new();
+        //foreach (var span in values)
+        //{
+        //    spans2.Add(span);
+        //}
+
+
+
 
 
         //IntPtr pageIterator = TesseractApi.AnalyseLayoutToPageIterator(engine.Handle);

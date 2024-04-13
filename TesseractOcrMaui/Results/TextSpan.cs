@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace TesseractOcrMaui.Results;
 
@@ -37,4 +38,17 @@ public readonly record struct TextSpan
     /// PageIteratorLevel that was used to get this text span.
     /// </summary>
     public required PageIteratorLevel Level { get; init; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+#if DEBUG
+        return JsonSerializer.Serialize(this, new JsonSerializerOptions
+        {
+             WriteIndented = true,
+        });
+#else
+        return base.ToString() ?? string.Empty;
+#endif
+    }
 }

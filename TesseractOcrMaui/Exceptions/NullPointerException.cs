@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using TesseractOcrMaui.PointerTypes;
 
 
 namespace TesseractOcrMaui.Exceptions;
@@ -63,6 +64,12 @@ public class NullPointerException : TesseractException
         {
             throw new NullPointerException($"Handle value cannot be IntPtr.Zero. {pointerName}");
         }
+    }
+
+    [StackTraceHidden]
+    internal static void ThrowIfNull(IHandle handle, [CallerArgumentExpression(nameof(handle))] string? pointerName = null)
+    {
+        ThrowIfNull(handle.Handle, pointerName);
     }
 
 

@@ -1,6 +1,8 @@
 ﻿#if !IOS
 
 using System.Collections;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.Results;
 
@@ -32,15 +34,7 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// <see cref="TessEngine.Recognize(HandleRef?)"/> are called.
     /// </exception>
     public ResultIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
-    {
-        ArgumentNullException.ThrowIfNull(engine);
-        NullPointerException.ThrowIfNull(engine.Handle);
-        EngineHandle = engine.Handle;
-        Level = level;
-
-        // Object cannot be disposed at this point
-        ResetPointer();
-    }
+        : this(new TessEngineHandle(engine), level) { }
 
     /// <summary>
     /// New Iterator to iterate over recognizion as different size pages like TextLines, Symbols or Paragraphs.
@@ -63,12 +57,28 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     public ResultIterator(TessEngineHandle handle, PageIteratorLevel level = PageIteratorLevel.TextLine)
     {
         NullPointerException.ThrowIfNull(handle.Handle);
-        EngineHandle = handle.Handle;
+        EngineHandle = handle;
         Level = level;
 
         // Object cannot be disposed at this point
         ResetPointer();
     }
+
+    private protected ResultIterator(
+        IntPtr iteratorPtr, TessEngineHandle engineHandle, 
+        PageIteratorLevel level, bool isAtBeginning)
+    {
+        // This ctor is mainly for ResultIterator copy action
+        NullPointerException.ThrowIfNull(iteratorPtr);
+        NullPointerException.ThrowIfNull(engineHandle.Handle);
+
+        EngineHandle = engineHandle;
+        Level = level;
+        Handle = new HandleRef(this, iteratorPtr);
+        IsAtBeginning = isAtBeginning;
+    }
+
+
 
 
     /// <summary>
@@ -85,11 +95,13 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// Handle to <see cref="TessEngine"/> that current <see cref="ResultIterator"/> depends on.
     /// <see cref="TessEngine"/> must exist as long as current <see cref="ResultIterator"/>.
     /// </summary>
-    private HandleRef EngineHandle { get; }
+    private TessEngineHandle EngineHandle { get; }
 
     /// <inheritdoc/>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public TextSpan Current => GetCurrent();
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     object IEnumerator.Current => Current;
 
     /// <summary>
@@ -136,8 +148,6 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
         return engine?.Handle.Handle == Handle.Handle;
     }
 
-
-
     /// <summary>
     /// Gets the element in the collection at the current position of the enumerator.
     /// </summary>
@@ -155,18 +165,28 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
 
         IntPtr ptr = ResultIteratorApi.GetUTF8Text(Handle, level.Value);
         float confidence = ResultIteratorApi.GetConfidence(Handle, level.Value);
-        string encoded = Marshal.PtrToStringUTF8(ptr) ?? string.Empty;
+        string resultText = Marshal.PtrToStringUTF8(ptr) ?? string.Empty;
 
         TesseractApi.DeleteString(ptr);
 
-        return new TextSpan
-        {
-            Text = encoded,
-            Confidence = confidence,
-            Level = Level,
-        };
-
+        return new(resultText, confidence, Level);
     }
+
+    /// <summary>
+    /// Get copy of <see cref="ResultIterator"/> at current index.
+    /// </summary>
+    /// <returns>Copy of <see cref="ResultIterator"/> at current index if successful, otherwise false.</returns>
+    /// <exception cref="NullPointerException">If <see cref="EngineHandle"/> is <see cref="IntPtr.Zero"/>.</exception>
+    public ResultIterator? CopyInCurrentIndex()
+    {
+        IntPtr newIteratorPtr = ResultIteratorApi.Copy(Handle);
+        if (newIteratorPtr == IntPtr.Zero)
+        {
+            return null;
+        }
+        return new(newIteratorPtr, EngineHandle, Level, IsAtBeginning);
+    }
+
 
     /// <summary>
     /// Delete old Handle and create new, so iteration can start from the beginning. 
