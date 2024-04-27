@@ -51,4 +51,36 @@ public readonly record struct TextSpan
         return base.ToString() ?? string.Empty;
 #endif
     }
+
+    /// <summary>
+    /// Deconstructs object like tuple.
+    /// <code>
+    /// TextSpan span = new("hello", 0.5f, PageIteratorLevel.Word);
+    /// var (text, confidence) = span;
+    /// </code>
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="confidence"></param>
+    public void Deconstruct(out string text, out float confidence)
+    {
+        text = Text;
+        confidence = Confidence;
+    }
+
+    /// <summary>
+    /// Deconstructs object like tuple.
+    /// <code>
+    /// TextSpan span = new("hello", 0.5f, PageIteratorLevel.Word);
+    /// var(text, confidence, level) = span;
+    /// </code>
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="confidence"></param>
+    /// <param name="level"></param>
+    public void Deconstruct(out string text, out float confidence, out PageIteratorLevel level)
+    {
+        text = Text;
+        confidence = Confidence;
+        level = Level;
+    }
 }
