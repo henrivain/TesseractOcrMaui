@@ -3,6 +3,7 @@
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 using TesseractOcrMaui.Iterables;
+using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
 
 
@@ -23,72 +24,68 @@ public class TesseractTestClass
 
     public async void RunAsync()
     {
+        // Load tessdata for testing purposes, configure in MauiProgram.cs, do not touch here
         var result = await _tessDataProvider.LoadFromPackagesAsync();
         string tessDataFolder = _tessDataProvider.TessDataFolder;
-
         string languages = string.Join('+', _tessDataProvider.AvailableLanguages.Select(x => x.Replace(".traineddata", "")));
+        
+        // [INPUT] give image here
         string imagePath = @"C:\Users\henri\Downloads\tess version wsl.png";
 
 
         // nulls are alredy checked, can't throw.
+        // This TessEngine must exist as long as any iterator from it
         using var engine = new TessEngine(languages, tessDataFolder, _logger);
         using var pix = Pix.LoadFromFile(imagePath);
 
 
 
-        //IntPtr pageIterator = ResultIteratorApi.GetPageIterator(iterator.Handle);
-
-
+        // EXAMPLE 1 Create iterator 
         using var iterator = engine.GetResultIterator(pix);
 
-        using PageIterator pageIter = new (iterator);
+
+        // EXAMPLE 2 Get output
+        //iterator.MoveNext();    // move to index 0
+        //TextSpan line = iterator.Current;   // get line
+
+        //iterator.Level = PageIteratorLevel.Word;    // Set block size
+        //iterator.MoveNext();    // move to index 0
+        //TextSpan word = iterator.Current;   // get word
 
 
 
 
+        // EXAMPLE 2 Copying iterator
+        //void Copying()
+        //{
+        //    iterator.MoveNext();
+
+        //    TextSpan span = iterator.Current;
+
+        //    using ResultIterator? iterator2 = iterator.CopyToCurrentIndex();
+        //    ArgumentNullException.ThrowIfNull(iterator2);
+
+        //    TextSpan copiedSpan = iterator2.Current;
+
+        //    // should be same
+        //    bool match = span.Text == copiedSpan.Text;
+
+        //    iterator2.MoveNext();
+        //    iterator2.MoveNext();
+
+        //    // Can be deconstructed
+        //    var (text, confidence) = iterator2.Current;
+        //}
 
 
 
 
-
-        //iterator.MoveNext();
-        //string? lang = iterator.GetCurrentRecognizedLanguage();
-
-        //using ResultIterator? iterator2 = iterator.CopyInCurrentIndex();
-        //ArgumentNullException.ThrowIfNull(iterator2);
-
-        //iterator2.Reset();
-
-        //iterator2.MoveNext();
-        //iterator2.MoveNext();
-        //iterator2.MoveNext();
-        //string text = iterator2.Current.ToString();
-
-
-
-
-
-        //ResultIterable values = engine.GetResultIterable(pix);
-
+        // EXAMPLE 3 As iterable and loop
         //List<TextSpan> spans = new();
-        //foreach (var span in values)
+        //foreach (var i in engine.GetResultIterable(pix))
         //{
-        //    spans.Add(span);
+        //    spans.Add(i);
         //}
-
-
-        //List<TextSpan> spans2 = new();
-        //foreach (var span in values)
-        //{
-        //    spans2.Add(span);
-        //}
-
-
-
-
-
-        //IntPtr pageIterator = TesseractApi.AnalyseLayoutToPageIterator(engine.Handle);
-
 
     }
 }
