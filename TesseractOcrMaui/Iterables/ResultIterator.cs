@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.Results;
 
@@ -120,11 +121,11 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// Handle to <see cref="TessEngine"/> that current <see cref="ResultIterator"/> depends on.
     /// <see cref="TessEngine"/> must exist as long as current <see cref="ResultIterator"/>.
     /// </summary>
-    private TessEngineHandle EngineHandle { get; }
+    internal TessEngineHandle EngineHandle { get; }
 
     /// <inheritdoc/>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public TextSpan Current => GetCurrent();
+    public TextSpan Current => _current ?? GetCurrent();
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     object IEnumerator.Current => Current;
@@ -184,32 +185,7 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
         return engine?.Handle.Handle == Handle.Handle;
     }
 
-    /// <summary>
-    /// Gets the element in the collection at the current position of the enumerator.
-    /// </summary>
-    /// <returns>The element in the collection at the current position of the enumerator.</returns>
-    /// <exception cref="IndexOutOfRangeException">If <see cref="IsAtBeginning"/> is <see langword="true"/> meaning the index is -1.</exception>
-    public TextSpan GetCurrent()
-    {
-        if (IsAtBeginning)
-        {
-            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
-        }
 
-        if (_current is not null)
-        {
-            return _current.Value;
-        }
-
-        IntPtr ptr = ResultIteratorApi.GetUTF8Text(Handle, Level);
-        float confidence = ResultIteratorApi.GetConfidence(Handle, Level);
-        string resultText = Marshal.PtrToStringUTF8(ptr) ?? string.Empty;
-
-        TesseractApi.DeleteString(ptr);
-
-        _current = new(resultText, confidence, Level);
-        return _current.Value;
-    }
 
     /// <summary>
     /// Get language (Tessadata file name) in current iterator position.
@@ -234,6 +210,42 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
             return null;
         }
         return new(newIteratorPtr, EngineHandle, Level, IsAtBeginning);
+    }
+
+    /// <summary>
+    /// Get Current ResultIterator as PageIterator. 
+    /// Same native object reference is used.
+    /// </summary>
+    /// <returns><see cref="PageIterator"/> with the same native reference as current <see cref="ResultIterator"/>.</returns>
+    public PageIterator AsPageIterator()
+    {
+        // TODO: exceptions list
+        return new PageIterator(this);
+    }
+
+
+
+
+    /// <summary>
+    /// Gets the element in the collection at the current position of the enumerator.
+    /// </summary>
+    /// <returns>The element in the collection at the current position of the enumerator.</returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="IsAtBeginning"/> is <see langword="true"/> meaning the index is -1.</exception>
+    private TextSpan GetCurrent()
+    {
+        if (IsAtBeginning)
+        {
+            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
+        }
+
+        IntPtr ptr = ResultIteratorApi.GetUTF8Text(Handle, Level);
+        float confidence = ResultIteratorApi.GetConfidence(Handle, Level);
+        string resultText = Marshal.PtrToStringUTF8(ptr) ?? string.Empty;
+
+        TesseractApi.DeleteString(ptr);
+
+        _current = new(resultText, confidence, Level);
+        return _current.Value;
     }
 
     /// <inheritdoc/>

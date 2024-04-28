@@ -28,7 +28,6 @@ internal sealed class PageIteratorApi
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBegin")]
     public static extern void Begin(HandleRef iterHandle);
 
-
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBegin")]
     public static extern bool Next(HandleRef iterHandle, PageIteratorLevel level);
 
@@ -40,24 +39,24 @@ internal sealed class PageIteratorApi
 
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBoundingBox")]
-    public static extern unsafe bool BoundingBox(HandleRef iterHandle, PageIteratorLevel level,
-                                                    int* left, int* top, int* right, int* bottom);
+    public static extern bool BoundingBox(HandleRef iterHandle, PageIteratorLevel level,
+        out int left, out int top, out int right, out int bottom);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorGetBinaryImage")]
     public static extern /*Pix ptr*/ IntPtr GetBinaryImage(HandleRef iterHandle, PageIteratorLevel level);
     
     
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorGetImage")]
-    public static extern unsafe /*Pix ptr*/ IntPtr GetImage(HandleRef iterHandle, PageIteratorLevel level,
-        int padding, HandleRef orginalPix, int* left, int* top);
+    public static extern /*Pix ptr*/ IntPtr GetImage(HandleRef iterHandle, PageIteratorLevel level,
+        int padding, HandleRef orginalPix, out int left, out int top);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBaseline")]
-    public static extern unsafe bool Baseline(HandleRef iterHandle, PageIteratorLevel level,
-        int* x1, int* y1, int* x2, int* y2);
+    public static extern bool Baseline(HandleRef iterHandle, PageIteratorLevel level,
+        out int x1, out int y1, out int x2, out int y2);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorParagraphInfo")]
-    public static extern unsafe void ParagraphInfo(HandleRef handle, ParagraphJustification* justification,
-        bool* isListItem, bool* isCrown, int* firstLineIndent);
+    public static extern void ParagraphInfo(HandleRef handle, out ParagraphJustification justification,
+        out bool isListItem, out bool isCrown, out int firstLineIndent);
 
 
 }

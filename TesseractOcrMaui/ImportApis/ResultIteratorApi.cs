@@ -22,7 +22,14 @@ internal sealed class ResultIteratorApi
     
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorCopy")]
     public static extern /*TessResultIterator pointer*/ IntPtr Copy(HandleRef handle);
-    
+
+    /* capi.cpp
+     TessPageIterator *TessResultIteratorGetPageIterator(TessResultIterator *handle) {
+        return handle;
+     }
+     */
+
+    // GetPageIterator returns same pointer, it just changes return type to different pointer
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorGetPageIterator")]
     public static extern /*TessPageIterator pointer*/ IntPtr GetPageIterator(HandleRef handle);
 
