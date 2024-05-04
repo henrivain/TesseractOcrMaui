@@ -1,7 +1,7 @@
 ﻿namespace TesseractOcrMaui.Enums;
 
 /// <summary>
-/// Enum defining what the created <see cref="Iterables.PageIterator"/> is based on.
+/// Enum defining what the created PageIterator is based on.
 /// </summary>
 internal enum ResultIteratorType
 {
