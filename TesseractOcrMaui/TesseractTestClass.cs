@@ -2,6 +2,7 @@
 #if !IOS
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
+using System.Diagnostics;
 using TesseractOcrMaui.Iterables;
 using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
@@ -89,24 +90,13 @@ public class TesseractTestClass
 
         // EXAMPLE 4 Getting image layout data with PageIterator
         using var pageIter = new PageIterator(iterator);
-        using var another = pageIter.Copy();
-
-        List<Info> spans = new();
-        while (pageIter.MoveNext())
+        foreach (var page in pageIter)
         {
-            bool isBeginning = pageIter.IsAtBeginningOf(pageIter.Level.GoLevelUp());
-            bool isEnd = pageIter.IsAtFinalElement(pageIter.Level.GoLevelUp());
-            var info = pageIter.Current;
-            spans.Add(new (isBeginning, isEnd, pageIter.Level, pageIter.Level.GoLevelUp(), info));
+            Debug.WriteLine(page);
         }
-
-        List<Info> spans2 = new();  
-        while (another.MoveNext())
+        foreach (var page in pageIter)
         {
-            bool isBeginning = another.IsAtBeginningOf(another.Level.GoLevelUp());
-            bool isEnd = another.IsAtFinalElement(another.Level.GoLevelUp());
-            var info = another.Current;
-            spans2.Add(new(isBeginning, isEnd, another.Level, another.Level.GoLevelUp(), info));
+            Debug.WriteLine(page);
         }
     }
 }

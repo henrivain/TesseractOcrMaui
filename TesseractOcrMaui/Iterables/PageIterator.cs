@@ -13,7 +13,7 @@ namespace TesseractOcrMaui.Iterables;
 /// <summary>
 /// Iterator to iterate over text layout. Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>.
 /// </summary>
-public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInfo>, IEnumerable<SpanInfo>
+public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInfo>
 {
     /// <summary>
     /// New <see cref="PageIterator"/>. 
@@ -111,28 +111,13 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     object IEnumerator.Current => Current;
 
     /// <summary>
-    /// Returns an enumerator that iterates through the collection.
+    /// Advances the enumerator to the next element of the collection.
     /// </summary>
-    /// <returns>An enumerator that can be used to iterate through the collection. </returns>
-    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
-    /// <exception cref="NullPointerException">If current <see cref="PageIterator"/> instance cannot be copied.</exception>
-    public IEnumerator<SpanInfo> GetEnumerator()
-    {
-        ThrowIfDisposed();
-
-        if (_isGetEnumerableCalled)
-        {
-            // ArgumentNullException: _dependencyObject cannot be null -> cannot throw
-            PageIterator clone = Copy();
-            clone._isGetEnumerableCalled = true;
-            return clone;
-        }
-        _isGetEnumerableCalled = true;
-        return this;
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
+    /// <returns>
+    /// <see langword="true" /> if the enumerator was successfully advanced to the next element, 
+    /// <see langword="false" /> if the enumerator has passed the end of the collection.
+    /// </returns>
+    /// <exception cref="ObjectDisposedException">If already disposed.</exception>
     public bool MoveNext()
     {
         ThrowIfDisposed();
@@ -327,7 +312,6 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// Creation type that affects how disposing is done.
     /// </summary>
     private protected readonly ResultIteratorType _creationType;
-    private bool _isGetEnumerableCalled = false;
 
     /// <summary>
     /// Get current text layout from text block that's size is determined by <see cref="Level"/>.

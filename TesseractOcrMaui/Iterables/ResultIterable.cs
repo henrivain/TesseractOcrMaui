@@ -15,14 +15,8 @@ public class ResultIterable : IEnumerable<TextSpan>
     /// New IEnumerable implementation of <see cref="ResultIterator"/>. Iterate over different text block sizes.
     /// </summary>
     /// <param name="engine">Engine that must exist as long as the iterator, not disposed automatically.</param>
-    public ResultIterable(TessEngine engine) : this(engine, PageIteratorLevel.TextLine) { }
-
-    /// <summary>
-    /// New IEnumerable implementation of <see cref="ResultIterator"/>. Iterate over different text block sizes.
-    /// </summary>
-    /// <param name="engine">Engine that must exist as long as the iterator, not disposed automatically.</param>
     /// <param name="level">Text block size to be used.</param>
-    public ResultIterable(TessEngine engine, PageIteratorLevel level)
+    public ResultIterable(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
     {
         ArgumentNullException.ThrowIfNull(engine);
 
@@ -31,8 +25,8 @@ public class ResultIterable : IEnumerable<TextSpan>
     }
 
 
-    private readonly PageIteratorLevel _level;
-    private readonly TessEngine _engine;
+    readonly PageIteratorLevel _level;
+    readonly TessEngine _engine;
 
 
     /// <summary>
@@ -47,9 +41,12 @@ public class ResultIterable : IEnumerable<TextSpan>
     /// </exception>
     public IEnumerator<TextSpan> GetEnumerator()
     {
+
+        // ArgumentNullException: _engine cannot be null -> cannot throw
         using ResultIterator iterator = new(_engine, _level);
         while (iterator.MoveNext())
         {
+            // IndexOutOfBoundsException: MoveNext() called -> cannot throw
             yield return iterator.Current;
         }
     }
