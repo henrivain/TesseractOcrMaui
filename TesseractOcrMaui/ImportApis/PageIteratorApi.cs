@@ -22,21 +22,20 @@ internal sealed class PageIteratorApi
     public static extern void Delete(HandleRef iterHandle);
 
 
-    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorDelete")]
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorCopy")]
     public static extern /*TessPageIterator*/ IntPtr Copy(HandleRef iterHandle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBegin")]
     public static extern void Begin(HandleRef iterHandle);
 
-    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBegin")]
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorNext")]
     public static extern bool Next(HandleRef iterHandle, PageIteratorLevel level);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorIsAtBeginningOf")]
     public static extern bool IsAtBeginningOf(HandleRef iterHandle, PageIteratorLevel level);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorIsAtFinalElement")]
-    public static extern bool IsAtFinalElement(HandleRef iterHandle, PageIteratorLevel level);
-
+    public static extern bool IsAtFinalElement(HandleRef iterHandle, PageIteratorLevel level, PageIteratorLevel element);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBoundingBox")]
     public static extern bool BoundingBox(HandleRef iterHandle, PageIteratorLevel level,

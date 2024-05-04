@@ -1,12 +1,12 @@
 ﻿namespace TesseractOcrMaui.Imaging;
 
 /// <summary>
-/// 2d bounding box inside image borders.
+/// 2d bounding box inside image borders. All coordinates are calculated from Top-Right image corner.
 /// </summary>
 public readonly struct BoundingBox 
 {
     /// <summary>
-    /// Coordinate rectangle inside image borders.
+    /// Coordinate rectangle inside image borders. All coordinates are calculated from Top-Right image corner.
     /// </summary>
     /// <param name="x1">Horizontal left coordinate.</param>
     /// <param name="y1">Vertical upper coordinate.</param>

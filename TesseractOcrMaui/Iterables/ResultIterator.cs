@@ -2,7 +2,6 @@
 
 using System.Collections;
 using System.Diagnostics;
-using System.Net.Http.Headers;
 using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.Results;
 
@@ -12,7 +11,7 @@ namespace TesseractOcrMaui.Iterables;
 /// Iterator to iterate over recognizion as different size pages like TextLines, Symbols or Paragraphs.
 /// Notice that this class is <see cref="IDisposable"/>.
 /// </summary>
-public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
+public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextSpan>
 {
     /// <summary>
     /// New Iterator to iterate over recognizion as different size pages like TextLines, Symbols or Paragraphs.
@@ -33,33 +32,14 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// If native iterator cannot be initialized. Make sure <see cref="TessEngine.SetImage(Pix)"/> and 
     /// <see cref="TessEngine.Recognize(HandleRef?)"/> are called.
     /// </exception>
-    public ResultIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
-        : this(new TessEngineHandle(engine), level) { }
-
-    /// <summary>
-    /// New Iterator to iterate over recognizion as different size pages like TextLines, Symbols or Paragraphs.
-    /// Notice that this class is <see cref="IDisposable"/>.
-    /// </summary>
-    /// 
-    /// <param name="handle">
-    /// <see cref="TessEngine.Handle"/> that <see cref="ResultIterator"/> depends on. 
-    /// <see cref="TessEngine"/> instance must exist as long as created <see cref="ResultIterator"/>
-    /// </param>
-    /// <param name="level">
-    /// <see cref="PageIteratorLevel"/> that determines page size to be read like TextLine, Symbol or Paragraph.
-    /// </param>
-    /// 
-    /// <exception cref="NullPointerException">If <paramref name="handle"/> is <see cref="IntPtr.Zero"/>.</exception>
-    /// <exception cref="ResultIteratorException">
-    /// If native iterator cannot be initialized. Make sure <see cref="TessEngine.SetImage(Pix)"/> and 
-    /// <see cref="TessEngine.Recognize(HandleRef?)"/> are called.
-    /// </exception>
-    public ResultIterator(TessEngineHandle handle, PageIteratorLevel level = PageIteratorLevel.TextLine)
+    public ResultIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine)
     {
-        NullPointerException.ThrowIfNull(handle.Handle);
-        EngineHandle = handle;
+        ArgumentNullException.ThrowIfNull(engine);
+        NullPointerException.ThrowIfNull(engine.Handle);
+    
+        EngineHandle = new TessEngineHandle(engine);
         Level = level;
-
+        
         IntPtr iterPtr = TesseractApi.GetResultIterator(EngineHandle);
         if (iterPtr == IntPtr.Zero)
         {
@@ -71,11 +51,11 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     }
 
     /// <summary>
-    /// [This ctor should only be used with copied <see cref="ResultIterator"/>] <br/>
+    /// [This ctor is only for <see cref="CopyToCurrentIndex"/>] <para/>
     /// New Iterator to iterate over recognizion as different size pages like TextLines, Symbols or Paragraphs.
     /// Notice that this class is <see cref="IDisposable"/>.
     /// </summary>
-    /// <param name="iteratorPtr">Pointer to copied <see cref="ResultIterator"/> referrence.</param>
+    /// <param name="newIterator">Pointer to copied <see cref="ResultIterator"/> referrence.</param>
     /// <param name="engineHandle">
     /// <see cref="TessEngine.Handle"/> that <see cref="ResultIterator"/> depends on. 
     /// <see cref="TessEngine"/> instance must exist as long as created <see cref="ResultIterator"/>
@@ -84,21 +64,27 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// <see cref="PageIteratorLevel"/> that determines page size to be read like TextLine, Symbol or Paragraph.
     /// </param>
     /// <param name="isAtBeginning">Stores value that is used to determine weather copied iterator is at -1 index.</param>
+    /// <param name="dependency">
+    /// <see cref="TessEngine"/> that <see cref="ResultIterator"/> depends on. 
+    /// <see cref="TessEngine"/> instance must exist as long as created <see cref="ResultIterator"/>
+    /// </param>
     /// <exception cref="NullPointerException">
-    /// If <paramref name="iteratorPtr"/> is <see cref="IntPtr.Zero"/> or 
-    /// <paramref name="engineHandle"/>.Handle is <see cref="IntPtr.Zero"/>
+    /// If <paramref name="newIterator"/> or <paramref name="engineHandle"/>.Handle is <see cref="IntPtr.Zero"/> 
     /// </exception>
     private protected ResultIterator(
-        IntPtr iteratorPtr, TessEngineHandle engineHandle,
-        PageIteratorLevel level, bool isAtBeginning)
+        IntPtr newIterator, 
+        TessEngineHandle engineHandle,
+        PageIteratorLevel level, 
+        bool isAtBeginning, 
+        TessEngine dependency) : base(dependency)
     {
-        // This ctor is mainly for ResultIterator copy action
-        NullPointerException.ThrowIfNull(iteratorPtr);
+        // This ctor is for ResultIterator copy action
+        NullPointerException.ThrowIfNull(newIterator);
         NullPointerException.ThrowIfNull(engineHandle.Handle);
 
         EngineHandle = engineHandle;
         Level = level;
-        Handle = new HandleRef(this, iteratorPtr);
+        Handle = new HandleRef(this, newIterator);
         IsAtBeginning = isAtBeginning;
     }
 
@@ -123,10 +109,25 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// </summary>
     internal TessEngineHandle EngineHandle { get; }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the element in the collection at the current position of the enumerator.
+    /// </summary>
+    /// <returns>
+    /// The element in the collection at the current position of the enumerator.
+    /// </returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext()"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public TextSpan Current => _current ?? GetCurrent();
 
+    /// <summary>
+    /// Gets the element in the collection at the current position of the enumerator.
+    /// </summary>
+    /// <returns>
+    /// The element in the collection at the current position of the enumerator.
+    /// </returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext()"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object already is disposed.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     object IEnumerator.Current => Current;
 
@@ -143,6 +144,7 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// <see langword="true" /> if the enumerator was successfully advanced to the next element, 
     /// <see langword="false" /> if the enumerator has passed the end of the collection.
     /// </returns>
+    /// <exception cref="ObjectDisposedException">If already disposed.</exception>
     public bool MoveNext() => MoveNext(Level);
 
     /// <summary>
@@ -153,8 +155,11 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// <see langword="true" /> if the enumerator was successfully advanced to the next element, 
     /// <see langword="false" /> if the enumerator has passed the end of the collection.
     /// </returns>
+    /// <exception cref="ObjectDisposedException">If already disposed.</exception>
     public bool MoveNext(PageIteratorLevel level)
     {
+        ThrowIfDisposed();
+
         _current = null;
         if (IsAtBeginning)
         {
@@ -182,6 +187,10 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// True if <paramref name="engine"/> pointer matches <see cref="EngineHandle"/>, Otherwise false.</returns>
     public bool IsParentEngine(TessEngine? engine)
     {
+        if (engine is null)
+        {
+            return false;
+        }
         return engine?.Handle.Handle == Handle.Handle;
     }
 
@@ -193,6 +202,9 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// <returns>Used tessData file name without extension or <see langword="null"/> if failed.</returns>
     public string? GetCurrentRecognizedLanguage()
     {
+        ThrowIfDisposed();
+        ThrowIfAtBeginning();
+
         IntPtr langPtr = ResultIteratorApi.GetRecognizedLanguage(Handle);
         return Marshal.PtrToStringUTF8(langPtr);
     }
@@ -201,15 +213,24 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// Get copy of <see cref="ResultIterator"/> at current index.
     /// </summary>
     /// <returns>Copy of <see cref="ResultIterator"/> at current index if successful, otherwise false.</returns>
-    /// <exception cref="NullPointerException">If <see cref="EngineHandle"/> is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="NullPointerException">If <see cref="EngineHandle"/> or <see cref="Handle"/> is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="ObjectDisposedException">If object already disposed.</exception>
     public ResultIterator? CopyToCurrentIndex()
     {
+        ThrowIfDisposed();
+        NullPointerException.ThrowIfNull(Handle);
+
         IntPtr newIteratorPtr = ResultIteratorApi.Copy(Handle);
         if (newIteratorPtr == IntPtr.Zero)
         {
             return null;
         }
-        return new(newIteratorPtr, EngineHandle, Level, IsAtBeginning);
+        if (_dependencyObject is not TessEngine)
+        {
+            throw new InvalidOperationException($"Dependency object should always be of type {nameof(TessEngine)}. " +
+                $"Consider making a bug report");
+        }
+        return new(newIteratorPtr, EngineHandle, Level, IsAtBeginning, (TessEngine)_dependencyObject);
     }
 
     /// <summary>
@@ -217,26 +238,23 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
     /// Same native object reference is used.
     /// </summary>
     /// <returns><see cref="PageIterator"/> with the same native reference as current <see cref="ResultIterator"/>.</returns>
+    /// <exception cref="NullPointerException">If <see cref="Handle"/> is <see cref="IntPtr.Zero"/></exception>
     public PageIterator AsPageIterator()
     {
-        // TODO: exceptions list
+        ThrowIfDisposed();
         return new PageIterator(this);
     }
-
-
-
 
     /// <summary>
     /// Gets the element in the collection at the current position of the enumerator.
     /// </summary>
     /// <returns>The element in the collection at the current position of the enumerator.</returns>
     /// <exception cref="IndexOutOfRangeException">If <see cref="IsAtBeginning"/> is <see langword="true"/> meaning the index is -1.</exception>
+    /// <exception cref="ObjectDisposedException">Object is already disposed.</exception>
     private TextSpan GetCurrent()
     {
-        if (IsAtBeginning)
-        {
-            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
-        }
+        ThrowIfDisposed();
+        ThrowIfAtBeginning();
 
         IntPtr ptr = ResultIteratorApi.GetUTF8Text(Handle, Level);
         float confidence = ResultIteratorApi.GetConfidence(Handle, Level);
@@ -246,6 +264,41 @@ public class ResultIterator : DisposableObject, IEnumerator<TextSpan>
 
         _current = new(resultText, confidence, Level);
         return _current.Value;
+    }
+
+
+
+
+    /// <summary>
+    /// Throws <see cref="ObjectDisposedException"/> if object is disposed, otherwise does nothing.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
+    [StackTraceHidden]
+    private void ThrowIfDisposed()
+    {
+        if (IsDisposed)
+        {
+
+            string message = DidParentDispose ? 
+                $"Cannot access a disposed object. {nameof(TessEngine)} that {nameof(ResultIterator)} " +
+                $"is depending on was disposed which caused {nameof(ResultIterator)} to also be disposed." 
+                : "Cannot access a disposed object.";
+            throw new ObjectDisposedException(nameof(ResultIterator), message);
+        }
+    }
+
+    /// <summary>
+    /// Throws <see cref="IndexOutOfRangeException"/> if <see cref="IsAtBeginning"/> 
+    /// is <see langword="true"/>, otherwise does nothing.
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">if <see cref="IsAtBeginning"/> is <see langword="true"/>.</exception>
+    [StackTraceHidden]
+    private void ThrowIfAtBeginning()
+    {
+        if (IsAtBeginning)
+        {
+            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
+        }
     }
 
     /// <inheritdoc/>

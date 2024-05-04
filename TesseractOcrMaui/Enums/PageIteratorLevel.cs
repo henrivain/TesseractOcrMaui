@@ -8,5 +8,4 @@ public enum PageIteratorLevel
     TextLine = 2,
     Word = 3,
     Symbol = 4
-
 }

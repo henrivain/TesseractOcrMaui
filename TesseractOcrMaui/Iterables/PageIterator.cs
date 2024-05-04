@@ -13,58 +13,149 @@ namespace TesseractOcrMaui.Iterables;
 /// <summary>
 /// Iterator to iterate over text layout. Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>.
 /// </summary>
-public class PageIterator : DisposableObject, IEnumerator<SpanInfo>
+public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInfo>
 {
-    internal PageIterator(ResultIterator iterator)
+    /// <summary>
+    /// New <see cref="PageIterator"/>. 
+    /// Iterator to iterate over image text layout like bounding boxes and paragraph layout.
+    /// Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>. 
+    /// </summary>
+    /// <param name="iterator">ResultIterator instance that is casted to </param>
+    /// <exception cref="ArgumentNullException">If <paramref name="iterator"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NullPointerException">If <paramref name="iterator"/>.Handle is <see cref="IntPtr.Zero"/></exception>
+    internal PageIterator(ResultIterator iterator) : base(iterator)
     {
+        /* Iterator should be the dependency object here, because it is also disposed  
+           if TessEngine is disposed. Both iterators are using the same pointer,
+           because PageIterator is casted from ResultIterator here */
+
         CreationType = ResultIteratorType.ResultIteratorBased;
 
         NullPointerException.ThrowIfNull(iterator.Handle);
+
+        // C++ casts pointer to different iterator type, same address is returned
         IntPtr ptr = ResultIteratorApi.GetPageIterator(iterator.Handle);
 
-        // This should never throw,
-        // same ptr is returned in ResultIteratorApi.GetPageIterator(handle)
+        // This should never throw, same pointer as iterator.Handle is returned
         NullPointerException.ThrowIfNull(ptr);
 
         Handle = new HandleRef(this, ptr);
         Level = iterator.Level;
-        iterator.Disposed += (_, _) => Dispose();
     }
-    private PageIterator(IntPtr copiedPtr, PageIteratorLevel level)
+
+    /// <summary>
+    /// [This ctor is for <see cref="Copy"/> and <see cref="CopyToCurrentIndex"/> only] <para/>
+    /// Iterator to iterate over image text layout like bounding boxes and paragraph layout.
+    /// Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>. 
+    /// </summary>
+    /// <param name="copiedPtr">New <see cref="PageIterator"/> pointer from copy.</param>
+    /// <param name="level"><see cref="PageIteratorLevel"/> from old iterator.</param>
+    /// <param name="isAtBeginning">Value from <see cref="IsAtBeginning"/> when copying.</param>
+    /// <param name="dependency">TessEngine instance that iterator is depending on.</param>
+    /// <exception cref="ArgumentNullException">If <paramref name="dependency"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NullPointerException">If <paramref name="copiedPtr"/> is <see cref="IntPtr.Zero"/>.</exception>
+    private PageIterator(
+        IntPtr copiedPtr, 
+        PageIteratorLevel level, 
+        bool isAtBeginning, 
+        DisposableObject dependency) : base(dependency)
     {
         CreationType = ResultIteratorType.Copied;
         NullPointerException.ThrowIfNull(copiedPtr);
+        IsAtBeginning = isAtBeginning; 
         Handle = new HandleRef(this, copiedPtr);
         Level = level;
     }
 
-    SpanInfo? _current;
+    /// <summary>
+    ///  Evaluated with <see cref="GetCurrent"/>. <see cref="MoveNext()"/> resets to <see langword="null"/>.
+    /// </summary>
+    private SpanInfo? _current;
 
+    /// <summary>
+    /// Handle to native PageIterator.
+    /// </summary>
     public HandleRef Handle { get; private set; }
+
+    /// <summary>
+    /// Determine weather iterator is at index -1 or not.
+    /// </summary>
     public bool IsAtBeginning { get; private set; } = true;
+
+    /// <summary>
+    /// <see cref="PageIteratorLevel"/> that determines block size to be read in one step
+    /// like TextLine, Symbol or Paragraph.
+    /// </summary>
     public PageIteratorLevel Level { get; set; }
 
+    /// <summary>
+    /// Gets the element in the collection at the current position of the enumerator.
+    /// </summary>
+    /// <returns>
+    /// The element in the collection at the current position of the enumerator.
+    /// </returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public SpanInfo Current => _current ?? GetCurrent();
 
+    /// <summary>
+    /// Gets the element in the collection at the current position of the enumerator.
+    /// </summary>
+    /// <returns>
+    /// The element in the collection at the current position of the enumerator.
+    /// </returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     object IEnumerator.Current => Current;
 
-
+    /// <summary>
+    /// Check if iterator is at the first element on the given <paramref name="level"/> sized block.
+    /// <para/><paramref name="level"/> should in most cases be bigger block size that <see cref="Level"/>.
+    /// </summary>
+    /// <param name="level"><see cref="PageIteratorLevel"/> that </param>
+    /// <returns>
+    /// <see langword="true"/> if iterator is at the start of current <paramref name="level"/> 
+    /// sized block, otherwise <see langword="false"/>.
+    /// </returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     public bool IsAtBeginningOf(PageIteratorLevel level)
     {
+        ThrowIfDisposed();
+        ThrowIfAtBeginning();
+
         return PageIteratorApi.IsAtBeginningOf(Handle, level);
     }
+
+    /// <summary>
+    /// Check if iterator is at the last element on the given <paramref name="level"/> sized block.
+    /// <para/><paramref name="level"/> should in most cases be bigger block size that <see cref="Level"/>.
+    /// </summary>
+    /// <param name="level"></param>
+    /// <returns><see langword="true"/> if iterator is at the last index of the current <paramref name="level"/> 
+    /// sized block, otherwise <see langword="false"/>.</returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     public bool IsAtFinalElement(PageIteratorLevel level)
     {
-        return PageIteratorApi.IsAtFinalElement(Handle, level);
+        ThrowIfDisposed();
+        ThrowIfAtBeginning();
+
+        return PageIteratorApi.IsAtFinalElement(Handle, level, Level);
     }
+
+    /// <summary>
+    /// Get current text block layout. Text block size is determined by <see cref="Level"/>.
+    /// </summary>
+    /// <returns><see cref="ParagraphInfo"/>, information about iterator's current text block layout.</returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     public ParagraphInfo GetCurrentParagraphInfo()
     {
-        if (IsAtBeginning)
-        {
-            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
-        }
+        ThrowIfDisposed();
+        ThrowIfAtBeginning();
 
         PageIteratorApi.ParagraphInfo(Handle, out ParagraphJustification justification,
             out bool isListItem, out bool isCrown, out int firstLineIndent);
@@ -77,22 +168,32 @@ public class PageIterator : DisposableObject, IEnumerator<SpanInfo>
             FirstLineIndent = firstLineIndent
         };
     }
+
+    /// <summary>
+    /// Get current text block coordinates. Text block size is determined by <see cref="Level"/>.
+    /// </summary>
+    /// <returns><see cref="BoundingBox"/>, recognized text block coordinates in iterators current state.</returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     public BoundingBox GetCurrentBoundingBox()
     {
-        if (IsAtBeginning)
-        {
-            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
-        }
+        ThrowIfDisposed();
+        ThrowIfAtBeginning();
 
-        bool success = PageIteratorApi.BoundingBox(Handle, Level,
-            out int left, out int top, out int right, out int bottom);
+        if (PageIteratorApi.BoundingBox(Handle, Level,
+            out int left, out int top, out int right, out int bottom) is false)
+        {
+#if DEBUG
+            throw new TesseractException("Bounding box not found");
+#endif
+        }
 
         return new(left, top, right, bottom);
     }
 
-
     public bool MoveNext()
     {
+        ThrowIfDisposed();
         if (IsAtBeginning)
         {
             IsAtBeginning = false;
@@ -102,16 +203,53 @@ public class PageIterator : DisposableObject, IEnumerator<SpanInfo>
         _current = null;
         return PageIteratorApi.Next(Handle, Level);
     }
+
+    /// <summary>
+    /// Reset iterator back to start.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">If object already disposed.</exception>
     public void Reset()
     {
+        ThrowIfDisposed();
         IsAtBeginning = true;
         _current = null;
         PageIteratorApi.Begin(Handle);
     }
+
+    /// <summary>
+    /// Copy current Iterator instance in current state.
+    /// </summary>
+    /// <returns>New PageIterator with same state, but different memory address.</returns>
+    /// <exception cref="ArgumentNullException"><see cref="ParentDependantDisposableObject._dependencyObject"/> cannot be aquired.</exception>
+    /// <exception cref="NullPointerException">If current instance cannot be copied and copied pointer is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
+    public PageIterator CopyToCurrentIndex()
+    {
+        ThrowIfDisposed();
+        IntPtr copied = PageIteratorApi.Copy(Handle);
+        
+        DisposableObject dependencyObject = _dependencyObject;
+        if (dependencyObject is ResultIterator iter)
+        {
+            // Get TessEngine from iterator, because new iterator is created and
+            // the same iterator pointer is nomore used
+            dependencyObject = iter.GetDependencyObject();
+        }
+        return new(copied, Level, IsAtBeginning, dependencyObject);
+    }
+
+    /// <summary>
+    /// Copy current iterator instance with no state.
+    /// </summary>
+    /// <returns>New PageIterator instance.</returns>
+    /// <exception cref="ArgumentNullException"><see cref="ParentDependantDisposableObject._dependencyObject"/> cannot be aquired.</exception>
+    /// <exception cref="NullPointerException">If current instance cannot be copied and copied pointer is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
     public PageIterator Copy()
     {
-        IntPtr copied = PageIteratorApi.Copy(Handle);
-        return new(copied, Level);
+        PageIterator iter = CopyToCurrentIndex();
+        iter.Reset();
+        return iter;
     }
 
 
@@ -120,23 +258,43 @@ public class PageIterator : DisposableObject, IEnumerator<SpanInfo>
     /// Creation type that affects how disposing is done.
     /// </summary>
     internal ResultIteratorType CreationType { get; }
+
+    /// <summary>
+    /// Binarized image strip Pix from recognized text.
+    /// </summary>
+    /// <returns>Binarized image strip Pix from recognized text</returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
+    /// <exception cref="NullPointerException">If pix cannot be created with given parameters</exception>
     internal Pix GetCurrentSpanAsBinaryPix()
     {
-        if (IsAtBeginning)
-        {
-            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
-        }
+        ThrowIfDisposed();
+        ThrowIfAtBeginning();
 
         IntPtr pixPtr = PageIteratorApi.GetBinaryImage(Handle, Level);
         NullPointerException.ThrowIfNull(pixPtr);
         return new(pixPtr);
     }
+
+    /// <summary>
+    /// Get current recognized text strip as Pix. 
+    /// To get non-binarized image with, provide handle to original 
+    /// Pix that was provided to initialize TessEngine.
+    /// </summary>
+    /// <param name="padding">Pixels added around the text, so text is not touching image border.</param>
+    /// <param name="pixHandle">Handle to pix that recognized is worked on.</param>
+    /// <param name="textStart">Text Top-Right start coordinates after padding is added.</param>
+    /// <returns>
+    /// If handle to original Pix was provided Non-binarized pix image strip that includes recognized text block,
+    /// <para/>Othewise binarized pix image strip of recognized text block
+    /// </returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
+    /// <exception cref="NullPointerException">If pix cannot be created with given parameters</exception>
     internal Pix GetCurrentSpanAsPix(int padding, PixHandle pixHandle, out Point2D textStart)
     {
-        if (IsAtBeginning)
-        {
-            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
-        }
+        ThrowIfDisposed();
+        ThrowIfAtBeginning();
 
         // Return binary image if pix Handle is not valid
         IntPtr pixPtr = PageIteratorApi.GetImage(Handle, Level, padding,
@@ -147,7 +305,12 @@ public class PageIterator : DisposableObject, IEnumerator<SpanInfo>
         return new(pixPtr);
     }
 
-
+    /// <summary>
+    /// Get current text layout from text block that's size is determined by <see cref="Level"/>.
+    /// </summary>
+    /// <returns><see cref="SpanInfo"/>That contains text block layout information.</returns>
+    /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     private SpanInfo GetCurrent()
     {
         return new SpanInfo
@@ -155,6 +318,46 @@ public class PageIterator : DisposableObject, IEnumerator<SpanInfo>
             Info = GetCurrentParagraphInfo(),
             Box = GetCurrentBoundingBox()
         };
+    }
+
+    /// <summary>
+    /// Throws <see cref="ObjectDisposedException"/> if object is disposed, otherwise does nothing.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
+    [StackTraceHidden]
+    private void ThrowIfDisposed()
+    {
+        if (IsDisposed)
+        {
+            string message = (DidParentDispose, CreationType) switch
+            {
+                (true, ResultIteratorType.EngineBased) or
+                (true, ResultIteratorType.Copied) =>
+                    $"Cannot access a disposed object. {nameof(TessEngine)} that {nameof(PageIterator)} " +
+                    $"is depending on was disposed which caused {nameof(PageIterator)} to also be disposed.",
+
+                (true, ResultIteratorType.ResultIteratorBased) =>
+                    $"Cannot access a disposed object. {nameof(ResultIterator)} that {nameof(PageIterator)} " +
+                    $"was casted from was disposed which caused {nameof(PageIterator)} to also be disposed.",
+
+                _ => "Cannot access a disposed object.",
+            };
+            throw new ObjectDisposedException(nameof(PageIterator), message);
+        }
+    }
+
+    /// <summary>
+    /// Throws <see cref="IndexOutOfRangeException"/> if <see cref="IsAtBeginning"/> 
+    /// is <see langword="true"/>, otherwise does nothing.
+    /// </summary>
+    /// <exception cref="IndexOutOfRangeException">if <see cref="IsAtBeginning"/> is <see langword="true"/>.</exception>
+    [StackTraceHidden]
+    private void ThrowIfAtBeginning()
+    {
+        if (IsAtBeginning)
+        {
+            throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
+        }
     }
 
 
@@ -165,6 +368,8 @@ public class PageIterator : DisposableObject, IEnumerator<SpanInfo>
             switch (CreationType)
             {
                 case ResultIteratorType.ResultIteratorBased:
+                    // Do not delete handles, ResultIterator
+                    // with same handle might still exist
                     break;
 
                 case ResultIteratorType.Copied:

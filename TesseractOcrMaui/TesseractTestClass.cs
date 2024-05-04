@@ -19,7 +19,6 @@ public class TesseractTestClass
     {
         _tessDataProvider = tessDataProvider;
         _logger = logger ?? NullLogger<TesseractTestClass>.Instance;
-
     }
 
     public async void RunAsync()
@@ -28,9 +27,10 @@ public class TesseractTestClass
         var result = await _tessDataProvider.LoadFromPackagesAsync();
         string tessDataFolder = _tessDataProvider.TessDataFolder;
         string languages = string.Join('+', _tessDataProvider.AvailableLanguages.Select(x => x.Replace(".traineddata", "")));
-        
+
         // [INPUT] give image here
-        string imagePath = @"C:\Users\henri\Downloads\tess version wsl.png";
+        //string imagePath = @"C:\Users\henri\Downloads\tess version wsl.png";
+        string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
 
 
         // nulls are alredy checked, can't throw.
@@ -41,7 +41,7 @@ public class TesseractTestClass
 
 
         // EXAMPLE 1 Create iterator 
-        using var iterator = engine.GetResultIterator(pix);
+        using var iterator = engine.GetResultIterator(pix, PageIteratorLevel.Word);
 
 
         // EXAMPLE 2 Get output
@@ -87,9 +87,32 @@ public class TesseractTestClass
         //    spans.Add(i);
         //}
 
+        // EXAMPLE 4 Getting image layout data with PageIterator
+        using var pageIter = new PageIterator(iterator);
+        using var another = pageIter.Copy();
+
+        List<Info> spans = new();
+        while (pageIter.MoveNext())
+        {
+            bool isBeginning = pageIter.IsAtBeginningOf(pageIter.Level.GoLevelUp());
+            bool isEnd = pageIter.IsAtFinalElement(pageIter.Level.GoLevelUp());
+            var info = pageIter.Current;
+            spans.Add(new (isBeginning, isEnd, pageIter.Level, pageIter.Level.GoLevelUp(), info));
+        }
+
+        List<Info> spans2 = new();  
+        while (another.MoveNext())
+        {
+            bool isBeginning = another.IsAtBeginningOf(another.Level.GoLevelUp());
+            bool isEnd = another.IsAtFinalElement(another.Level.GoLevelUp());
+            var info = another.Current;
+            spans2.Add(new(isBeginning, isEnd, another.Level, another.Level.GoLevelUp(), info));
+        }
     }
 }
 
+readonly record struct Info(bool IsBeginning, bool IsEnd, PageIteratorLevel Level,
+    PageIteratorLevel HihgerElement, SpanInfo SpanInfo);
 
 
 #endif
