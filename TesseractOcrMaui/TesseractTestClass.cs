@@ -89,7 +89,7 @@ public class TesseractTestClass
         //}
 
         // EXAMPLE 4 Getting image layout data with PageIterator
-        using var pageIter = new PageIterator(iterator);
+        var pageIter = new PageIterable(iterator, PageIteratorLevel.Block);
         foreach (var page in pageIter)
         {
             Debug.WriteLine(page);

@@ -16,11 +16,13 @@ namespace TesseractOcrMaui.Iterables;
 public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInfo>
 {
     /// <summary>
-    /// New <see cref="PageIterator"/>. 
-    /// Iterator to iterate over image text layout like bounding boxes and paragraph layout.
+    /// New <see cref="PageIterator"/> to iterate over image text layout like bounding boxes and paragraph layout.
     /// Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>. 
     /// </summary>
-    /// <param name="iterator">ResultIterator instance that is casted to </param>
+    /// <param name="iterator">
+    /// ResultIterator instance that is casted into PageIterator. 
+    /// <paramref name="iterator"/> must exist as long as created <see cref="PageIterator"/>.
+    /// </param>
     /// <exception cref="ArgumentNullException">If <paramref name="iterator"/> is <see langword="null"/>.</exception>
     /// <exception cref="NullPointerException">If <paramref name="iterator"/>.Handle is <see cref="IntPtr.Zero"/></exception>
     internal PageIterator(ResultIterator iterator) : base(iterator)
@@ -31,6 +33,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
 
         _creationType = ResultIteratorType.ResultIteratorBased;
 
+        ArgumentNullException.ThrowIfNull(iterator);
         NullPointerException.ThrowIfNull(iterator.Handle);
 
         // C++ casts pointer to different iterator type, same address is returned
@@ -41,6 +44,38 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
 
         Handle = new HandleRef(this, ptr);
         Level = iterator.Level;
+    }
+
+    /// <summary>
+    /// New <see cref="PageIterator"/> to iterate over image text layout like bounding boxes and paragraph layout.
+    /// Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>. 
+    /// </summary>
+    /// <param name="engine">
+    /// TessEngine that the <see cref="PageIterator"/> instance is depending on.
+    /// <paramref name="engine"/> must exist as long as created <see cref="PageIterator"/>.
+    /// </param>
+    /// <param name="level">Text block size to be used.</param>
+    /// <exception cref="ArgumentNullException">If <paramref name="engine"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NullPointerException"> If <paramref name="engine"/>.Handle is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="PageIteratorException">
+    /// If page cannot be analyzed to Page iterator or <see cref="TessEngine.SetImage(Pix)"/> is not called.
+    /// </exception>
+
+    internal PageIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine) 
+    {
+        _creationType = ResultIteratorType.EngineBased;
+
+        ArgumentNullException.ThrowIfNull(engine);
+        NullPointerException.ThrowIfNull(engine.Handle);
+
+        IntPtr ptr = TesseractApi.AnalyseLayoutToPageIterator(engine.Handle);
+        if (ptr == IntPtr.Zero)
+        {
+            throw new PageIteratorException($"Cannot initialize new {nameof(PageIterator)}. " +
+                "Make sure TessEngine image is set.");
+        }
+        Handle = new HandleRef(this, ptr);
+        Level = level;
     }
 
     /// <summary>
@@ -342,7 +377,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
                 (true, ResultIteratorType.EngineBased) or
                 (true, ResultIteratorType.Copied) =>
                     $"Cannot access a disposed object. {nameof(TessEngine)} that {nameof(PageIterator)} " +
-                    $"is depending on was disposed which caused {nameof(PageIterator)} to also be disposed.",
+                    $"is depends on was disposed which caused {nameof(PageIterator)} to also be disposed.",
 
                 (true, ResultIteratorType.ResultIteratorBased) =>
                     $"Cannot access a disposed object. {nameof(ResultIterator)} that {nameof(PageIterator)} " +
