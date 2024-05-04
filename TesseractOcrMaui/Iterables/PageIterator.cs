@@ -13,7 +13,7 @@ namespace TesseractOcrMaui.Iterables;
 /// <summary>
 /// Iterator to iterate over text layout. Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>.
 /// </summary>
-public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInfo>
+public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInfo>, IEnumerable<SpanInfo>
 {
     /// <summary>
     /// New <see cref="PageIterator"/>. 
@@ -29,7 +29,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
            if TessEngine is disposed. Both iterators are using the same pointer,
            because PageIterator is casted from ResultIterator here */
 
-        CreationType = ResultIteratorType.ResultIteratorBased;
+        _creationType = ResultIteratorType.ResultIteratorBased;
 
         NullPointerException.ThrowIfNull(iterator.Handle);
 
@@ -60,7 +60,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
         bool isAtBeginning, 
         DisposableObject dependency) : base(dependency)
     {
-        CreationType = ResultIteratorType.Copied;
+        _creationType = ResultIteratorType.Copied;
         NullPointerException.ThrowIfNull(copiedPtr);
         IsAtBeginning = isAtBeginning; 
         Handle = new HandleRef(this, copiedPtr);
@@ -109,6 +109,90 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     object IEnumerator.Current => Current;
+
+    /// <summary>
+    /// Returns an enumerator that iterates through the collection.
+    /// </summary>
+    /// <returns>An enumerator that can be used to iterate through the collection. </returns>
+    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
+    /// <exception cref="NullPointerException">If current <see cref="PageIterator"/> instance cannot be copied.</exception>
+    public IEnumerator<SpanInfo> GetEnumerator()
+    {
+        ThrowIfDisposed();
+
+        if (_isGetEnumerableCalled)
+        {
+            // ArgumentNullException: _dependencyObject cannot be null -> cannot throw
+            PageIterator clone = Copy();
+            clone._isGetEnumerableCalled = true;
+            return clone;
+        }
+        _isGetEnumerableCalled = true;
+        return this;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public bool MoveNext()
+    {
+        ThrowIfDisposed();
+        if (IsAtBeginning)
+        {
+            IsAtBeginning = false;
+            return true;
+        }
+
+        _current = null;
+        return PageIteratorApi.Next(Handle, Level);
+    }
+
+    /// <summary>
+    /// Reset iterator back to start.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">If object already disposed.</exception>
+    public void Reset()
+    {
+        ThrowIfDisposed();
+        IsAtBeginning = true;
+        _current = null;
+        PageIteratorApi.Begin(Handle);
+    }
+
+    /// <summary>
+    /// Copy current iterator instance with no state.
+    /// </summary>
+    /// <returns>New PageIterator instance.</returns>
+    /// <exception cref="ArgumentNullException"><see cref="ParentDependantDisposableObject._dependencyObject"/> cannot be aquired.</exception>
+    /// <exception cref="NullPointerException">If current instance cannot be copied and copied pointer is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
+    public PageIterator Copy()
+    {
+        PageIterator iter = CopyToCurrentIndex();
+        iter.Reset();
+        return iter;
+    }
+
+    /// <summary>
+    /// Copy current Iterator instance in current state.
+    /// </summary>
+    /// <returns>New PageIterator with same state, but different memory address.</returns>
+    /// <exception cref="ArgumentNullException"><see cref="ParentDependantDisposableObject._dependencyObject"/> cannot be aquired.</exception>
+    /// <exception cref="NullPointerException">If current instance cannot be copied and copied pointer is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
+    public PageIterator CopyToCurrentIndex()
+    {
+        ThrowIfDisposed();
+        IntPtr copied = PageIteratorApi.Copy(Handle);
+
+        DisposableObject dependencyObject = _dependencyObject;
+        if (dependencyObject is ResultIterator iter)
+        {
+            // Get TessEngine from iterator, because new iterator is created and
+            // the same iterator pointer is nomore used
+            dependencyObject = iter.GetDependencyObject();
+        }
+        return new(copied, Level, IsAtBeginning, dependencyObject);
+    }
 
     /// <summary>
     /// Check if iterator is at the first element on the given <paramref name="level"/> sized block.
@@ -191,74 +275,6 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
         return new(left, top, right, bottom);
     }
 
-    public bool MoveNext()
-    {
-        ThrowIfDisposed();
-        if (IsAtBeginning)
-        {
-            IsAtBeginning = false;
-            return true;
-        }
-
-        _current = null;
-        return PageIteratorApi.Next(Handle, Level);
-    }
-
-    /// <summary>
-    /// Reset iterator back to start.
-    /// </summary>
-    /// <exception cref="ObjectDisposedException">If object already disposed.</exception>
-    public void Reset()
-    {
-        ThrowIfDisposed();
-        IsAtBeginning = true;
-        _current = null;
-        PageIteratorApi.Begin(Handle);
-    }
-
-    /// <summary>
-    /// Copy current Iterator instance in current state.
-    /// </summary>
-    /// <returns>New PageIterator with same state, but different memory address.</returns>
-    /// <exception cref="ArgumentNullException"><see cref="ParentDependantDisposableObject._dependencyObject"/> cannot be aquired.</exception>
-    /// <exception cref="NullPointerException">If current instance cannot be copied and copied pointer is <see cref="IntPtr.Zero"/>.</exception>
-    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
-    public PageIterator CopyToCurrentIndex()
-    {
-        ThrowIfDisposed();
-        IntPtr copied = PageIteratorApi.Copy(Handle);
-        
-        DisposableObject dependencyObject = _dependencyObject;
-        if (dependencyObject is ResultIterator iter)
-        {
-            // Get TessEngine from iterator, because new iterator is created and
-            // the same iterator pointer is nomore used
-            dependencyObject = iter.GetDependencyObject();
-        }
-        return new(copied, Level, IsAtBeginning, dependencyObject);
-    }
-
-    /// <summary>
-    /// Copy current iterator instance with no state.
-    /// </summary>
-    /// <returns>New PageIterator instance.</returns>
-    /// <exception cref="ArgumentNullException"><see cref="ParentDependantDisposableObject._dependencyObject"/> cannot be aquired.</exception>
-    /// <exception cref="NullPointerException">If current instance cannot be copied and copied pointer is <see cref="IntPtr.Zero"/>.</exception>
-    /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
-    public PageIterator Copy()
-    {
-        PageIterator iter = CopyToCurrentIndex();
-        iter.Reset();
-        return iter;
-    }
-
-
-
-    /// <summary>
-    /// Creation type that affects how disposing is done.
-    /// </summary>
-    internal ResultIteratorType CreationType { get; }
-
     /// <summary>
     /// Binarized image strip Pix from recognized text.
     /// </summary>
@@ -266,7 +282,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
     /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     /// <exception cref="NullPointerException">If pix cannot be created with given parameters</exception>
-    internal Pix GetCurrentSpanAsBinaryPix()
+    public Pix GetCurrentSpanAsBinaryPix()
     {
         ThrowIfDisposed();
         ThrowIfAtBeginning();
@@ -291,7 +307,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
     /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     /// <exception cref="NullPointerException">If pix cannot be created with given parameters</exception>
-    internal Pix GetCurrentSpanAsPix(int padding, PixHandle pixHandle, out Point2D textStart)
+    public Pix GetCurrentSpanAsPix(int padding, PixHandle pixHandle, out Point2D textStart)
     {
         ThrowIfDisposed();
         ThrowIfAtBeginning();
@@ -304,6 +320,14 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
         NullPointerException.ThrowIfNull(pixPtr);
         return new(pixPtr);
     }
+
+
+
+    /// <summary>
+    /// Creation type that affects how disposing is done.
+    /// </summary>
+    private protected readonly ResultIteratorType _creationType;
+    private bool _isGetEnumerableCalled = false;
 
     /// <summary>
     /// Get current text layout from text block that's size is determined by <see cref="Level"/>.
@@ -329,7 +353,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     {
         if (IsDisposed)
         {
-            string message = (DidParentDispose, CreationType) switch
+            string message = (DidParentDispose, _creationType) switch
             {
                 (true, ResultIteratorType.EngineBased) or
                 (true, ResultIteratorType.Copied) =>
@@ -360,12 +384,11 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
         }
     }
 
-
     protected override void Dispose(bool disposing)
     {
         if (Handle.Handle != IntPtr.Zero)
         {
-            switch (CreationType)
+            switch (_creationType)
             {
                 case ResultIteratorType.ResultIteratorBased:
                     // Do not delete handles, ResultIterator
@@ -378,7 +401,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
                     break;
 
                 default:
-                    throw new NotImplementedException($"{nameof(ResultIteratorType)} of {CreationType} not implemented.");
+                    throw new NotImplementedException($"{nameof(ResultIteratorType)} of {_creationType} not implemented.");
             }
             Handle = new HandleRef(this, IntPtr.Zero);
         }

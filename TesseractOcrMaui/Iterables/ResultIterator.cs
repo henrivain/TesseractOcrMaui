@@ -170,14 +170,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     }
 
 
-    /// <summary>
-    /// Not Supported. Throws <see cref="NotSupportedException"/>.
-    /// </summary>
-    /// <exception cref="NotSupportedException">Throws always, reset not supported</exception>
-    public void Reset()
-    {
-        throw new NotSupportedException($"{nameof(Reset)} is not supported for {nameof(ResultIterator)}.");
-    }
+
 
     /// <summary>
     /// Check if <paramref name="engine"/> is same engine that <see cref="ResultIterator"/> instance depends on.
@@ -193,8 +186,6 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         }
         return engine?.Handle.Handle == Handle.Handle;
     }
-
-
 
     /// <summary>
     /// Get language (Tessadata file name) in current iterator position.
@@ -265,10 +256,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         _current = new(resultText, confidence, Level);
         return _current.Value;
     }
-
-
-
-
+    
     /// <summary>
     /// Throws <see cref="ObjectDisposedException"/> if object is disposed, otherwise does nothing.
     /// </summary>
@@ -300,6 +288,17 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
             throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
         }
     }
+
+    /// <summary>
+    /// Not Supported. Throws <see cref="NotSupportedException"/>.
+    /// </summary>
+    /// <exception cref="NotSupportedException">Throws always, reset not supported</exception>
+    public void Reset()
+    {
+        throw new NotSupportedException($"{nameof(Reset)} is not supported for {nameof(ResultIterator)}.");
+    }
+
+
 
     /// <inheritdoc/>
     protected override void Dispose(bool disposing)
