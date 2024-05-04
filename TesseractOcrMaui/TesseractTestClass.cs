@@ -44,7 +44,6 @@ public class TesseractTestClass
         // EXAMPLE 1 Create iterator 
         using var iterator = engine.GetResultIterator(pix, PageIteratorLevel.Word);
 
-
         // EXAMPLE 2 Get output
         //iterator.MoveNext();    // move to index 0
         //TextSpan line = iterator.Current;   // get line
@@ -89,28 +88,16 @@ public class TesseractTestClass
         //}
 
         // EXAMPLE 4 Getting image layout data with PageIterator
+        //var pageIter = new PageIterable(engine);
 
-        PageIterable pageIter;
-        PageIterator iter;
-        using (iter = new PageIterator(iterator))
-        {
-        }
-        pageIter = new PageIterable(iter);
+        //List<SpanInfo> spanInfos = new();
+        //foreach (var spanInfo in pageIter)
+        //{
+        //    spanInfos.Add(spanInfo);
+        //}
 
-        foreach (var page in pageIter)
-        {
-            Debug.WriteLine(page);
-        }
-        foreach (var page in pageIter)
-        {
-            Debug.WriteLine(page);
-        }
     }
 }
-
-readonly record struct Info(bool IsBeginning, bool IsEnd, PageIteratorLevel Level,
-    PageIteratorLevel HihgerElement, SpanInfo SpanInfo);
-
 
 #endif
 #endif
