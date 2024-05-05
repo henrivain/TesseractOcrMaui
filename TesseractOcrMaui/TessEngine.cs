@@ -83,10 +83,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         Initialize(languages, traineddataPath, mode, initialOptions);
     }
 
-    /// <summary>
-    /// Handle to used Tesseract api.
-    /// </summary>
-    internal HandleRef Handle { get; private set; }
+
 
     /// <inheritdoc/>
     public PageSegmentationMode DefaultSegmentationMode { get; set; } = PageSegmentationMode.Auto;
@@ -102,6 +99,11 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     /// <returns><see langword="true"/> if <see cref="Recognize(HandleRef?)"/> is called, otherwise <see langword="false"/>.</returns>
     public bool IsRecognized { get; private set; } = false;
 
+    /// <summary>
+    /// Handle to used Tesseract api.
+    /// </summary>
+    internal HandleRef Handle { get; private set; }
+
 
     /// <summary>
     /// Version of used Tesseract api. Returns null if version cannot be obtained.
@@ -112,12 +114,13 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
 
 
 
-    /* 
-     Next methods can be called only once before cleaning (Not Supported yet)
-        - ProcessImage(Pix, PageSegmentationMode)
-        - ProcessImage(Pix, string?, Rect, PageSegmentationMode)
-        
-        
+    /*  Next methods should be called only one and once before cleaning (Cleaning not Supported yet)
+     *  - ProcessImage(Pix, PageSegmentationMode)
+     *  - ProcessImage(Pix, string?, Rect, PageSegmentationMode)
+     *  - GetResultIterator(Pix, PageIteratorLevel)
+     *  - GetResultIterable(Pix, PageIteratorLevel)
+     *  - GetPageIterator(Pix, PageIteratorLevel)
+     *  - GetPageIterable(Pix, PageIteratorLevel)
      */
 
     /// <summary>
@@ -262,7 +265,6 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         return new(this, level);
     }
 
-
 #endif
 
     #region EngineGettersAndSetters
@@ -350,6 +352,29 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
 
     #endregion EngineGettersAndSetters
 
+
+    /// <summary>
+    /// Set source image for recognizion process. 
+    /// </summary>
+    /// <param name="image"></param>
+    /// <exception cref="NullPointerException">If <paramref name="image"/>.Handle is Intptr.Zero.</exception>
+    /// <exception cref="InvalidOperationException">If one image is already set with current engine.</exception>
+    /// <exception cref="ArgumentNullException">If <paramref name="image"/> is null.</exception>
+    internal void SetImage(Pix image)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        NullPointerException.ThrowIfNull(Handle);
+        NullPointerException.ThrowIfNull(image.Handle);
+
+        if (IsImageSet)
+        {
+            throw new InvalidOperationException("Engine image already set.");
+        }
+
+        TesseractApi.SetImage(Handle, image.Handle);
+        IsImageSet = true;
+    }
+
     /// <summary>
     /// Process image so that result iterator can be created.
     /// </summary>
@@ -376,28 +401,6 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
 
 
 
-
-    /// <summary>
-    /// Set source image for recognizion process. 
-    /// </summary>
-    /// <param name="image"></param>
-    /// <exception cref="NullPointerException">If <paramref name="image"/>.Handle is Intptr.Zero.</exception>
-    /// <exception cref="InvalidOperationException">If one image is already set with current engine.</exception>
-    /// <exception cref="ArgumentNullException">If <paramref name="image"/> is null.</exception>
-    internal void SetImage(Pix image)
-    {
-        ArgumentNullException.ThrowIfNull(image);
-        NullPointerException.ThrowIfNull(Handle);
-        NullPointerException.ThrowIfNull(image.Handle);
-
-        if (IsImageSet)
-        {
-            throw new InvalidOperationException("Engine image already set.");
-        }
-
-        TesseractApi.SetImage(Handle, image.Handle);
-        IsImageSet = true;
-    }
 
     /// <summary>
     /// Fill Tesseract 5 native constructor and initialize new engine.
@@ -440,8 +443,6 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         return initState;
     }
 
-
-
     /// <summary>
     /// Initialize new Tesseract engine with given data.
     /// </summary>
@@ -472,7 +473,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
 
             // check if traineddata exists 
             bool traineddataExists = AnyTessdataFileExists(traineddataPath, languages.Split('+'));
-            var inner = traineddataExists ? null :
+            Exception? inner = traineddataExists ? null :
                     new InvalidOperationException("No traineddata files found from path. " +
                     "Do you have correct path and file names?");
 
