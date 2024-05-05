@@ -82,6 +82,13 @@ internal sealed partial class TesseractApi
     public static extern IntPtr GetUnichar_Ptr(HandleRef handle, int unicharId);
 
 
+    /* Tesseract -> baseapi.cpp (to TessBaseAPIAnalyseLayout)
+     * WARNING! This class points to data held within the TessBaseAPI class, and
+     * therefore can only be used while the TessBaseAPI class still exists and
+     * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
+     * DetectOS, or anything else that changes the internal PAGE_RES.
+     */
+
     // Gets page iterator handle from TessaApi analysing
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIAnalyseLayout")]
     public static extern /*TessPageIterator Pointer*/ IntPtr AnalyseLayoutToPageIterator(HandleRef handle);

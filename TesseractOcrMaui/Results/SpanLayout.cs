@@ -6,17 +6,17 @@ using TesseractOcrMaui.Imaging;
 namespace TesseractOcrMaui.Results;
 
 /// <summary>
-/// Information about recognized text span.
+/// Information about recognized text span layout.
 /// </summary>
-public readonly struct SpanInfo
+public readonly struct SpanLayout
 {
     /// <summary>
-    /// Information about recognized text span.
+    /// Information about recognized text span layout.
     /// </summary>
     /// <param name="info">Information about image text paragraph layout.</param>
     /// <param name="box">Text span location.</param>
     [SetsRequiredMembers]
-    public SpanInfo(ParagraphInfo info, BoundingBox box)
+    public SpanLayout(ParagraphInfo info, BoundingBox box)
     {
         Info = info;
         Box = box;

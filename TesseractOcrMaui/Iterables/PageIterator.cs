@@ -13,8 +13,12 @@ namespace TesseractOcrMaui.Iterables;
 /// <summary>
 /// Iterator to iterate over text layout. Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>.
 /// </summary>
-public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInfo>
+public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLayout>
 {
+    
+    SpanLayout? _current;
+
+
     /// <summary>
     /// New <see cref="PageIterator"/> to iterate over image text layout like bounding boxes and paragraph layout.
     /// Implements <see cref="IEnumerator{SpanInfo}"/> and <see cref="IDisposable"/>. 
@@ -57,22 +61,23 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// <param name="level">Text block size to be used.</param>
     /// <exception cref="ArgumentNullException">If <paramref name="engine"/> is <see langword="null"/>.</exception>
     /// <exception cref="NullPointerException"> If <paramref name="engine"/>.Handle is <see cref="IntPtr.Zero"/>.</exception>
-    /// <exception cref="PageIteratorException">
-    /// If page cannot be analyzed to Page iterator or <see cref="TessEngine.SetImage(Pix)"/> is not called.
-    /// </exception>
-
+    /// <exception cref="PageIteratorException">If image does not contain text.</exception>
+    /// <exception cref="ImageNotSetException">If <see cref="TessEngine.SetImage(Pix)"/> is not called before init.</exception>
     internal PageIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine) 
     {
         _creationType = ResultIteratorType.EngineBased;
 
         ArgumentNullException.ThrowIfNull(engine);
         NullPointerException.ThrowIfNull(engine.Handle);
+        if (engine.IsImageSet is false) 
+        {
+            throw new ImageNotSetException($"TessEngine.SetImage() not called, cannot get iterator.");
+        }
 
         IntPtr ptr = TesseractApi.AnalyseLayoutToPageIterator(engine.Handle);
         if (ptr == IntPtr.Zero)
         {
-            throw new PageIteratorException($"Cannot initialize new {nameof(PageIterator)}. " +
-                "Make sure TessEngine image is set.");
+            throw new PageIteratorException($"Analyzed image page is empty.");
         }
         Handle = new HandleRef(this, ptr);
         Level = level;
@@ -102,10 +107,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
         Level = level;
     }
 
-    /// <summary>
-    ///  Evaluated with <see cref="GetCurrent"/>. <see cref="MoveNext()"/> resets to <see langword="null"/>.
-    /// </summary>
-    private SpanInfo? _current;
+
 
     /// <summary>
     /// Handle to native PageIterator.
@@ -132,7 +134,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
     /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public SpanInfo Current => _current ?? GetCurrent();
+    public SpanLayout Current => _current ?? GetCurrent();
 
     /// <summary>
     /// Gets the element in the collection at the current position of the enumerator.
@@ -182,7 +184,6 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// Copy current iterator instance with no state.
     /// </summary>
     /// <returns>New PageIterator instance.</returns>
-    /// <exception cref="ArgumentNullException"><see cref="ParentDependantDisposableObject._dependencyObject"/> cannot be aquired.</exception>
     /// <exception cref="NullPointerException">If current instance cannot be copied and copied pointer is <see cref="IntPtr.Zero"/>.</exception>
     /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
     public PageIterator Copy()
@@ -196,7 +197,6 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// Copy current Iterator instance in current state.
     /// </summary>
     /// <returns>New PageIterator with same state, but different memory address.</returns>
-    /// <exception cref="ArgumentNullException"><see cref="ParentDependantDisposableObject._dependencyObject"/> cannot be aquired.</exception>
     /// <exception cref="NullPointerException">If current instance cannot be copied and copied pointer is <see cref="IntPtr.Zero"/>.</exception>
     /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
     public PageIterator CopyToCurrentIndex()
@@ -211,6 +211,8 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
             // the same iterator pointer is nomore used
             dependencyObject = iter.GetDependencyObject();
         }
+
+        // ArgumentNullException: _dependencyObject always not null -> cannot throw
         return new(copied, Level, IsAtBeginning, dependencyObject);
     }
 
@@ -351,12 +353,12 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
     /// <summary>
     /// Get current text layout from text block that's size is determined by <see cref="Level"/>.
     /// </summary>
-    /// <returns><see cref="SpanInfo"/>That contains text block layout information.</returns>
+    /// <returns><see cref="SpanLayout"/>That contains text block layout information.</returns>
     /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
     /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
-    private SpanInfo GetCurrent()
+    private SpanLayout GetCurrent()
     {
-        return new SpanInfo
+        return new SpanLayout
         {
             Info = GetCurrentParagraphInfo(),
             Box = GetCurrentBoundingBox()
@@ -410,8 +412,11 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanInf
             switch (_creationType)
             {
                 case ResultIteratorType.ResultIteratorBased:
-                    // Do not delete handles, ResultIterator
-                    // with same handle might still exist
+                    /* Do not delete handles, ResultIterator
+                    * with same handle might still exist.
+                    * ResultIterator handles disposal of
+                    * Native resources                      
+                    */
                     break;
 
                 case ResultIteratorType.Copied:

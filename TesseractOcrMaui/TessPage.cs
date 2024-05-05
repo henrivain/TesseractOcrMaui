@@ -63,7 +63,7 @@ public class TessPage : DisposableObject
     /// <summary>
     /// Is current image already recognized.
     /// </summary>
-    public bool AlreadyRecognized { get; private set; }
+    public bool AlreadyRecognized => Engine.IsRecognized;
 
     /// <summary>
     /// Directory where output image is saved.
@@ -134,7 +134,7 @@ public class TessPage : DisposableObject
     /// <exception cref="TesseractException">If can't get thresholded image.</exception>
     private void Recognize()
     {
-        if (AlreadyRecognized)
+        if (Engine.IsRecognized)
         {
             return;
         }
@@ -144,16 +144,10 @@ public class TessPage : DisposableObject
             throw new InvalidOperationException("Cannor OCR image using OSD only segmentation, " +
                 "use DetectBestOrientation instead.");
         }
-        int recognizionStatus = TesseractApi.Recognize(Engine.Handle, new HandleRef(this, nint.Zero));
-        if (recognizionStatus is not 0)
-        {
-            Logger.LogError("Image recognizion failed");
-            throw new ImageRecognizionException("Recognizion failed.");
-        }
 
-        AlreadyRecognized = true;
-        if (Engine.TryGetBoolVar("tessedit_write_images", out bool value) is false &&
-            value is false)
+        Engine.Recognize();
+        
+        if (Engine.TryGetBoolVar("tessedit_write_images", out bool value) is false && value is false)
         {
             return;
         }

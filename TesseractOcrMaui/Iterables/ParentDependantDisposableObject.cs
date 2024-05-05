@@ -1,4 +1,6 @@
-﻿namespace TesseractOcrMaui.Iterables;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TesseractOcrMaui.Iterables;
 
 /// <summary>
 /// Base type for <see cref="IDisposable"/> object that is dependant on 
@@ -32,6 +34,10 @@ public abstract class ParentDependantDisposableObject : DisposableObject
     /// </summary>
     protected bool DidParentDispose { get; private set; } = false;
 
+    /// <summary>
+    /// Object that are depended on, Cannot be null.
+    /// </summary>
+    [NotNull]
     private protected readonly DisposableObject _dependencyObject;
 
     internal DisposableObject GetDependencyObject() => _dependencyObject;

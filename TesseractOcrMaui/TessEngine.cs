@@ -17,7 +17,8 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
 
     readonly ILogger _logger;
 
-    bool _isImageSet = false;
+
+
 
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
@@ -91,12 +92,33 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     public PageSegmentationMode DefaultSegmentationMode { get; set; } = PageSegmentationMode.Auto;
 
     /// <summary>
+    /// Is <see cref="SetImage(Pix)"/> called?
+    /// </summary>
+    public bool IsImageSet { get; private set; } = false;
+
+    /// <summary>
+    /// Check if currently set image is already recognized.
+    /// </summary>
+    /// <returns><see langword="true"/> if <see cref="Recognize(HandleRef?)"/> is called, otherwise <see langword="false"/>.</returns>
+    public bool IsRecognized { get; private set; } = false;
+
+
+    /// <summary>
     /// Version of used Tesseract api. Returns null if version cannot be obtained.
     /// </summary>
     /// <returns>Version string if successful, otherwise null</returns>
     public static string? TryGetVersion()
         => Marshal.PtrToStringAnsi(TesseractApi.GetVersion());
 
+
+
+    /* 
+     Next methods can be called only once before cleaning (Not Supported yet)
+        - ProcessImage(Pix, PageSegmentationMode)
+        - ProcessImage(Pix, string?, Rect, PageSegmentationMode)
+        
+        
+     */
 
     /// <summary>
     /// Process image to TessPage.
@@ -157,48 +179,93 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
 
 
 #if !IOS
+
     /// <summary>
-    /// Get page iterator for given Pix image. ResultIterator instance points to current TessEngine data,
-    /// so TessEngine instance must exist as long as created ResultIterator.
+    /// Get iterator that is used to iterate over recognized text with different block sizes.
+    /// Created instance points to current TessEngine, which must exist as long as created iterator.
+    /// <para/>If you want multiple iterators use <see cref="ResultIterator.CopyToCurrentIndex"/>
     /// </summary>
-    /// <param name="image"></param>
-    /// <param name="level">What text block size is iterated at the time, for example TextLine, Paragraph or Symbol.</param>
-    /// <returns>ResultIterator to iterate over recognized image.</returns>
-    /// <exception cref="TesseractException">If image could not recognized.</exception>
+    /// <param name="image">Pix image to be processed.</param>
+    /// <param name="level">Text block size to take in one iteration, for example TextLine, Paragraph or Symbol.</param>
+    /// <returns>
+    /// ResultIterator to iterate over recognized text.
+    /// </returns>
+    /// <exception cref="ImageRecognizionException">If failed to recognize.</exception>
     /// <exception cref="ArgumentNullException">If <paramref name="image"/> is null.</exception>
     /// <exception cref="NullPointerException">If <see cref="Handle"/> or <see cref="Pix.Handle"/> is IntPtr.Zero.</exception>
     /// <exception cref="InvalidOperationException">If Image is already set.</exception>
+    /// <exception cref="ResultIteratorException">If native asset is null, consider making bug report with current data.</exception>
     public ResultIterator GetResultIterator(Pix image, PageIteratorLevel level = PageIteratorLevel.TextLine)
     {
+        // ImageNotSetException: SetImage always called -> cannot throw
+        // TesseractInitException: SetImage() and Recognize() always called -> cannot throw
         SetImage(image);
-        bool success = Recognize();
-        if (success is false)
-        {
-            throw new TesseractException("Could not process given image.");
-        }
+        Recognize();
         return new(this, level);
     }
 
     /// <summary>
-    /// 
+    /// Get <see cref="IEnumerable{T}"/> to iterate over different sized recognized text blocks.
+    /// Created instance points to current TessEngine, which must exist as long as created iterable.
+    /// </summary>
+    /// <param name="image">Pix image to be processed.</param>
+    /// <param name="level">Text block size to take in one iteration, for example TextLine, Paragraph or Symbol.</param>
+    /// <returns>ResultIterable that can iterate over image text blocks.</returns>
+    /// <exception cref="NullPointerException">If <see cref="Handle"/> or <see cref="Pix.Handle"/> is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="InvalidOperationException">If image already set.</exception>
+    /// <exception cref="ArgumentNullException">If <paramref name="image"/> is null.</exception>
+    /// <exception cref="ImageRecognizionException">If failed to recognize.</exception>
+    /// <exception cref="ObjectDisposedException">If engine is disposed.</exception>
+    public ResultIterable GetResultIterable(Pix image, PageIteratorLevel level = PageIteratorLevel.TextLine)
+    {
+        // ImageNotSetException: SetImage always called -> cannot throw
+        // ArgumentNullException: this cannot be null -> cannot throw
+        // TesseractInitException: SetImage() and Recognize() always called -> cannot throw
+        SetImage(image);
+        Recognize();
+        return new(this, level);
+    }
+
+    /// <summary>
+    /// Get iterator to iterate over recognized image text layout.
+    /// Created instance points to current TessEngine, which must exist as long as created iterator.
+    /// <para/>If you want multiple iterators use <see cref="PageIterator.Copy"/> or <see cref="PageIterator.CopyToCurrentIndex"/>
+    /// </summary>
+    /// <param name="image">Pix image to be processed.</param>
+    /// <param name="level">Text block size to take in one iteration, for example TextLine, Paragraph or Symbol.</param>
+    /// <returns>ResultIterator to iterate over recognized text layout.</returns>
+    /// <exception cref="NullPointerException">If <see cref="Handle"/> or <see cref="Pix.Handle"/> is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="InvalidOperationException">If image already set.</exception>
+    /// <exception cref="ArgumentNullException">If <paramref name="image"/> is null.</exception>
+    /// <exception cref="PageIteratorException">If image does not contain text.</exception>
+    public PageIterator GetPageIterator(Pix image, PageIteratorLevel level = PageIteratorLevel.TextLine)
+    {
+        // ImageNotSetException: SetImage() always called -> cannot throw
+        SetImage(image);
+        return new(this, level);
+    }
+
+    /// <summary>
+    /// Get <see cref="IEnumerable{T}"/> to iterate over different sized recognized text block layouts.
+    /// Created instance points to current TessEngine, which must exist as long as created iterable.
     /// </summary>
     /// <param name="image"></param>
+    /// <param name="level"></param>
     /// <returns></returns>
-    /// <exception cref="TesseractException"></exception>
-    public ResultIterable GetResultIterable(Pix image)
+    /// <exception cref="ObjectDisposedException">If engine is disposed during iteration.</exception>
+    /// <exception cref="PageIteratorException">If page is empty.</exception>
+    /// <exception cref="NullPointerException"><paramref name="image"/>.Handle or <see cref="Handle"/> is <see cref="IntPtr.Zero"/></exception>
+    public PageIterable GetPageIterable(Pix image, PageIteratorLevel level = PageIteratorLevel.TextLine)
     {
+        // TesseractInitException: SetImage() alway called -> cannot throw
         SetImage(image);
-        bool success = Recognize();
-        if (success is false)
-        {
-            throw new TesseractException("Could not process given image.");
-        }
-        return new (this);
+        return new(this, level);
     }
+
 
 #endif
 
-
+    #region EngineGettersAndSetters
     /// <summary>
     /// Set tesseract library variable for debug purposes.
     /// </summary>
@@ -281,25 +348,34 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         return TesseractApi.GetStringVariable(Handle, name) ?? string.Empty;
     }
 
+    #endregion EngineGettersAndSetters
+
     /// <summary>
     /// Process image so that result iterator can be created.
     /// </summary>
     /// <returns>True if recognized successfully, otherwise false</returns>
     /// <exception cref="ImageNotSetException">If source image is not set before calling this method.</exception>
-    internal bool Recognize(HandleRef? monitorHandle = null)
+    /// <exception cref="ImageRecognizionException">If image cannot be processed and recognition failed.</exception>
+    internal void Recognize(HandleRef? monitorHandle = null)
     {
-        if (_isImageSet is false)
+        monitorHandle ??= new HandleRef(null, IntPtr.Zero);
+        if (IsImageSet is false)
         {
             throw new ImageNotSetException("Cannot recognize image. No image source set.");
         }
 
-        int status = TesseractApi.Recognize(Handle, monitorHandle ?? new HandleRef(null, IntPtr.Zero));
+        // 0 -> success, -1 -> failed
+        int status = TesseractApi.Recognize(Handle, monitorHandle.Value);
         if (status is not 0)
         {
-            _logger.LogWarning("Could not Recognize image with api status {}", status);
+            _logger.LogError("Could not Recognize image with api status {}", status);
+            throw new ImageRecognizionException("Failed to Recognize image");
         }
-        return status is 0;
+        IsRecognized = true;
     }
+
+
+
 
     /// <summary>
     /// Set source image for recognizion process. 
@@ -314,13 +390,13 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         NullPointerException.ThrowIfNull(Handle);
         NullPointerException.ThrowIfNull(image.Handle);
 
-        if (_isImageSet)
+        if (IsImageSet)
         {
             throw new InvalidOperationException("Engine image already set.");
         }
 
         TesseractApi.SetImage(Handle, image.Handle);
-        _isImageSet = true;
+        IsImageSet = true;
     }
 
     /// <summary>
@@ -403,14 +479,6 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
             throw new TesseractInitException("Cannot initialize Tesseract Api", inner);
         }
     }
-
-
-
-
-
-
-
-
 
 
     private static bool AnyTessdataFileExists(string path, string[] languages)

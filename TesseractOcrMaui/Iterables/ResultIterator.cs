@@ -13,6 +13,9 @@ namespace TesseractOcrMaui.Iterables;
 /// </summary>
 public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextSpan>
 {
+    TextSpan? _current;
+
+
     /// <summary>
     /// New Iterator to iterate over recognizion as different size pages like TextLines, Symbols or Paragraphs.
     /// Notice that this class is <see cref="IDisposable"/>.
@@ -27,26 +30,33 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     /// </param>
     /// 
     /// <exception cref="ArgumentNullException">If engine is null</exception>
-    /// <exception cref="NullPointerException">If engine handle is <see cref="IntPtr.Zero"/></exception>
-    /// <exception cref="ResultIteratorException">
-    /// If native iterator cannot be initialized. Make sure <see cref="TessEngine.SetImage(Pix)"/> and 
-    /// <see cref="TessEngine.Recognize(HandleRef?)"/> are called.
-    /// </exception>
-    public ResultIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine)
+    /// <exception cref="NullPointerException">If <paramref name="engine"/>.Handle is <see cref="IntPtr.Zero"/>.</exception>
+    /// <exception cref="TesseractInitException">Engine image not set or recognized.</exception>
+    /// <exception cref="ResultIteratorException">Native asset is null, consider making bug report if you encouter.</exception>
+    internal ResultIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine)
     {
         ArgumentNullException.ThrowIfNull(engine);
         NullPointerException.ThrowIfNull(engine.Handle);
-    
-        EngineHandle = new TessEngineHandle(engine);
-        Level = level;
+
         
+        if (engine.IsImageSet is false)
+        {
+            throw new TesseractInitException($"TessEngine.SetImage() not called, cannot get iterator.");
+        }
+        if (engine.IsRecognized is false)
+        {
+            throw new TesseractInitException($"TessEngine.Recognize() not called, cannot get iterator");
+        }
+
+        EngineHandle = new TessEngineHandle(engine);
         IntPtr iterPtr = TesseractApi.GetResultIterator(EngineHandle);
+
         if (iterPtr == IntPtr.Zero)
         {
-            throw new ResultIteratorException("Cannot initialize new ResultIterator. " +
-                "Make sure TessEngine image is set and Recognize() is called");
+            throw new ResultIteratorException("Cannot create native iterator.");
         }
         IsAtBeginning = true;
+        Level = level;
         Handle = new(this, iterPtr);
     }
 
@@ -71,12 +81,8 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     /// <exception cref="NullPointerException">
     /// If <paramref name="newIterator"/> or <paramref name="engineHandle"/>.Handle is <see cref="IntPtr.Zero"/> 
     /// </exception>
-    private protected ResultIterator(
-        IntPtr newIterator, 
-        TessEngineHandle engineHandle,
-        PageIteratorLevel level, 
-        bool isAtBeginning, 
-        TessEngine dependency) : base(dependency)
+    private protected ResultIterator(IntPtr newIterator, TessEngineHandle engineHandle, 
+        PageIteratorLevel level, bool isAtBeginning, TessEngine dependency) : base(dependency)
     {
         // This ctor is for ResultIterator copy action
         NullPointerException.ThrowIfNull(newIterator);
@@ -87,11 +93,8 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         Handle = new HandleRef(this, newIterator);
         IsAtBeginning = isAtBeginning;
     }
+    
 
-    /// <summary>
-    ///  Evaluated with <see cref="GetCurrent"/>. <see cref="MoveNext()"/> resets to <see langword="null"/>.
-    /// </summary>
-    TextSpan? _current;
 
     /// <summary>
     /// Handle to native result iterator.
@@ -104,10 +107,10 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     public PageIteratorLevel Level { get; set; }
 
     /// <summary>
-    /// Handle to <see cref="TessEngine"/> that current <see cref="ResultIterator"/> depends on.
-    /// <see cref="TessEngine"/> must exist as long as current <see cref="ResultIterator"/>.
+    /// Because iterators start at index -1, 
+    /// the state before calling <see cref="MoveNext()"/> for the first time is stored here.
     /// </summary>
-    internal TessEngineHandle EngineHandle { get; }
+    public bool IsAtBeginning { get; private set; } = true;
 
     /// <summary>
     /// Gets the element in the collection at the current position of the enumerator.
@@ -132,10 +135,13 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     object IEnumerator.Current => Current;
 
     /// <summary>
-    /// Because iterators start at index -1, 
-    /// the state before calling <see cref="MoveNext()"/> for the first time is stored here.
+    /// Handle to <see cref="TessEngine"/> that current <see cref="ResultIterator"/> depends on.
+    /// <see cref="TessEngine"/> must exist as long as current <see cref="ResultIterator"/>.
     /// </summary>
-    public bool IsAtBeginning { get; private set; } = true;
+    internal TessEngineHandle EngineHandle { get; }
+
+
+
 
     /// <summary>
     /// Advances the enumerator to the next element of the collection.
@@ -169,24 +175,6 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         return ResultIteratorApi.Next(Handle, level);
     }
 
-
-
-
-    /// <summary>
-    /// Check if <paramref name="engine"/> is same engine that <see cref="ResultIterator"/> instance depends on.
-    /// </summary>
-    /// <param name="engine"></param>
-    /// <returns>
-    /// True if <paramref name="engine"/> pointer matches <see cref="EngineHandle"/>, Otherwise false.</returns>
-    public bool IsParentEngine(TessEngine? engine)
-    {
-        if (engine is null)
-        {
-            return false;
-        }
-        return engine?.Handle.Handle == Handle.Handle;
-    }
-
     /// <summary>
     /// Get language (Tessadata file name) in current iterator position.
     /// </summary>
@@ -199,6 +187,9 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         IntPtr langPtr = ResultIteratorApi.GetRecognizedLanguage(Handle);
         return Marshal.PtrToStringUTF8(langPtr);
     }
+
+
+
 
     /// <summary>
     /// Get copy of <see cref="ResultIterator"/> at current index.
@@ -235,6 +226,33 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         ThrowIfDisposed();
         return new PageIterator(this);
     }
+
+    /// <summary>
+    /// Not Supported. Throws <see cref="NotSupportedException"/>.
+    /// </summary>
+    /// <exception cref="NotSupportedException">Throws always, reset not supported</exception>
+    public void Reset()
+    {
+        throw new NotSupportedException($"{nameof(Reset)} is not supported for {nameof(ResultIterator)}.");
+    }
+
+    /// <summary>
+    /// Check if <paramref name="engine"/> is same engine that <see cref="ResultIterator"/> instance depends on.
+    /// </summary>
+    /// <param name="engine"></param>
+    /// <returns>
+    /// True if <paramref name="engine"/> pointer matches <see cref="EngineHandle"/>, Otherwise false.</returns>
+    public bool IsDependantEngine(TessEngine? engine)
+    {
+        if (engine is null)
+        {
+            return false;
+        }
+        return engine?.Handle.Handle == Handle.Handle;
+    }
+
+
+
 
     /// <summary>
     /// Gets the element in the collection at the current position of the enumerator.
@@ -287,15 +305,6 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         {
             throw new IndexOutOfRangeException($"Cannot access index -1, call {nameof(MoveNext)}() first.");
         }
-    }
-
-    /// <summary>
-    /// Not Supported. Throws <see cref="NotSupportedException"/>.
-    /// </summary>
-    /// <exception cref="NotSupportedException">Throws always, reset not supported</exception>
-    public void Reset()
-    {
-        throw new NotSupportedException($"{nameof(Reset)} is not supported for {nameof(ResultIterator)}.");
     }
 
 
