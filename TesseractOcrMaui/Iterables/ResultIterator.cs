@@ -178,7 +178,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     /// <summary>
     /// Get language (Tessadata file name) in current iterator position.
     /// </summary>
-    /// <returns>Used tessData file name without extension or <see langword="null"/> if failed.</returns>
+    /// <returns>Used tessData file name without extension or <see langword="null"/> if cannot be retrieved.</returns>
     public string? GetCurrentRecognizedLanguage()
     {
         ThrowIfDisposed();
@@ -194,10 +194,11 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     /// <summary>
     /// Get copy of <see cref="ResultIterator"/> at current index.
     /// </summary>
-    /// <returns>Copy of <see cref="ResultIterator"/> at current index if successful, otherwise false.</returns>
+    /// <returns>Copy of <see cref="ResultIterator"/> at current index.</returns>
     /// <exception cref="NullPointerException">If <see cref="EngineHandle"/> or <see cref="Handle"/> is <see cref="IntPtr.Zero"/>.</exception>
     /// <exception cref="ObjectDisposedException">If object already disposed.</exception>
-    public ResultIterator? CopyToCurrentIndex()
+    /// <exception cref="TesseractInitException">If native copying failed.</exception>
+    public ResultIterator CopyToCurrentIndex()
     {
         ThrowIfDisposed();
         NullPointerException.ThrowIfNull(Handle);
@@ -205,7 +206,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         IntPtr newIteratorPtr = ResultIteratorApi.Copy(Handle);
         if (newIteratorPtr == IntPtr.Zero)
         {
-            return null;
+            throw new TesseractInitException("Copying ResultIterator failed.");
         }
         if (_dependencyObject is not TessEngine)
         {
@@ -242,7 +243,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     /// <param name="engine"></param>
     /// <returns>
     /// True if <paramref name="engine"/> pointer matches <see cref="EngineHandle"/>, Otherwise false.</returns>
-    public bool IsDependantEngine(TessEngine? engine)
+    public bool IsDependedEngine(TessEngine? engine)
     {
         if (engine is null)
         {

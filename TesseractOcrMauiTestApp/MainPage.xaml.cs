@@ -1,6 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using TesseractOcrMaui;
+using TesseractOcrMaui.Enums;
+using TesseractOcrMaui.Imaging;
+using TesseractOcrMaui.Iterables;
 using TesseractOcrMaui.Results;
 #nullable enable
 namespace TesseractOcrMauiTestApp;
@@ -12,7 +17,7 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         Tesseract = tesseract;
-        testClass.RunAsync();
+        TestClass = testClass;
     }
 #else
     public MainPage(ITesseract tesseract, ILogger<MainPage> logger)
@@ -46,7 +51,7 @@ public partial class MainPage : ContentPage
 
         // Recognize image 
         var result = await Tesseract.RecognizeTextAsync(path);
-        
+
         // Show output (Not important)
         ShowOutput("FromPath", result);
     }
@@ -67,8 +72,8 @@ public partial class MainPage : ContentPage
 
         // recognize bytes
         var result = await Tesseract.RecognizeTextAsync(buffer);
-        
-        
+
+
         // Show output (Not important)
         ShowOutput("FromBytes", result);
     }
@@ -89,7 +94,7 @@ public partial class MainPage : ContentPage
             // PageSegmentationMode defines how ocr tries to look for text, for example singe character or single word.
             // By default uses PageSegmentationMode.Auto.
             engine.DefaultSegmentationMode = TesseractOcrMaui.Enums.PageSegmentationMode.SingleWord;
-            
+
             engine.SetCharacterWhitelist("abcdefgh");   // These characters ocr is looking for
             engine.SetCharacterBlacklist("abc");        // These characters ocr is not looking for
             // Now ocr should be only finding characters 'defgh'
@@ -158,6 +163,94 @@ public partial class MainPage : ContentPage
         resultLabel.Text = result.RecognisedText;
     }
 
- 
+#if !IOS
+    public TesseractTestClass TestClass { get; }
+
+    private async void GraphicsView_Loaded(object sender, EventArgs e)
+    {
+
+        await TestClass.Load();
+
+        //if (sender is GraphicsView graphicsView)
+        //{
+
+        //    Drawable canvas = new(TestClass);
+
+        //    canvas.Drawn += (_, _) =>
+        //    {
+        //        grid.HeightRequest = canvas.ImageHeight;
+        //        grid.WidthRequest = canvas.ImageWidth;
+
+        //        label.Text = string.Join(' ', canvas._lines);
+        //    };
+
+        //    graphicsView.Drawable = canvas;
+        //}
+        string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
+        using var pix = Pix.LoadFromFile(imagePath);
+        using var iter = new BlockIterable(TestClass.Languages!, TestClass.TessDataFolder!, pix,
+            PageIteratorLevel.TextLine, PageIteratorLevel.Word
+            );
+
+        List<BlockLevelCollection> blocks = new();
+        foreach (var item in iter)
+        {
+            blocks.Add(item);
+        }
+
+        string json = JsonSerializer.Serialize(blocks, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+        });
+    }
+
+    class Drawable : IDrawable
+    {
+        public Drawable(TesseractTestClass cls)
+        {
+            _cls = cls;
+        }
+
+        public event EventHandler? Drawn;
+
+        readonly TesseractTestClass _cls;
+
+        public int ImageHeight { get; private set; }
+        public int ImageWidth { get; private set; }
+
+        readonly List<BoundingBox> _data = new();
+
+        internal readonly List<string> _lines = new();
+
+        public void Draw(ICanvas canvas, RectF dirtyRect)
+        {
+            canvas.StrokeColor = Colors.Red;
+
+            if (_data.Count is 0)
+            {
+                string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
+                using var pix = Pix.LoadFromFile(imagePath);
+                using var iter = new TextMetadataIterable(_cls.Languages!, _cls.TessDataFolder!, pix);
+
+                ImageHeight = iter.ImageHeight;
+                ImageWidth = iter.ImageWidth;
+
+                foreach (var (text, layout) in iter)
+                {
+                    _data.Add(layout.Box);
+                    _lines.Add(text.Text);
+                }
+                Drawn?.Invoke(this, EventArgs.Empty);
+            }
+
+            foreach (BoundingBox box in _data)
+            {
+                int width = box.X2 - box.X1;
+                int height = box.Y2 - box.Y1;
+                canvas.DrawRectangle(box.X1, box.Y1, width, height);
+            }
+        }
+    }
+#endif
 }
 

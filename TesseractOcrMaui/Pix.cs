@@ -14,6 +14,21 @@ namespace TesseractOcrMaui;
 /// </summary>
 public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
 {
+    PixColormap? _colormap;
+
+    static readonly int[] _allowedDepths = new int[] { 1, 2, 4, 8, 16, 32 };
+
+    const float Deg2Rad = (float)(Math.PI / 180.0);
+
+    const int DefaultBinarySearchReduction = 2; // binary search part
+
+    const int DefaultBinaryThreshold = 130;
+
+    /// <summary>
+    /// A small angle, in radians, for threshold checking. Equal to about 0.06 degrees.
+    /// </summary>
+    const float VerySmallAngle = 0.001F;
+
     /// <summary>
     /// 
     /// </summary>
@@ -37,15 +52,6 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
             _colormap = new PixColormap(colorMapHandle);
         }
     }
-
-
-    PixColormap? _colormap;
-
-    const float Deg2Rad = (float)(Math.PI / 180.0);
-
-    const int DefaultBinarySearchReduction = 2; // binary search part
-
-    const int DefaultBinaryThreshold = 130;
 
     /// <summary>
     /// Pointer handle used to access image through Leptonica.
@@ -109,14 +115,38 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         set => LeptonicaApi.PixSetYRes(Handle, value);
     }
 
+    /// <summary>
+    /// HMT (with just misses) for speckle up to 2x2
+    /// "oooo"
+    /// "oC o"
+    /// "o  o"
+    /// "oooo"
+    /// </summary>
+    public const string SEL_STR2 = "oooooC oo  ooooo";
 
     /// <summary>
-    /// Get Pix from pix handle.
+    /// HMT (with just misses) for speckle up to 3x3
+    /// "oC  o"
+    /// "o   o"
+    /// "o   o"
+    /// "ooooo"
     /// </summary>
-    /// <param name="handle"></param>
-    /// <returns>new Pix representing handle.</returns>
-    /// <exception cref="ArgumentNullException">Handle is Zero ptr.</exception>
-    public static Pix FromHandle(IntPtr handle) => new(handle);
+    public const string SEL_STR3 = "ooooooC  oo   oo   oooooo";
+
+    /// <summary>
+    /// Used to lookup image formats by extension.
+    /// </summary>
+    private static Dictionary<string, ImageFormat> ImageFormats { get; } = new()
+    {
+        { ".jpg", ImageFormat.JfifJpeg },
+        { ".jpeg", ImageFormat.JfifJpeg },
+        { ".gif", ImageFormat.Gif },
+        { ".tif", ImageFormat.Tiff },
+        { ".tiff", ImageFormat.Tiff },
+        { ".png", ImageFormat.Png },
+        { ".bmp", ImageFormat.Bmp }
+    };
+
 
     /// <summary>
     /// Create empty pix with given dimensions.
@@ -129,7 +159,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     /// <exception cref="InvalidOperationException">If Leptonica cannot create new pix. (for example too large image)</exception>
     public static Pix CreateEmpty(int width, int height, int depth)
     {
-        if (AllowedDepths.Contains(depth) is false)
+        if (_allowedDepths.Contains(depth) is false)
         {
             throw new ArgumentException("Depth must be 1, 2, 4, 8, 16, or 32 bits.", nameof(depth));
         }
@@ -651,7 +681,7 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         pix3 = LeptonicaApi.PixThresholdToBinary(new HandleRef(this, pix2), 180);
 
         /* Remove the speckle noise up to selSize x selSize */
-        sel1 = LeptonicaApi.SelCreateFromString(selStr, selSize + 2, selSize + 2, "speckle" + selSize);
+        sel1 = LeptonicaApi.SelCreateFromString(selStr, selSize + 2, selSize + 2, $"speckle{selSize}");
         pix4 = LeptonicaApi.PixHMT(new HandleRef(this, IntPtr.Zero), new HandleRef(this, pix3), new HandleRef(this, sel1));
 
 #if IOS
@@ -815,53 +845,6 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
     }
 
     /// <summary>
-    /// 90 degree rotation.
-    /// </summary>
-    /// <param name="direction">1 = clockwise,  -1 = counter-clockwise</param>
-    /// <returns>rotated image</returns>
-    /// <exception cref="LeptonicaException">Failed to rotate.</exception>
-    public Pix Rotate90(int direction)
-    {
-        IntPtr resultHandle = LeptonicaApi.PixRotate90(Handle, direction);
-
-        if (resultHandle == IntPtr.Zero)
-        {
-            throw new LeptonicaException("Failed to rotate image.");
-        }
-        return new(resultHandle);
-    }
-
-    /// <summary>
-    /// Inverts pix.
-    /// </summary>
-    /// <exception cref="LeptonicaException">Failed to invert.</exception>
-    public Pix Invert()
-    {
-        IntPtr resultHandle = LeptonicaApi.PixInvert(new HandleRef(this, IntPtr.Zero), Handle);
-
-        if (resultHandle == IntPtr.Zero)
-        {
-            throw new LeptonicaException("Failed to invert image.");
-        }
-        return new(resultHandle);
-    }
-
-    /// <summary>
-    /// Top-level conversion to 8 bits per pixel.
-    /// </summary>
-    /// <param name="cmapflag"></param>
-    /// <exception cref="LeptonicaException">Failed to convert to 8 bits per pixel.</exception>
-    public Pix ConvertTo8(int cmapflag)
-    {
-        IntPtr resultHandle = LeptonicaApi.PixConvertTo8(Handle, cmapflag);
-        if (resultHandle == IntPtr.Zero)
-        {
-            throw new LeptonicaException("Failed to convert image to 8 bpp.");
-        }
-        return new(resultHandle);
-    }
-
-    /// <summary>
     /// Scales the current pix by the specified <paramref name="scaleX"/> and <paramref name="scaleY"/> factors returning a new <see cref="Pix"/> of the areSame depth. 
     /// </summary>
     /// <param name="scaleX"></param>
@@ -989,6 +972,52 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
         return new(result);
     }
 
+    /// <summary>
+    /// 90 degree rotation.
+    /// </summary>
+    /// <param name="direction">1 = clockwise,  -1 = counter-clockwise</param>
+    /// <returns>rotated image</returns>
+    /// <exception cref="LeptonicaException">Failed to rotate.</exception>
+    public Pix Rotate90(int direction)
+    {
+        IntPtr resultHandle = LeptonicaApi.PixRotate90(Handle, direction);
+
+        if (resultHandle == IntPtr.Zero)
+        {
+            throw new LeptonicaException("Failed to rotate image.");
+        }
+        return new(resultHandle);
+    }
+
+    /// <summary>
+    /// Inverts pix.
+    /// </summary>
+    /// <exception cref="LeptonicaException">Failed to invert.</exception>
+    public Pix Invert()
+    {
+        IntPtr resultHandle = LeptonicaApi.PixInvert(new HandleRef(this, IntPtr.Zero), Handle);
+
+        if (resultHandle == IntPtr.Zero)
+        {
+            throw new LeptonicaException("Failed to invert image.");
+        }
+        return new(resultHandle);
+    }
+
+    /// <summary>
+    /// Top-level conversion to 8 bits per pixel.
+    /// </summary>
+    /// <param name="cmapflag"></param>
+    /// <exception cref="LeptonicaException">Failed to convert to 8 bits per pixel.</exception>
+    public Pix ConvertTo8(int cmapflag)
+    {
+        IntPtr resultHandle = LeptonicaApi.PixConvertTo8(Handle, cmapflag);
+        if (resultHandle == IntPtr.Zero)
+        {
+            throw new LeptonicaException("Failed to convert image to 8 bpp.");
+        }
+        return new(resultHandle);
+    }
 
 
 
@@ -1023,48 +1052,6 @@ public unsafe sealed class Pix : DisposableObject, IEquatable<Pix>
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(Handle, Depth, Height, Width, IsDisposed);
-
-
-    /// <summary>
-    /// HMT (with just misses) for speckle up to 2x2
-    /// "oooo"
-    /// "oC o"
-    /// "o  o"
-    /// "oooo"
-    /// </summary>
-    public const string SEL_STR2 = "oooooC oo  ooooo";
-
-    /// <summary>
-    /// HMT (with just misses) for speckle up to 3x3
-    /// "oC  o"
-    /// "o   o"
-    /// "o   o"
-    /// "ooooo"
-    /// </summary>
-    public const string SEL_STR3 = "ooooooC  oo   oo   oooooo";
-
-    /// <summary>
-    /// A small angle, in radians, for threshold checking. Equal to about 0.06 degrees.
-    /// </summary>
-    private const float VerySmallAngle = 0.001F;
-
-    private static List<int> AllowedDepths { get; } = new() { 1, 2, 4, 8, 16, 32 };
-
-    /// <summary>
-    /// Used to lookup image formats by extension.
-    /// </summary>
-    private static Dictionary<string, ImageFormat> ImageFormats { get; } = new()
-    {
-        { ".jpg", ImageFormat.JfifJpeg },
-        { ".jpeg", ImageFormat.JfifJpeg },
-        { ".gif", ImageFormat.Gif },
-        { ".tif", ImageFormat.Tiff },
-        { ".tiff", ImageFormat.Tiff },
-        { ".png", ImageFormat.Png },
-        { ".bmp", ImageFormat.Bmp }
-    };
-
-
 
     /// <inheritdoc/>
     protected override void Dispose(bool disposing)

@@ -159,7 +159,7 @@ public class TessPage : DisposableObject
         }
         catch (IOException)
         {
-            Logger.LogInformation("Failed to save image to tif format using path '{dir}'. IO Exception was thrown.", OutputDirectory);
+            Logger.LogWarning("Failed to save image to tif format using path '{dir}'. IO Exception was thrown.", OutputDirectory);
         }
         catch (ArgumentException)
         {
@@ -183,7 +183,7 @@ public class TessPage : DisposableObject
             Logger.LogError("Tesseract cannot get thresholded image");
             throw new TesseractException("Failed to get thresholded image.");
         }
-        return Pix.FromHandle(handle);
+        return new(handle);
     }
 
 

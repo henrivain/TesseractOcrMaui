@@ -2,6 +2,7 @@
 #if !IOS
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
+using System.Collections;
 using System.Diagnostics;
 using TesseractOcrMaui.Iterables;
 using TesseractOcrMaui.Results;
@@ -22,27 +23,34 @@ public class TesseractTestClass
         _logger = logger ?? NullLogger<TesseractTestClass>.Instance;
     }
 
-    public async void RunAsync()
+    public string? Languages { get; set; }
+    public string? TessDataFolder { get; set; }
+
+    public async Task Load()
     {
         // Load tessdata for testing purposes, configure in MauiProgram.cs, do not touch here
-        var result = await _tessDataProvider.LoadFromPackagesAsync();
-        string tessDataFolder = _tessDataProvider.TessDataFolder;
-        string languages = string.Join('+', _tessDataProvider.AvailableLanguages.Select(x => x.Replace(".traineddata", "")));
+        await _tessDataProvider.LoadFromPackagesAsync();
+        TessDataFolder = _tessDataProvider.TessDataFolder;
+        Languages = string.Join('+', _tessDataProvider.AvailableLanguages.Select(x => x.Replace(".traineddata", "")));
+    }
 
+
+    public void Run()
+    {
         // [INPUT] give image here
         //string imagePath = @"C:\Users\henri\Downloads\tess version wsl.png";
-        string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
+        //string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
 
 
         // nulls are alredy checked, can't throw.
         // This TessEngine must exist as long as any iterator from it
-        using var engine = new TessEngine(languages, tessDataFolder, _logger);
-        using var pix = Pix.LoadFromFile(imagePath);
+        //using var engine = new TessEngine(Languages!, TessDataFolder!, _logger);
+        //using var pix = Pix.LoadFromFile(imagePath);
 
 
 
-        // EXAMPLE 1 Create iterator 
-        using var iterator = engine.GetResultIterator(pix, PageIteratorLevel.Word);
+        /* EXAMPLE 1 Create iterator */
+        //using var iterator = engine.GetResultIterator(pix, PageIteratorLevel.Word);
 
         // EXAMPLE 2 Get output
         //iterator.MoveNext();    // move to index 0
@@ -55,7 +63,7 @@ public class TesseractTestClass
 
 
 
-        // EXAMPLE 2 Copying iterator
+        /* EXAMPLE 3 Copying iterator */
         //void Copying()
         //{
         //    iterator.MoveNext();
@@ -80,14 +88,17 @@ public class TesseractTestClass
 
 
 
-        // EXAMPLE 3 As iterable and loop
+        /* EXAMPLE 4 As iterable and loop */
         //List<TextSpan> spans = new();
         //foreach (var i in engine.GetResultIterable(pix))
         //{
         //    spans.Add(i);
         //}
 
-        // EXAMPLE 4 Getting image layout data with PageIterator
+
+
+
+        /* EXAMPLE 5 Getting image layout data with PageIterator */
         //var pageIter = new PageIterable(engine);
 
         //List<SpanInfo> spanInfos = new();
@@ -96,8 +107,34 @@ public class TesseractTestClass
         //    spanInfos.Add(spanInfo);
         //}
 
+
+
+
+        /* EXAMPLE 5 Layout-text combine iterator
+        *  This works, because both iterators are using same pointer,
+        *  So calling next() to one moves both */
+
+
+
+
+
+        //using ResultIterator resultIter = engine.GetResultIterator(pix);
+        //using PageIterator pageIter = resultIter.AsPageIterator();
+
+        //Debug.WriteLine(resultIter.Level);
+        //Debug.WriteLine(pageIter.Level);
+
+        //pageIter.MoveNext();    
+
+        //List<(TextSpan, SpanLayout)> spans = new();
+        //while (resultIter.MoveNext())
+        //{
+        //    yield return (resultIter.Current, pageIter.Current);
+        //}
+
     }
 }
+
 
 #endif
 #endif

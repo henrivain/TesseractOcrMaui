@@ -10,7 +10,7 @@ namespace TesseractOcrMaui.Iterables;
 /// Enables Synchronized iteration to text and layout iteration.
 /// Inherits from <see cref="IDisposable"/>.
 /// </summary>
-public class LayoutTextIterator : DisposableObject, IEnumerable<RecognitionSpan>
+public class TextMetadataIterable : DisposableObject, IEnumerable<RecognitionSpan>
 {
     readonly TessEngine _engine;
 
@@ -22,7 +22,7 @@ public class LayoutTextIterator : DisposableObject, IEnumerable<RecognitionSpan>
     /// <param name="image"></param>
     /// <param name="level"></param>
     /// <param name="logger"></param>
-    public LayoutTextIterator(
+    public TextMetadataIterable(
         string languages, 
         string traineddataPath, 
         Pix image, 
@@ -83,8 +83,6 @@ public class LayoutTextIterator : DisposableObject, IEnumerable<RecognitionSpan>
             };
         }
     }
-
-    
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
