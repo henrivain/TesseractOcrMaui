@@ -189,13 +189,14 @@ public partial class MainPage : ContentPage
         string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
         using var pix = Pix.LoadFromFile(imagePath);
         using var iter = new BlockIterable(TestClass.Languages!, TestClass.TessDataFolder!, pix,
-            PageIteratorLevel.TextLine, PageIteratorLevel.Word
+            PageIteratorLevel.Block, PageIteratorLevel.Symbol
             );
 
         List<BlockLevelCollection> blocks = new();
-        foreach (var item in iter)
+        foreach (var block in iter)
         {
-            blocks.Add(item);
+            var builder = block.Build(out Average confidence);
+            string stringified = builder.ToString();
         }
 
         string json = JsonSerializer.Serialize(blocks, new JsonSerializerOptions

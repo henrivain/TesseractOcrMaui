@@ -23,7 +23,11 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
     /// <param name="languages">'+' -separated string of traineddata filenames without extension.</param>
     /// <param name="traineddataPath">Path to traineddata folder.</param>
     /// <param name="image">Image to be analyzed.</param>
-    /// <param name="highestLevel">Biggest block size to be analyzed.</param>
+    /// <param name="highestLevel">
+    /// Biggest block size to be analyzed.
+    /// This is the block level that is iterated on.
+    /// Block -> returns IEnumerable of Paragraphs
+    /// </param>
     /// <param name="lowestLevel">Smallest block size to be analyzed.</param>
     /// <param name="logger"></param>
     /// <exception cref="InvalidOperationException">
@@ -32,7 +36,7 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
     public BlockIterable(string languages,
         string traineddataPath,
         Pix image,
-        PageIteratorLevel highestLevel,
+        PageIteratorLevel highestLevel = PageIteratorLevel.Block,
         PageIteratorLevel lowestLevel = PageIteratorLevel.Symbol,
         ILogger? logger = null)
     {
@@ -73,7 +77,7 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
         // ArgumentNullException: _engine cannot be null -> cannot throw
         using SyncIterator iter = new(_engine, HighestLevelToSearch);
 
-        
+
         while (iter.MoveNext())
         {
             BlockLevelCollection? result = GetLower(iter, HighestLevelToSearch);
@@ -81,12 +85,15 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
             {
                 continue;
             }
-            yield return result.Value;
+            yield return result;
         }
 
         BlockLevelCollection? GetLower(in SyncIterator higherLevelIter, PageIteratorLevel last)
         {
-            if (last is LowestAvailableLevel)
+            /* Check if already at lowest level
+             * Bigger value means more precise level 
+             * like Symbol (4) > Word (3) */
+            if (last >= LowestAvailableLevel || last > LowestAvailableLevel)
             {
                 return null;
             }
@@ -102,26 +109,37 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
             // Start iteration
             List<TextSpan> spans = new();
             List<BlockLevelCollection> lowerLevels = new();
+            bool hasLowerLevels = false;
+
             do
             {
-                // Only returns null if already at lowest level
                 BlockLevelCollection? lowerCollection = GetLower(iter, currentLevel);
+
+                // Null only returned if already at lowest level
+                if (lowerCollection is not null)
+                {
+                    hasLowerLevels = true;
+                }
+
                 if (lowerCollection is null)
                 {
                     spans.Add(iter.GetTextSpan());
                 }
                 else
                 {
-                    lowerLevels.Add(lowerCollection.Value);
+                    lowerLevels.Add(lowerCollection);
                 }
                 if (iter.IsAtFinalElement(last))
                 {
-                    return new(spans, lowerLevels, currentLevel);
+                    break;
                 }
             }
             while (iter.MoveNext());
 
-            return new(spans, lowerLevels, currentLevel);
+            // Only lower levels or current level is returned, both cannot be defined at the same time
+            return hasLowerLevels
+                ? new(lowerLevels, currentLevel)
+                : new(spans, currentLevel);
         }
     }
 
