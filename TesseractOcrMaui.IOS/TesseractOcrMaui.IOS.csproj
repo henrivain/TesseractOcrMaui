@@ -15,9 +15,14 @@
 		<ObjcBindingCoreSource Include="StructsAndEnums.cs" />
 
 		<NativeReference Include="tesseract.xcframework">
-			<Kind>Framework</Kind>
-			<SmartLink>False</SmartLink>
+			<ForceLoad>False</ForceLoad>
 			<FrameWorks>Accelerate</FrameWorks>
+			<IsCxx></IsCxx>
+			<Kind>Framework</Kind>
+			<LinkerFlags></LinkerFlags>
+			<NeedsGccExceptionHandling></NeedsGccExceptionHandling>
+			<SmartLink>True</SmartLink>
+			<WeakFrameworks></WeakFrameworks>
 		</NativeReference>
 	</ItemGroup>
 
