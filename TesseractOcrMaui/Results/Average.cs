@@ -3,7 +3,7 @@
 /// <summary>
 /// Count dynamic average with given values.
 /// </summary>
-public struct Average
+public struct Average : IAverage
 {
     /// <summary>
     /// Count dynamic average with given values.
@@ -22,10 +22,8 @@ public struct Average
     /// <param name="nums"></param>
     public Average(params double[] nums) => ReCalculate(nums);
 
-    /// <summary>
-    /// Add numbers to average and recalculate.
-    /// </summary>
-    /// <param name="nums"></param>
+    /// <inheritdoc/>
+
     public void ReCalculate(params float[] nums)
     {
         if (nums is null || nums.LongLength is 0)
@@ -38,10 +36,7 @@ public struct Average
         }
     }
 
-    /// <summary>
-    /// Add numbers to average and recalculate.
-    /// </summary>
-    /// <param name="nums"></param>
+    /// <inheritdoc/>
     public void ReCalculate(params double[] nums)
     {
         if (nums is null ||nums.LongLength is 0)
@@ -54,16 +49,10 @@ public struct Average
         }
     }
 
-    /// <summary>
-    /// Add numbers to average and recalculate.
-    /// </summary>
-    /// <param name="num"></param>
+    /// <inheritdoc/>
     public void ReCalculate(float num) => ReCalculate((double)num);
 
-    /// <summary>
-    /// Add numbers to average and recalculate.
-    /// </summary>
-    /// <param name="num"></param>
+    /// <inheritdoc/>
     public void ReCalculate(double num)
     {
         checked

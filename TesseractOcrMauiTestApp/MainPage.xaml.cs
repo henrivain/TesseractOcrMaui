@@ -193,9 +193,10 @@ public partial class MainPage : ContentPage
             );
 
         List<BlockLevelCollection> blocks = new();
+        IAverage confidence = new Average();
         foreach (var block in iter)
         {
-            var builder = block.Build(out Average confidence);
+            var builder = block.Build(ref confidence);
             string stringified = builder.ToString();
         }
 

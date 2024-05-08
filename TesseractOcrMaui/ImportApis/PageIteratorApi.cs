@@ -21,7 +21,6 @@ internal sealed class PageIteratorApi
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorDelete")]
     public static extern void Delete(HandleRef iterHandle);
 
-
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorCopy")]
     public static extern /*TessPageIterator*/ IntPtr Copy(HandleRef iterHandle);
 

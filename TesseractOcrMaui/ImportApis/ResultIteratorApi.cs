@@ -46,7 +46,7 @@ internal sealed class ResultIteratorApi
     public static extern /*string*/ IntPtr GetRecognizedLanguage(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorWordFontAttributes")]
-    public static unsafe extern /*string*/ IntPtr GetWordFontAttributes(HandleRef handle, out bool isBold, out bool isItalic, 
+    public static extern /*string*/ IntPtr GetWordFontAttributes(HandleRef handle, out bool isBold, out bool isItalic, 
         out bool isUnderlined, out bool isMonospace, out bool isSerif, out bool isSmallCaps, 
         out int pointSize, out int fontId);
 }

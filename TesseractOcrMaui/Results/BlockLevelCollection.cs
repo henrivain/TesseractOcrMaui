@@ -72,14 +72,25 @@ public class BlockLevelCollection
     /// </returns>
     public ImmutableArray<TextSpan>? Data { get; }
 
+
+
+
+    //public IEnumerable<StringBuilder> GetLines(ref IAverage confidence)
+    //{
+    //    if (BlockLevel is PageIteratorLevel.TextLine)
+    //    {
+    //    }
+    //}
+
+
+
     /// <summary>
     /// Build recognized text into user suitable string.
     /// </summary>
     /// <returns>StringBuilder that represents recognized text object.</returns>
     /// <exception cref="NotImplementedException">If <see cref="BlockLevel"/> is <see cref="PageIteratorLevel.Block"/> or any invalid value.</exception>
-    public StringBuilder Build(out Average confidence)
+    public StringBuilder Build(ref IAverage confidence)
     {
-        confidence = new();
         return BlockLevel switch
         {
             PageIteratorLevel.Paragraph => GetBlock(this, ref confidence),
@@ -92,7 +103,7 @@ public class BlockLevelCollection
     }
 
 
-    static StringBuilder GetWord(BlockLevelCollection collection, ref Average confidence)
+    static StringBuilder GetWord(BlockLevelCollection collection, ref IAverage confidence)
     {
         if (collection.BlockLevel is not PageIteratorLevel.Symbol)
         {
@@ -112,7 +123,7 @@ public class BlockLevelCollection
         return builder;
     }
 
-    static StringBuilder GetTextLine(BlockLevelCollection collection, ref Average confidence)
+    static StringBuilder GetTextLine(BlockLevelCollection collection, ref IAverage confidence)
     {
         if (collection.BlockLevel is not PageIteratorLevel.Word)
         {
@@ -141,7 +152,7 @@ public class BlockLevelCollection
         return builder;
     }
 
-    static StringBuilder GetParagraph(BlockLevelCollection collection, ref Average confidence, bool addNewLines = true)
+    static StringBuilder GetParagraph(BlockLevelCollection collection, ref IAverage confidence, bool addNewLines = true)
     {
         if (collection.BlockLevel is not PageIteratorLevel.TextLine)
         {
@@ -178,7 +189,7 @@ public class BlockLevelCollection
         return builder;
     }
 
-    static StringBuilder GetBlock(BlockLevelCollection collection, ref Average confidence)
+    static StringBuilder GetBlock(BlockLevelCollection collection, ref IAverage confidence)
     {
         if (collection.BlockLevel is not PageIteratorLevel.Paragraph)
         {
