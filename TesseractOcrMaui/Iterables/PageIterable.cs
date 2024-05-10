@@ -1,6 +1,4 @@
-﻿#if !IOS
-
-using System.Collections;
+﻿using System.Collections;
 using TesseractOcrMaui.Results;
 
 namespace TesseractOcrMaui.Iterables;
@@ -97,5 +95,3 @@ public class PageIterable : IEnumerable<SpanLayout>
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
-
-#endif

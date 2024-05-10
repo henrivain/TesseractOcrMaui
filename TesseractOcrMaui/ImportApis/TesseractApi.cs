@@ -33,7 +33,7 @@ internal sealed partial class TesseractApi
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIInit4", CharSet = StrEncoding)]
     public extern static int BaseApi4Init(HandleRef handle, string datapath, string language,
-        int mode, string[] configs, int configLength, string[] optionNames,
+        EngineMode mode, string[] configs, int configLength, string[] optionNames,
         string[] optionValues, UIntPtr optionsSize, bool setOnlyNonDebugParams);
 
     // Note that you must pass dataSize: 0, if you want to use data pata
@@ -41,7 +41,7 @@ internal sealed partial class TesseractApi
     // std::string datapath = data_size == 0 ? data: language;
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIInit5", CharSet = StrEncoding)]
     public extern static int BaseApi5Init(HandleRef handle, string datapath, int dataSize,
-        string language, int mode, string[] configs, int configSize, string[] optionNames,
+        string language, EngineMode mode, string[] configs, int configSize, string[] optionNames,
         string[] optionValues, UIntPtr optionsSize, bool setOnlyNonDebugParams);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetDatapath")]

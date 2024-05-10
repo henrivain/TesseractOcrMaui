@@ -1,6 +1,4 @@
-﻿#if !IOS
-
-using System.Collections;
+﻿using System.Collections;
 using TesseractOcrMaui.Results;
 
 namespace TesseractOcrMaui.Iterables;
@@ -92,6 +90,3 @@ public class TextMetadataIterable : DisposableObject, IEnumerable<RecognitionSpa
         _engine.Dispose();
     }
 }
-
-
-#endif

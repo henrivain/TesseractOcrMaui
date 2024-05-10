@@ -36,7 +36,7 @@ internal sealed class PageIteratorApi_Imports
         int padding, HandleRef originalPix, out int left, out int top);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorBaseline")]
-    internal static extern bool Baseline(HandleRef iterHandle, /*PageIteratorLevel*/ int level,
+    internal static extern bool BaseLine(HandleRef iterHandle, /*PageIteratorLevel*/ int level,
         out int x1, out int y1, out int x2, out int y2);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessPageIteratorParagraphInfo")]

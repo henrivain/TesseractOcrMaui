@@ -1,10 +1,6 @@
 ﻿using TesseractOcrMaui.Converters;
-#if IOS
-using TesseractOcrMaui.IOS;
-#else
-using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.Iterables;
-#endif
+using TesseractOcrMaui.ImportApis;
 
 namespace TesseractOcrMaui;
 
@@ -16,9 +12,6 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     int _processCount = 0;
 
     readonly ILogger _logger;
-
-
-
 
     /// <summary>
     /// Create new Tess engine with native Tesseract api.
@@ -163,11 +156,8 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         }
         _processCount++;
 
-#if IOS
-        TesseractApi.SetPageSegmentationMode(Handle, (int?)mode ?? (int)DefaultSegmentationMode);
-#else
+
         TesseractApi.SetPageSegmentationMode(Handle, mode ?? DefaultSegmentationMode);
-#endif
         SetImage(image);
 
         if (string.IsNullOrEmpty(inputName) is false)
@@ -180,8 +170,6 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         return page;
     }
 
-
-#if !IOS
 
     /// <summary>
     /// Get iterator that is used to iterate over recognized text with different block sizes.
@@ -265,7 +253,6 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         return new(this, level);
     }
 
-#endif
 
     #region EngineGettersAndSetters
     /// <summary>
@@ -437,7 +424,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         string[] optVals = optionValues.ToArray();
 
         int initState = TesseractApi.BaseApi5Init(handle, traineddataPath, 0, languages,
-            (int)mode, configs, configs.Length, options, optVals,
+            mode, configs, configs.Length, options, optVals,
             (nuint)options.Length, false);
 
         return initState;

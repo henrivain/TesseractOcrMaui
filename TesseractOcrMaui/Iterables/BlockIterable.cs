@@ -1,8 +1,4 @@
-﻿#if !IOS
-
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections;
 using TesseractOcrMaui.Results;
 
 namespace TesseractOcrMaui.Iterables;
@@ -151,4 +147,3 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
         _engine.Dispose();
     }
 }
-#endif

@@ -1,11 +1,6 @@
 ﻿#if DEBUG
-#if !IOS
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-using System.Collections;
-using System.Diagnostics;
-using TesseractOcrMaui.Iterables;
-using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
 
 
@@ -136,5 +131,4 @@ public class TesseractTestClass
 }
 
 
-#endif
 #endif

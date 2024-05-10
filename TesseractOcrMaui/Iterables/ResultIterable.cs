@@ -1,6 +1,4 @@
-﻿#if !IOS
-
-using System.Collections;
+﻿using System.Collections;
 using TesseractOcrMaui.Results;
 
 namespace TesseractOcrMaui.Iterables;
@@ -60,5 +58,3 @@ public class ResultIterable : IEnumerable<TextSpan>
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
-
-#endif

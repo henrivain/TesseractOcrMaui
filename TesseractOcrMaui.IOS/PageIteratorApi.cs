@@ -42,7 +42,7 @@ public static class PageIteratorApi
 
     public static bool BaseLine(HandleRef self, /*PageIteratorLevel*/ int level,
         out int x1, out int y1, out int x2, out int y2)
-        => DllImport.Baseline(self, level, out x1, out y1, out x2, out y2);
+        => DllImport.BaseLine(self, level, out x1, out y1, out x2, out y2);
 
     public static void ParagraphInfo(HandleRef self, out int justification,
         out bool isListItem, out bool isCrown, out int firstLineIndent)

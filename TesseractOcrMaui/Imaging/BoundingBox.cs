@@ -57,4 +57,8 @@ public readonly struct BoundingBox
     /// </summary>
     public int Y2 { get; }
 
+    /// <summary>
+    /// Empty bounding box with all coordinates 0.
+    /// </summary>
+    public static readonly BoundingBox Empty = new(0, 0, 0, 0);
 }

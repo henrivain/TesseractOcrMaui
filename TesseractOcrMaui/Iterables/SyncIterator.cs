@@ -1,5 +1,4 @@
-﻿#if !IOS
-using System.Collections;
+﻿using System.Collections;
 using TesseractOcrMaui.Imaging;
 using TesseractOcrMaui.Results;
 using static TesseractOcrMaui.Iterables.SyncIterator;
@@ -86,6 +85,7 @@ internal sealed class SyncIterator : DisposableObject, IEnumerator<SyncedIterato
     
     /// <exception cref="IndexOutOfRangeException"></exception>
     /// <exception cref="ObjectDisposedException"></exception>
+    /// <exception cref="PageIteratorException"></exception>
     public BoundingBox GetBoundingBox() 
         => _pageIterator.GetCurrentBoundingBox();
 
@@ -126,5 +126,3 @@ internal sealed class SyncIterator : DisposableObject, IEnumerator<SyncedIterato
     internal readonly record struct SyncedIterators(ResultIterator First, PageIterator Second);
 }
 
-
-#endif

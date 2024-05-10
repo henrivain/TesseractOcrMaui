@@ -1,12 +1,10 @@
-﻿#if !IOS
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using TesseractOcrMaui.Imaging;
-using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.PointerTypes;
 using TesseractOcrMaui.Results;
+using TesseractOcrMaui.ImportApis;
+
 
 namespace TesseractOcrMaui.Iterables;
 
@@ -15,7 +13,7 @@ namespace TesseractOcrMaui.Iterables;
 /// </summary>
 public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLayout>
 {
-    
+
     SpanLayout? _current;
 
 
@@ -63,13 +61,13 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
     /// <exception cref="NullPointerException"> If <paramref name="engine"/>.Handle is <see cref="IntPtr.Zero"/>.</exception>
     /// <exception cref="PageIteratorException">If image does not contain text.</exception>
     /// <exception cref="ImageNotSetException">If <see cref="TessEngine.SetImage(Pix)"/> is not called before init.</exception>
-    internal PageIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine) 
+    internal PageIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine)
     {
         _creationType = ResultIteratorType.EngineBased;
 
         ArgumentNullException.ThrowIfNull(engine);
         NullPointerException.ThrowIfNull(engine.Handle);
-        if (engine.IsImageSet is false) 
+        if (engine.IsImageSet is false)
         {
             throw new ImageNotSetException($"TessEngine.SetImage() not called, cannot get iterator.");
         }
@@ -95,14 +93,14 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
     /// <exception cref="ArgumentNullException">If <paramref name="dependency"/> is <see langword="null"/>.</exception>
     /// <exception cref="NullPointerException">If <paramref name="copiedPtr"/> is <see cref="IntPtr.Zero"/>.</exception>
     private PageIterator(
-        IntPtr copiedPtr, 
-        PageIteratorLevel level, 
-        bool isAtBeginning, 
+        IntPtr copiedPtr,
+        PageIteratorLevel level,
+        bool isAtBeginning,
         DisposableObject dependency) : base(dependency)
     {
         _creationType = ResultIteratorType.Copied;
         NullPointerException.ThrowIfNull(copiedPtr);
-        IsAtBeginning = isAtBeginning; 
+        IsAtBeginning = isAtBeginning;
         Handle = new HandleRef(this, copiedPtr);
         Level = level;
     }
@@ -165,6 +163,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
         }
 
         _current = null;
+
         return PageIteratorApi.Next(Handle, Level);
     }
 
@@ -249,6 +248,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
         ThrowIfDisposed();
         ThrowIfAtBeginning();
 
+
         return PageIteratorApi.IsAtFinalElement(Handle, level, Level);
     }
 
@@ -281,6 +281,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
     /// <returns><see cref="BoundingBox"/>, recognized text block coordinates in iterators current state.</returns>
     /// <exception cref="IndexOutOfRangeException">If <see cref="MoveNext"/> is not yet called and iterator is at index -1.</exception>
     /// <exception cref="ObjectDisposedException">If object is disposed.</exception>
+    /// <exception cref="PageIteratorException">If bounding box was not found for current index.</exception>
     public BoundingBox GetCurrentBoundingBox()
     {
         ThrowIfDisposed();
@@ -289,9 +290,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
         if (PageIteratorApi.BoundingBox(Handle, Level,
             out int left, out int top, out int right, out int bottom) is false)
         {
-#if DEBUG
-            throw new TesseractException("Bounding box not found");
-#endif
+            return BoundingBox.Empty;
         }
 
         return new(left, top, right, bottom);
@@ -308,6 +307,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
     {
         ThrowIfDisposed();
         ThrowIfAtBeginning();
+
 
         IntPtr pixPtr = PageIteratorApi.GetBinaryImage(Handle, Level);
         NullPointerException.ThrowIfNull(pixPtr);
@@ -334,9 +334,10 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
         ThrowIfDisposed();
         ThrowIfAtBeginning();
 
-        // Return binary image if pix Handle is not valid
-        IntPtr pixPtr = PageIteratorApi.GetImage(Handle, Level, padding,
+        // Returns binary image if pix Handle is not valid
+        IntPtr pixPtr = PageIteratorApi.GetImage(Handle, Level, padding, 
             pixHandle.Handle, out int left, out int top);
+        
         textStart = new(left, top);
 
         NullPointerException.ThrowIfNull(pixPtr);
@@ -405,6 +406,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
         }
     }
 
+    /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
         if (Handle.Handle != IntPtr.Zero)
@@ -431,5 +433,3 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
         }
     }
 }
-
-#endif

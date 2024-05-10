@@ -1,9 +1,7 @@
-﻿#if !IOS
-
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
-using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.Results;
+using TesseractOcrMaui.ImportApis;
 
 namespace TesseractOcrMaui.Iterables;
 
@@ -266,6 +264,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         ThrowIfDisposed();
         ThrowIfAtBeginning();
 
+
         IntPtr ptr = ResultIteratorApi.GetUTF8Text(Handle, Level);
         float confidence = ResultIteratorApi.GetConfidence(Handle, Level);
         string resultText = Marshal.PtrToStringUTF8(ptr) ?? string.Empty;
@@ -320,5 +319,3 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         }
     }
 }
-
-#endif

@@ -39,7 +39,7 @@
 			<PackagePath>/</PackagePath>
 		</None>
 		<!-- include dll manifest file -->
-		<None Include="Configuration/manifest" >
+		<None Include="Configuration/manifest" Condition="'$(IsWindows)' == 'true'">
 			<Pack>true</Pack>
 			<PackagePath>lib/net7.0-ios16.1/TesseractOcrMaui.IOS.resources/</PackagePath>
 		</None>
