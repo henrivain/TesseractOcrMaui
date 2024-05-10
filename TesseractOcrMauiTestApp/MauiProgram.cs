@@ -33,6 +33,7 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddSingleton<VisualOcrPage>();
+        builder.Services.AddSingleton<TextIteratorPage>();
 
         return builder.Build();
     }

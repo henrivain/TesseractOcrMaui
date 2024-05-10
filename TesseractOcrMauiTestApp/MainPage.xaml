@@ -66,22 +66,7 @@
                         </ScrollView>
                     </VerticalStackLayout>
                 </Border>
-                <Grid ColumnDefinitions="*,*">
-                    <Grid  x:Name="grid" HorizontalOptions="Start"
-                           Margin="0,0,0,200">
-                        <Image Source="C:\Users\henri\Downloads\clearTextImage.png"
-                               x:Name="image" />
-                        <GraphicsView Loaded="GraphicsView_Loaded"
-                                      x:Name="graphicsView" />
-                    </Grid>
-                    <Label x:Name="label"
-                           TextColor="White" 
-                           Grid.Column="1"
-                           HorizontalTextAlignment="Start"
-                           />
-                </Grid>
             </VerticalStackLayout>
-
         </Grid>
     </ScrollView>
 

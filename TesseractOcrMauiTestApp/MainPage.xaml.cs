@@ -131,26 +131,5 @@ public partial class MainPage : ContentPage
         confidenceLabel.Text = $"Confidence: {result.Confidence}";
         resultLabel.Text = result.RecognisedText;
     }
-
-    private async void GraphicsView_Loaded(object sender, EventArgs e)
-    {
-        await _provider.LoadFromPackagesAsync();
-
-        string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
-        using var pix = Pix.LoadFromFile(imagePath);
-        using var iter = new TextStructureIterable(pix, _provider,
-            PageIteratorLevel.Block, PageIteratorLevel.Symbol
-            );
-
-        List<BlockLevelCollection> blocks = new();
-        IAverage confidence = new Average();
-        foreach (var block in iter)
-        {
-            var builder = block.Build(ref confidence);
-            string stringified = builder.ToString();
-        }
-
-
-    }
 }
 

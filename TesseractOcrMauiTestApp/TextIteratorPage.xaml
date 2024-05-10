@@ -4,9 +4,15 @@
              x:Class="TesseractOcrMauiTestApp.TextIteratorPage"
              Title="TextIteratorPage">
     <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+        <Button Clicked="SelectImageButton_Clicked"
+                Margin="0,20"
+                HorizontalOptions="Center"
+                Text="Select image" />
+        <Grid HorizontalOptions="FillAndExpand"
+            BackgroundColor="Red"
+              VerticalOptions="FillAndExpand">
+            
+        </Grid>
+        
     </VerticalStackLayout>
 </ContentPage>

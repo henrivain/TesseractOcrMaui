@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text;
-using static System.Reflection.Metadata.BlobBuilder;
 using System.Text.Json;
 
 namespace TesseractOcrMaui.Results;
@@ -44,7 +44,7 @@ public class BlockLevelCollection
     }
 
     /// <summary>
-    /// Value 
+    /// True if data is stored in this BlockLevelCollection, false if data is in LowerLevelData collections.
     /// </summary>
     [MemberNotNullWhen(true, nameof(Data))]
     [MemberNotNullWhen(false, nameof(LowerLevelData))]
@@ -74,6 +74,98 @@ public class BlockLevelCollection
     /// </returns>
     public ImmutableArray<TextSpan>? Data { get; }
 
+
+    /// <summary>
+    /// Print output text in ACSII tree. 
+    /// This is mostly for testing purposes, and isn't optimized for anything.
+    /// </summary>
+    /// <param name="writeLine">Function to print output.</param>
+    /// <exception cref="ArgumentOutOfRangeException">If lower level data references make a loop. Max depth 100.</exception>
+    public void PrintStructureToOutput(Action<string>? writeLine)
+    {
+        if (writeLine is null)
+        {
+            return;
+        }
+
+        Dictionary<PageIteratorLevel, string> names = new()
+        {
+            [PageIteratorLevel.Paragraph] = "Paragraph",
+            [PageIteratorLevel.TextLine] = "TextLine",
+            [PageIteratorLevel.Word] = "Word",
+            [PageIteratorLevel.Symbol] = "Symbol",
+            [PageIteratorLevel.Block] = "Block",
+        };
+
+        char dir = '├';
+        char hor = '─';
+        char vert = '│';
+
+
+        PrintLevel(this, 1);
+
+        void PrintLevel(BlockLevelCollection level, int depth)
+        {
+            // Check to make sure no stackoverflow can happen
+            if (depth > 100)
+            {
+                throw new ArgumentOutOfRangeException(nameof(depth), "Depth should not be this big!");
+            }
+
+            // Add block level title
+            var titleLine = FillWithStructure(stackalloc char[depth * 3]);
+            writeLine($"{titleLine}{names[level.BlockLevel]} /");
+
+            if (level.IsDataLayer)
+            {
+                // Add data
+                ReadOnlySpan<char> horizontals = FillWithStructure(stackalloc char[(depth + 1) * 3]);
+                foreach (var text in level.Data)
+                {
+                    writeLine($"{horizontals}{GetWithoutNewLine(text.Text)}");
+                }
+            }
+            else
+            {
+                // Print data from lower levels using recursion
+                foreach (var block in level.LowerLevelData)
+                {
+                    PrintLevel(block, depth + 1);
+                }
+                return;
+            }
+        }
+
+        ReadOnlySpan<char> FillWithStructure(Span<char> span)
+        {
+            /* Build horizontal line
+            * Every three characters are '│  '
+            * Last three are '├─ '
+            * Creates line like '│  │  ├─ '
+            */
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (i == span.Length - 2)
+                {
+                    span[i] = hor;
+                }
+                else if (i == span.Length - 3)
+                {
+                    span[i] = dir;
+                }
+                else if (i % 3 == 0)
+                {
+                    span[i] = vert;
+                }
+                else
+                {
+                    span[i] = ' ';
+                }
+            }
+            return span;
+        }
+    }
+
     /// <summary>
     /// Build recognized text into user suitable string.
     /// </summary>
@@ -87,7 +179,7 @@ public class BlockLevelCollection
             PageIteratorLevel.TextLine => GetParagraph(this, ref confidence),
             PageIteratorLevel.Word => GetTextLine(this, ref confidence),
             PageIteratorLevel.Symbol => GetWord(this, ref confidence),
-            PageIteratorLevel.Block or _ => 
+            PageIteratorLevel.Block or _ =>
                 throw new InvalidOperationException("Block type invalid, give any valid enum value except Block."),
         };
     }
@@ -116,7 +208,7 @@ public class BlockLevelCollection
         {
             throw new NotImplementedException("Currently symbol level collection should always be datalayer.");
         }
-        
+
         StringBuilder builder = new();
         foreach (TextSpan symbol in collection.Data)
         {
@@ -151,7 +243,7 @@ public class BlockLevelCollection
                        .Append(' ');
             }
         }
-        
+
         return builder;
     }
 
@@ -201,8 +293,8 @@ public class BlockLevelCollection
         StringBuilder builder = new();
         if (collection.IsDataLayer)
         {
-            foreach(TextSpan paragraph in collection.Data) 
-            { 
+            foreach (TextSpan paragraph in collection.Data)
+            {
                 if (builder.Length is not 0)
                 {
                     builder.Append($" {_paragraphLineEnding}");
@@ -224,6 +316,20 @@ public class BlockLevelCollection
             }
         }
         return builder;
+    }
+
+    static ReadOnlySpan<char> GetWithoutNewLine(ReadOnlySpan<char> text)
+    {
+        int count = 0;
+        for (int j = text.Length - 1; j >= 0; j--)
+        {
+            if (text[j] is not '\r' and not '\n')
+            {
+                break;
+            }
+            count++;
+        }
+        return text[..^count];
     }
 
     static void RemoveLineEndingFromBuilder(ReadOnlySpan<char> originalSpan, ref StringBuilder appendedBuilder)

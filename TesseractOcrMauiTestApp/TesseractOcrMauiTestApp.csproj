@@ -67,6 +67,9 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	  <MauiXaml Update="TextIteratorPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="VisualOcrPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

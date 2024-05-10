@@ -10,9 +10,15 @@
         <ShellContent Title="Home"
                       ContentTemplate="{DataTemplate local:MainPage}"
                       Route="MainPage" />
-        <ShellContent Title="Iterators"
+        
+        <ShellContent Title="Visual Iterator"
                       ContentTemplate="{DataTemplate local:VisualOcrPage}"
                       Route="VisualOcrPage"
+                      />
+        
+        <ShellContent Title="Text Block Iterator"
+                      ContentTemplate="{DataTemplate local:TextIteratorPage}"
+                      Route="BlockOcrPage"
                       />
     </TabBar>
  
