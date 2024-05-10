@@ -103,22 +103,22 @@ public partial class TextIteratorPage : ContentPage
         {
 #pragma warning disable IDE0039 // Use local function
 
-            // ACSII tree
+            // ACSII tree - Print text structure as 
             // Action<string> debugWriteLine = value => Debug.WriteLine(value);
             Action<string> writeToList = acsiiTree.Add;
             block.PrintStructureToOutput(writeToList);
 
-            // Build method
+            // Build method - this method builds the entire object into text block
             //IAverage confidence = new Average();
             //string stringified = block.Build(ref confidence).ToString();
         }
 
         // Show ACSII Tree
-        WriteOutput(acsiiTree);
+        PrintBalancedAcsiiTree(acsiiTree);
     }
 
 
-    private void WriteOutput(List<string> output)
+    private void PrintBalancedAcsiiTree(List<string> output)
     { 
         int middle = output.Count / 2;
         output1.Text = string.Join(Environment.NewLine, output.Take(middle));
