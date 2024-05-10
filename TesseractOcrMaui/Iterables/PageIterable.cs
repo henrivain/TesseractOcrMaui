@@ -45,7 +45,6 @@ public class PageIterable : IEnumerable<SpanLayout>
     /// </exception>
     public PageIterable(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
     {
-        // TODO: Comment exceptions
         ArgumentNullException.ThrowIfNull(engine);
 
         _iterator = new(engine);

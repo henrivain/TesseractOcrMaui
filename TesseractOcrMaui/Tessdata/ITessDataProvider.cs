@@ -5,13 +5,8 @@ namespace TesseractOcrMaui.Tessdata;
 /// <summary>
 /// Interface for handling traineddata files.
 /// </summary>
-public interface ITessDataProvider
+public interface ITessDataProvider : ITessDataInformationProvider
 {
-    /// <summary>
-    /// Path to tessdata folder.
-    /// </summary>
-    string TessDataFolder { get; }
-
     /// <summary>
     /// Get array of available trained data paths.
     /// </summary>
@@ -35,11 +30,4 @@ public interface ITessDataProvider
     /// </summary>
     /// <returns>Array of filenames with extensions.</returns>
     string[] GetAllFileNames();
-
-    /// <summary>
-    /// Get all loaded languages in '+' -separated list with.traineddata extension removed.
-    /// Example: 'fin+eng+swe'
-    /// </summary>
-    /// <returns></returns>
-    string GetLanguagesString();
 }

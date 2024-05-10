@@ -2,11 +2,29 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TesseractOcrMauiTestApp.VisualOcrPage"
-             Title="VisualOcrPage">
-    <ScrollView>
-        <VerticalStackLayout>
-            <Button Clicked="SelectImageButton_Clicked" />
+             Title="VisualOcrPage"
+             BackgroundColor="#404040">
 
+    <ScrollView>
+        <VerticalStackLayout Margin="20,0,20,200">
+            <Button Clicked="SelectImageButton_Clicked"
+                    Margin="0,20"
+                    HorizontalOptions="Center"
+                    Text="Select image" />
+            <Grid x:Name="ocrGrid">
+                <Image x:Name="uiImage" />
+                <GraphicsView x:Name="graphicsView" />
+            </Grid>
+            <Label Margin="0,30,0,10"
+                   Text="Output"
+                   HorizontalTextAlignment="Center"
+                  />
+            <Editor x:Name="textOutput"
+                    HorizontalOptions="Fill"
+                    BackgroundColor="#272727"
+                    HeightRequest="400"
+                    VerticalOptions="Fill"
+                    Placeholder="Recognized text appears here after image is selected..." />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

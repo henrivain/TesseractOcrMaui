@@ -31,12 +31,12 @@ public partial class MainPage : ContentPage
 
     ITesseract Tesseract { get; }
 
-    // This class includes examples of using the TesseractOcrMaui library.
+    // This class includes examples using the TesseractOcrMaui library.
 
     private async void DEMO_Recognize_AsImage(object sender, EventArgs e)
     {
         // Select image (Not important)
-        var path = await GetUserSelectedPath();
+        var path = await ImageSelecter.LetUserSelect();
         if (path is null)
         {
             return;
@@ -52,7 +52,7 @@ public partial class MainPage : ContentPage
     private async void DEMO_Recognize_AsBytes(object sender, EventArgs e)
     {
         // Select image (Not important)
-        var path = await GetUserSelectedPath();
+        var path = await ImageSelecter.LetUserSelect();
         if (path is null)
         {
             return;
@@ -74,7 +74,7 @@ public partial class MainPage : ContentPage
     private async void DEMO_Recognize_AsConfigured(object sender, EventArgs e)
     {
         // Select image (Not important)
-        var path = await GetUserSelectedPath();
+        var path = await ImageSelecter.LetUserSelect();
         if (path is null)
         {
             return;
@@ -86,7 +86,7 @@ public partial class MainPage : ContentPage
             // If ITesseract is injected to page, this is only way of setting PageSegmentationMode.
             // PageSegmentationMode defines how ocr tries to look for text, for example singe character or single word.
             // By default uses PageSegmentationMode.Auto.
-            engine.DefaultSegmentationMode = TesseractOcrMaui.Enums.PageSegmentationMode.SingleWord;
+            engine.DefaultSegmentationMode = PageSegmentationMode.SingleWord;
 
             engine.SetCharacterWhitelist("abcdefgh");   // These characters ocr is looking for
             engine.SetCharacterBlacklist("abc");        // These characters ocr is not looking for
@@ -120,28 +120,6 @@ public partial class MainPage : ContentPage
 
     // Not important for package 
 
-    private static async Task<string?> GetUserSelectedPath()
-    {
-#if IOS
-        var pickResult = await MediaPicker.PickPhotoAsync(new MediaPickerOptions()
-        {
-            Title = "Pick jpeg or png image"
-        });
-#else
-        var pickResult = await FilePicker.PickAsync(new PickOptions()
-        {
-            PickerTitle = "Pick jpeg or png image",
-            // Currently usable image types
-            FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>()
-            {
-                [DevicePlatform.Android] = new List<string>() { "image/png", "image/jpeg" },
-                [DevicePlatform.WinUI] = new List<string>() { ".png", ".jpg", ".jpeg" },
-            })
-        });
-#endif
-        return pickResult?.FullPath;
-    }
-
     private void ShowOutput(string imageMode, RecognizionResult result)
     {
         // Show output (Not important)
@@ -159,23 +137,7 @@ public partial class MainPage : ContentPage
     private async void GraphicsView_Loaded(object sender, EventArgs e)
     {
         await _provider.LoadFromPackagesAsync();
-        
 
-        //if (sender is GraphicsView graphicsView)
-        //{
-
-        //    Drawable canvas = new(TestClass);
-
-        //    canvas.Drawn += (_, _) =>
-        //    {
-        //        grid.HeightRequest = canvas.ImageHeight;
-        //        grid.WidthRequest = canvas.ImageWidth;
-
-        //        label.Text = string.Join(' ', canvas._lines);
-        //    };
-
-        //    graphicsView.Drawable = canvas;
-        //}
         string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
         using var pix = Pix.LoadFromFile(imagePath);
         using var iter = new BlockIterable(_provider.GetLanguagesString(), _provider.TessDataFolder, pix,
@@ -194,58 +156,6 @@ public partial class MainPage : ContentPage
         {
             WriteIndented = true,
         });
-    }
-
-    class Drawable : IDrawable
-    {
-        readonly List<BoundingBox> _data = new();
-        readonly ITessDataProvider _provider;
-
-        public Drawable(ITessDataProvider provider)
-        {
-            _provider = provider;
-        }
-
-        public event EventHandler? Drawn;
-
-
-        public int ImageHeight { get; private set; }
-        public int ImageWidth { get; private set; }
-
-
-
-        internal readonly List<string> _lines = new();
-
-        public void Draw(ICanvas canvas, RectF dirtyRect)
-        {
-            canvas.StrokeColor = Colors.Red;
-
-            if (_data.Count is 0)
-            {
-                string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
-                using var pix = Pix.LoadFromFile(imagePath);
-
-                string languages = _provider.GetLanguagesString();
-                using var iter = new TextMetadataIterable(languages, _provider.TessDataFolder, pix);
-
-                ImageHeight = iter.ImageHeight;
-                ImageWidth = iter.ImageWidth;
-
-                foreach (var (text, layout) in iter)
-                {
-                    _data.Add(layout.Box);
-                    _lines.Add(text.Text);
-                }
-                Drawn?.Invoke(this, EventArgs.Empty);
-            }
-
-            foreach (BoundingBox box in _data)
-            {
-                int width = box.X2 - box.X1;
-                int height = box.Y2 - box.Y1;
-                canvas.DrawRectangle(box.X1, box.Y1, width, height);
-            }
-        }
     }
 }
 
