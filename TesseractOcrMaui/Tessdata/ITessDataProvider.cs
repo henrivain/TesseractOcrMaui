@@ -5,18 +5,15 @@ namespace TesseractOcrMaui.Tessdata;
 /// <summary>
 /// Interface for handling traineddata files.
 /// </summary>
-public interface ITessDataProvider
+public interface ITessDataProvider : ITessDataInformationProvider
 {
-    /// <summary>
-    /// Path to tessdata folder.
-    /// </summary>
-    string TessDataFolder { get; }
-
     /// <summary>
     /// Get array of available trained data paths.
     /// </summary>
     string[] AvailableLanguages { get; }
 
+    
+    
     /// <summary>
     /// Boolean value representing if provider has already loaded tessdata.
     /// </summary>

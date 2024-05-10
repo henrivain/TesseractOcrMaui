@@ -6,9 +6,6 @@ namespace TesseractOcrMaui.ImportApis;
 
 internal sealed partial class TesseractApi
 {
-
-
-
 #if WINDOWS
     const string DllName = @"tesseract53.dll";
 #elif ANDROID21_0_OR_GREATER
@@ -36,7 +33,7 @@ internal sealed partial class TesseractApi
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIInit4", CharSet = StrEncoding)]
     public extern static int BaseApi4Init(HandleRef handle, string datapath, string language,
-        int mode, string[] configs, int configLength, string[] optionNames,
+        EngineMode mode, string[] configs, int configLength, string[] optionNames,
         string[] optionValues, UIntPtr optionsSize, bool setOnlyNonDebugParams);
 
     // Note that you must pass dataSize: 0, if you want to use data pata
@@ -44,7 +41,7 @@ internal sealed partial class TesseractApi
     // std::string datapath = data_size == 0 ? data: language;
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIInit5", CharSet = StrEncoding)]
     public extern static int BaseApi5Init(HandleRef handle, string datapath, int dataSize,
-        string language, int mode, string[] configs, int configSize, string[] optionNames,
+        string language, EngineMode mode, string[] configs, int configSize, string[] optionNames,
         string[] optionValues, UIntPtr optionsSize, bool setOnlyNonDebugParams);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetDatapath")]
@@ -61,11 +58,57 @@ internal sealed partial class TesseractApi
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetUTF8Text")]
     public static extern IntPtr GetUTF8Text_Ptr(HandleRef handle);
 
+
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetHOCRText")]
+    public static extern IntPtr GetHOCRText_Ptr(HandleRef handle, int pageNumber);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetAltoText")]
+    public static extern IntPtr GetAltoText_Ptr(HandleRef handle, int pageNumber);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetTsvText")]
+    public static extern IntPtr GetTsvText_Ptr(HandleRef handle, int pageNumber);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetBoxText")]
+    public static extern IntPtr GetBoxText_Ptr(HandleRef handle, int pageNumber);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetWordStrBoxText")]
+    public static extern IntPtr GetWordStrBoxText_Ptr(HandleRef handle, int pageNumber);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetUNLVText")]
+    public static extern IntPtr GetUNLVText_Ptr(HandleRef handle, int pageNumber);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetUnichar")]
+    public static extern IntPtr GetUnichar_Ptr(HandleRef handle, int unicharId);
+
+    
+    /* Tesseract -> baseapi.cpp (to TessBaseAPIAnalyseLayout)
+     * WARNING! This class points to data held within the TessBaseAPI class, and
+     * therefore can only be used while the TessBaseAPI class still exists and
+     * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
+     * DetectOS, or anything else that changes the internal PAGE_RES.
+     */
+
+    // Gets page iterator handle from TessaApi analysing
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIAnalyseLayout")]
+    public static extern /*TessPageIterator Pointer*/ IntPtr AnalyseLayoutToPageIterator(HandleRef handle);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetIterator")]
+    public static extern /* ResultIterator Pointer */ IntPtr GetResultIterator(HandleRef handle);
+
+
+
+
+
+
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIAllWordConfidences")]
     public static extern int[] GetConfidences(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIClear")]
     public static extern void Clear(HandleRef handle);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIEnd")]
+    public static extern void End(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetSourceYResolution")]
     public static extern int GetSourceResolution(HandleRef handle);
@@ -80,18 +123,21 @@ internal sealed partial class TesseractApi
     public static extern string GetInputName(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPISetInputImage", CharSet = StrEncoding)]
-    public static extern string SetInputImage(HandleRef handle);
+    public static extern void SetInputImage(HandleRef handle, HandleRef pixHandle);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetInputImage")]
+    internal static extern /*pix*/ IntPtr GetInputImage(HandleRef handle);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPISetPageSegMode")]
     public static extern void SetPageSegmentationMode(HandleRef handle, PageSegmentationMode mode);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIRecognize")]
     public static extern int Recognize(HandleRef handle, HandleRef monitor);
-    
+
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetThresholdedImage")]
     public static extern IntPtr GetThresholdedImage(HandleRef handle);
 
-    [LibraryImport(DllName, EntryPoint = "TessVersion", StringMarshalling = StringMarshalling.Custom, 
+    [LibraryImport(DllName, EntryPoint = "TessVersion", StringMarshalling = StringMarshalling.Custom,
         StringMarshallingCustomType = typeof(System.Runtime.InteropServices.Marshalling.AnsiStringMarshaller))]
     [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
     public static partial IntPtr GetVersion();
@@ -120,7 +166,7 @@ internal sealed partial class TesseractApi
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIMeanTextConf")]
     public static extern int GetMeanConfidence(HandleRef handle);
- 
+
 }
 
 #endif

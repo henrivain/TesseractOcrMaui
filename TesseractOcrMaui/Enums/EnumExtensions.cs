@@ -29,4 +29,47 @@ public static class EnumExtensions
         status is RecognizionStatus.Success or RecognizionStatus.InProgressSuccess;
 
 
+
+
+
+    /// <summary>
+    /// Go one PageIteratorLevel up from current.
+    /// </summary>
+    /// <param name="level"></param>
+    /// <returns>PageIteratorLevel that is one level up from current (For example TextLine -> Paragraph) 
+    /// or throws <see cref="InvalidOperationException"/> if at highest level <see cref="PageIteratorLevel.Block"/>.</returns>
+    /// <exception cref="InvalidOperationException">If at highest level <see cref="PageIteratorLevel.Block"/>.</exception>
+    public static PageIteratorLevel GetLevelUp(this PageIteratorLevel level)
+    {
+        return level switch
+        {
+            PageIteratorLevel.Symbol => PageIteratorLevel.Word,
+            PageIteratorLevel.Word => PageIteratorLevel.TextLine,
+            PageIteratorLevel.TextLine => PageIteratorLevel.Paragraph,
+            PageIteratorLevel.Paragraph => PageIteratorLevel.Block,
+            PageIteratorLevel.Block => throw new InvalidOperationException("Block is the highest level cannot go up."),
+            _ => throw new NotImplementedException($"{nameof(PageIteratorLevel)} of {level} not implemented.")
+        };
+    }
+
+    /// <summary>
+    /// Go one PageIteratorLevel lower from current.
+    /// </summary>
+    /// <param name="level"></param>
+    /// <returns>PageIteratorLevel that is one level lower from current (For example Paragraph -> TextLine) 
+    /// or throws <see cref="InvalidOperationException"/> if at lowest level <see cref="PageIteratorLevel.Symbol"/>.</returns>
+    /// <exception cref="InvalidOperationException">If at lowest level <see cref="PageIteratorLevel.Symbol"/>.</exception>
+    public static PageIteratorLevel GetLevelLower(this PageIteratorLevel level)
+    {
+        return level switch
+        {
+            PageIteratorLevel.Block => PageIteratorLevel.Paragraph,
+            PageIteratorLevel.Paragraph => PageIteratorLevel.TextLine,
+            PageIteratorLevel.TextLine => PageIteratorLevel.Word,
+            PageIteratorLevel.Word => PageIteratorLevel.Symbol,
+            PageIteratorLevel.Symbol => throw new InvalidOperationException("Symbol is the lowest level cannot go lower."),
+            _ => throw new NotImplementedException($"{nameof(PageIteratorLevel)} of {level} not implemented.")
+        };
+    }
+
 }

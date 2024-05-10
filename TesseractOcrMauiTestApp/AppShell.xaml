@@ -6,9 +6,21 @@
     xmlns:local="clr-namespace:TesseractOcrMauiTestApp"
     Shell.FlyoutBehavior="Disabled">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <ShellContent Title="Home"
+                      ContentTemplate="{DataTemplate local:MainPage}"
+                      Route="MainPage" />
+        
+        <ShellContent Title="Visual Iterator"
+                      ContentTemplate="{DataTemplate local:VisualOcrPage}"
+                      Route="VisualOcrPage"
+                      />
+        
+        <ShellContent Title="Text Block Iterator"
+                      ContentTemplate="{DataTemplate local:TextIteratorPage}"
+                      Route="BlockOcrPage"
+                      />
+    </TabBar>
+ 
 
 </Shell>

@@ -67,7 +67,6 @@
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>
-
         </Grid>
     </ScrollView>
 
