@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using TesseractOcrMaui;
@@ -7,24 +6,19 @@ using TesseractOcrMaui.Enums;
 using TesseractOcrMaui.Imaging;
 using TesseractOcrMaui.Iterables;
 using TesseractOcrMaui.Results;
+using TesseractOcrMaui.Tessdata;
 #nullable enable
 namespace TesseractOcrMauiTestApp;
 
 public partial class MainPage : ContentPage
 {
-#if !IOS && DEBUG
-    public MainPage(ITesseract tesseract, TesseractTestClass testClass)
-    {
-        InitializeComponent();
-        Tesseract = tesseract;
-        TestClass = testClass;
-    }
-#else
-    public MainPage(ITesseract tesseract, ILogger<MainPage> logger)
-    {
-        InitializeComponent();
-        Tesseract = tesseract;
+    readonly ITessDataProvider _provider;
 
+    public MainPage(ITesseract tesseract, ILogger<MainPage> logger, ITessDataProvider provider)
+    {
+        InitializeComponent();
+        Tesseract = tesseract;
+        _provider = provider;
         logger.LogInformation($"--------------------------------");
         logger.LogInformation($"-   {nameof(TesseractOcrMaui)} Demo   -");
         logger.LogInformation($"--------------------------------");
@@ -34,7 +28,6 @@ public partial class MainPage : ContentPage
 
 
     }
-#endif
 
     ITesseract Tesseract { get; }
 
@@ -163,13 +156,10 @@ public partial class MainPage : ContentPage
         resultLabel.Text = result.RecognisedText;
     }
 
-#if !IOS
-    public TesseractTestClass TestClass { get; }
-
     private async void GraphicsView_Loaded(object sender, EventArgs e)
     {
-
-        await TestClass.Load();
+        await _provider.LoadFromPackagesAsync();
+        
 
         //if (sender is GraphicsView graphicsView)
         //{
@@ -188,7 +178,7 @@ public partial class MainPage : ContentPage
         //}
         string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
         using var pix = Pix.LoadFromFile(imagePath);
-        using var iter = new BlockIterable(TestClass.Languages!, TestClass.TessDataFolder!, pix,
+        using var iter = new BlockIterable(_provider.GetLanguagesString(), _provider.TessDataFolder, pix,
             PageIteratorLevel.Block, PageIteratorLevel.Symbol
             );
 
@@ -208,19 +198,21 @@ public partial class MainPage : ContentPage
 
     class Drawable : IDrawable
     {
-        public Drawable(TesseractTestClass cls)
+        readonly List<BoundingBox> _data = new();
+        readonly ITessDataProvider _provider;
+
+        public Drawable(ITessDataProvider provider)
         {
-            _cls = cls;
+            _provider = provider;
         }
 
         public event EventHandler? Drawn;
 
-        readonly TesseractTestClass _cls;
 
         public int ImageHeight { get; private set; }
         public int ImageWidth { get; private set; }
 
-        readonly List<BoundingBox> _data = new();
+
 
         internal readonly List<string> _lines = new();
 
@@ -232,7 +224,9 @@ public partial class MainPage : ContentPage
             {
                 string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
                 using var pix = Pix.LoadFromFile(imagePath);
-                using var iter = new TextMetadataIterable(_cls.Languages!, _cls.TessDataFolder!, pix);
+
+                string languages = _provider.GetLanguagesString();
+                using var iter = new TextMetadataIterable(languages, _provider.TessDataFolder, pix);
 
                 ImageHeight = iter.ImageHeight;
                 ImageWidth = iter.ImageWidth;
@@ -253,6 +247,5 @@ public partial class MainPage : ContentPage
             }
         }
     }
-#endif
 }
 

@@ -64,5 +64,11 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\TesseractOcrMaui\TesseractOcrMaui.csproj" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <MauiXaml Update="VisualOcrPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 
 </Project>

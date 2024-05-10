@@ -1,10 +1,5 @@
 ﻿// Code copied from https://github.com/charlesw/tesseract
-
-#if IOS
-using TesseractOcrMaui.IOS;
-#else
 using TesseractOcrMaui.ImportApis;
-#endif
 
 namespace TesseractOcrMaui.Imaging;
 

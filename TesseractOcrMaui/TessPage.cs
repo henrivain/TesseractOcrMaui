@@ -1,12 +1,5 @@
-﻿#if WINDOWS
-using System.Text;
-#endif
+﻿using TesseractOcrMaui.ImportApis;
 
-#if IOS
-using TesseractOcrMaui.IOS;
-#else
-using TesseractOcrMaui.ImportApis;
-#endif
 namespace TesseractOcrMaui;
 
 /// <summary>

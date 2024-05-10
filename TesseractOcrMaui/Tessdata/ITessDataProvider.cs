@@ -17,6 +17,8 @@ public interface ITessDataProvider
     /// </summary>
     string[] AvailableLanguages { get; }
 
+    
+    
     /// <summary>
     /// Boolean value representing if provider has already loaded tessdata.
     /// </summary>
@@ -33,4 +35,11 @@ public interface ITessDataProvider
     /// </summary>
     /// <returns>Array of filenames with extensions.</returns>
     string[] GetAllFileNames();
+
+    /// <summary>
+    /// Get all loaded languages in '+' -separated list with.traineddata extension removed.
+    /// Example: 'fin+eng+swe'
+    /// </summary>
+    /// <returns></returns>
+    string GetLanguagesString();
 }
