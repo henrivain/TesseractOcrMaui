@@ -3,16 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TesseractOcrMauiTestApp.TextIteratorPage"
              Title="TextIteratorPage">
-    <VerticalStackLayout>
-        <Button Clicked="SelectImageButton_Clicked"
-                Margin="0,20"
-                HorizontalOptions="Center"
-                Text="Select image" />
-        <Grid HorizontalOptions="FillAndExpand"
-            BackgroundColor="Red"
-              VerticalOptions="FillAndExpand">
-            
-        </Grid>
-        
-    </VerticalStackLayout>
+    <ScrollView>
+        <VerticalStackLayout Margin="20,20,20,200">
+            <Button Clicked="SelectImageButton_Clicked"
+                    Margin="0,20"
+                    HorizontalOptions="Center"
+                    Text="Select image" />
+            <Label Text="Recognized text as ACSII tree structure" />
+            <Grid ColumnDefinitions="*, *">
+                <Label x:Name="output1"
+                       FontSize="Micro"
+                       Text="Select image to print out structure..."
+                       VerticalOptions="FillAndExpand" />
+                <Label x:Name="output2"
+                       FontSize="Micro"
+                       Grid.Column="1"
+                       Text="Select image to print out structure..."
+                       VerticalOptions="FillAndExpand" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using TesseractOcrMaui;
 using TesseractOcrMaui.Enums;
 using TesseractOcrMaui.Iterables;
@@ -12,8 +13,8 @@ public partial class TextIteratorPage : ContentPage
     private readonly ITessDataProvider _provider;
 
     public TextIteratorPage(ITessDataProvider provider)
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         _provider = provider;
     }
 
@@ -95,16 +96,37 @@ public partial class TextIteratorPage : ContentPage
          * These are examples how to visualize data from TextStructureIterable.
          * These are not optimised and same result can be achieved in more efficient ways.
          * Iterator user should create their own way to parse output data.
-         */ 
+         */
+
+        List<string> acsiiTree = new();
         foreach (BlockLevelCollection block in iter)
         {
+#pragma warning disable IDE0039 // Use local function
+
             // ACSII tree
-            static void WriteLine(string value) => Debug.WriteLine(value);
-            block.PrintStructureToOutput(WriteLine);
+            // Action<string> debugWriteLine = value => Debug.WriteLine(value);
+            Action<string> writeToList = acsiiTree.Add;
+            block.PrintStructureToOutput(writeToList);
 
             // Build method
             //IAverage confidence = new Average();
             //string stringified = block.Build(ref confidence).ToString();
         }
+
+        // Show ACSII Tree
+        WriteOutput(acsiiTree);
     }
+
+
+    void WriteOutput(List<string> output)
+    { 
+        int middle = output.Count / 2;
+        output1.Text = string.Join(Environment.NewLine, output.Take(middle));
+        output2.Text = $"""
+            Continuation from last line:
+
+            {string.Join(Environment.NewLine, output.Skip(middle))}
+            """;
+    }
+
 }
