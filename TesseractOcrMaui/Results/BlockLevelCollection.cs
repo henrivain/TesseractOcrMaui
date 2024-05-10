@@ -101,6 +101,10 @@ public class BlockLevelCollection
         char hor = '─';
         char vert = '│';
 
+        if (names.TryGetValue(BlockLevel - 1, out var value))
+        {
+            writeLine($"{value} /");
+        }
 
         PrintLevel(this, 1);
 
