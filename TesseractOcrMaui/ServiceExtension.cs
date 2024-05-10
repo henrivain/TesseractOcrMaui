@@ -89,4 +89,6 @@ public static class ServiceExtensions
         services.AddTransient<ITesseract, Tesseract>();
         return services;
     }
+
+    
 }

@@ -15,31 +15,33 @@
 		<ObjcBindingCoreSource Include="StructsAndEnums.cs" />
 
 		<NativeReference Include="tesseract.xcframework">
+			<ForceLoad>False</ForceLoad>
+			<Frameworks>Accelerate</Frameworks>
+			<IsCxx></IsCxx>
 			<Kind>Framework</Kind>
-			<SmartLink>False</SmartLink>
-			<FrameWorks>Accelerate</FrameWorks>
+			<LinkerFlags></LinkerFlags>
+			<NeedsGccExceptionHandling></NeedsGccExceptionHandling>
+			<SmartLink>True</SmartLink>
+			<WeakFrameworks></WeakFrameworks>
 		</NativeReference>
 	</ItemGroup>
-	
-	
-	
 
 	<!-- Nuget includes -->
 	<ItemGroup Condition="'$(Configuration)' == 'Release'">
 		<!-- include xcframework in nuget -->
-		<None Include="tesseract.xcframework\**" >
+		<None Include="tesseract.xcframework/**" >
 			<Pack>true</Pack>
-			<PackagePath>lib\net7.0-ios16.1\TesseractOcrMaui.IOS.resources\tesseract.xcframework</PackagePath>
+			<PackagePath>lib/net7.0-ios16.1/TesseractOcrMaui.IOS.resources/tesseract.xcframework</PackagePath>
 		</None>
 		<!-- include Readme-->
-		<None Include="Properties\README.md" Link="Properties\README.md">
+		<None Include="Properties/README.md" Link="Properties/README.md">
 			<Pack>true</Pack>
-			<PackagePath>\</PackagePath>
+			<PackagePath>/</PackagePath>
 		</None>
 		<!-- include dll manifest file -->
-		<None Include="Configuration\manifest" >
+		<None Include="Configuration/manifest" Condition="'$(IsWindows)' == 'true'">
 			<Pack>true</Pack>
-			<PackagePath>lib\net7.0-ios16.1\TesseractOcrMaui.IOS.resources\</PackagePath>
+			<PackagePath>lib/net7.0-ios16.1/TesseractOcrMaui.IOS.resources/</PackagePath>
 		</None>
 	</ItemGroup>
 
@@ -50,7 +52,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.0.6</Version>
+		<Version>1.1.0</Version>
 		<Title>Maui Tesseract ocr iOS bindings</Title>
 		<PackageId>TesseractOcrMaui.IOS</PackageId>
 		<Authors>henrivain</Authors>
@@ -64,11 +66,16 @@
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Copyright>Copyright 2024 Henri Vainio</Copyright>
 		<!-- Output will be found inside this folder locally -->
-		<PackageOutputPath>C:\Nugets</PackageOutputPath>
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackAsTool>False</PackAsTool>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(IsWindows)' == 'true'">
+		<PackageOutputPath>C:\Nugets</PackageOutputPath>
+	</PropertyGroup>
 </Project>
+
+

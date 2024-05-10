@@ -48,7 +48,7 @@ dotnet add package TesseractOcrMaui
 3. By package reference
 
 ```xml
-<PackageReference Include="TesseractOcrMaui" Version="1.1.6" />
+<PackageReference Include="TesseractOcrMaui" Version="1.2.0" />
 ```
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)

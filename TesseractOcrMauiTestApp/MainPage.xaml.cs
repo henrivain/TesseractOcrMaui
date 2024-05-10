@@ -1,33 +1,40 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using TesseractOcrMaui;
+using TesseractOcrMaui.Enums;
+using TesseractOcrMaui.Imaging;
+using TesseractOcrMaui.Iterables;
 using TesseractOcrMaui.Results;
+using TesseractOcrMaui.Tessdata;
 #nullable enable
 namespace TesseractOcrMauiTestApp;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage(ITesseract tesseract, ILogger<MainPage> logger)
+    readonly ITessDataProvider _provider;
+
+    public MainPage(ITesseract tesseract, ILogger<MainPage> logger, ITessDataProvider provider)
     {
         InitializeComponent();
         Tesseract = tesseract;
-
+        _provider = provider;
         logger.LogInformation($"--------------------------------");
         logger.LogInformation($"-   {nameof(TesseractOcrMaui)} Demo   -");
         logger.LogInformation($"--------------------------------");
 
         var rid = RuntimeInformation.RuntimeIdentifier;
         logger.LogInformation("Running on rid '{rid}'", rid);
+
+
     }
 
     ITesseract Tesseract { get; }
 
-    // This class includes examples of using the TesseractOcrMaui library.
-
     private async void DEMO_Recognize_AsImage(object sender, EventArgs e)
     {
         // Select image (Not important)
-        var path = await GetUserSelectedPath();
+        var path = await ImageSelecter.LetUserSelect();
         if (path is null)
         {
             return;
@@ -35,7 +42,7 @@ public partial class MainPage : ContentPage
 
         // Recognize image 
         var result = await Tesseract.RecognizeTextAsync(path);
-        
+
         // Show output (Not important)
         ShowOutput("FromPath", result);
     }
@@ -43,7 +50,7 @@ public partial class MainPage : ContentPage
     private async void DEMO_Recognize_AsBytes(object sender, EventArgs e)
     {
         // Select image (Not important)
-        var path = await GetUserSelectedPath();
+        var path = await ImageSelecter.LetUserSelect();
         if (path is null)
         {
             return;
@@ -56,8 +63,8 @@ public partial class MainPage : ContentPage
 
         // recognize bytes
         var result = await Tesseract.RecognizeTextAsync(buffer);
-        
-        
+
+
         // Show output (Not important)
         ShowOutput("FromBytes", result);
     }
@@ -65,7 +72,7 @@ public partial class MainPage : ContentPage
     private async void DEMO_Recognize_AsConfigured(object sender, EventArgs e)
     {
         // Select image (Not important)
-        var path = await GetUserSelectedPath();
+        var path = await ImageSelecter.LetUserSelect();
         if (path is null)
         {
             return;
@@ -77,8 +84,8 @@ public partial class MainPage : ContentPage
             // If ITesseract is injected to page, this is only way of setting PageSegmentationMode.
             // PageSegmentationMode defines how ocr tries to look for text, for example singe character or single word.
             // By default uses PageSegmentationMode.Auto.
-            engine.DefaultSegmentationMode = TesseractOcrMaui.Enums.PageSegmentationMode.SingleWord;
-            
+            engine.DefaultSegmentationMode = PageSegmentationMode.SingleWord;
+
             engine.SetCharacterWhitelist("abcdefgh");   // These characters ocr is looking for
             engine.SetCharacterBlacklist("abc");        // These characters ocr is not looking for
             // Now ocr should be only finding characters 'defgh'
@@ -111,28 +118,6 @@ public partial class MainPage : ContentPage
 
     // Not important for package 
 
-    private static async Task<string?> GetUserSelectedPath()
-    {
-#if IOS
-        var pickResult = await MediaPicker.PickPhotoAsync(new MediaPickerOptions()
-        {
-            Title = "Pick jpeg or png image"
-        });
-#else
-        var pickResult = await FilePicker.PickAsync(new PickOptions()
-        {
-            PickerTitle = "Pick jpeg or png image",
-            // Currently usable image types
-            FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>()
-            {
-                [DevicePlatform.Android] = new List<string>() { "image/png", "image/jpeg" },
-                [DevicePlatform.WinUI] = new List<string>() { ".png", ".jpg", ".jpeg" },
-            })
-        });
-#endif
-        return pickResult?.FullPath;
-    }
-
     private void ShowOutput(string imageMode, RecognizionResult result)
     {
         // Show output (Not important)
@@ -146,7 +131,5 @@ public partial class MainPage : ContentPage
         confidenceLabel.Text = $"Confidence: {result.Confidence}";
         resultLabel.Text = result.RecognisedText;
     }
-
- 
 }
 

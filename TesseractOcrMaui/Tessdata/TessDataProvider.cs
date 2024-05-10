@@ -58,9 +58,7 @@ internal class TessDataProvider : ITessDataProvider
         var files = TrainedDataCollection.GetTrainedDataFileNames();
 
         Logger.LogInformation("Try copy '{count}' app package files to '{dir}'.", files.Length, TessDataFolder);
-        string copyState = Configuration.OverwritesOldFiles ? "overwrite" : "skip";
-        Logger.LogInformation("Will '{state}' already existing traineddata files.", copyState);
-
+        Logger.LogInformation("Skips already existing traineddata files '{bool}'.", Configuration.OverwritesOldFiles);
 
         if (files.Length <= 0)
         {
@@ -201,5 +199,13 @@ internal class TessDataProvider : ITessDataProvider
                 "because of exception '{ex}': '{msg}'", filePath, ex.GetType().Name, ex.Message);
             return false;
         }
+    }
+
+    /// <inheritdoc/>
+    public string GetLanguagesString()
+    {
+        return string.Join('+', 
+            AvailableLanguages.Select(
+                x => Path.GetFileNameWithoutExtension(x)));
     }
 }
