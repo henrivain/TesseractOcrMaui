@@ -31,8 +31,6 @@ public partial class MainPage : ContentPage
 
     ITesseract Tesseract { get; }
 
-    // This class includes examples using the TesseractOcrMaui library.
-
     private async void DEMO_Recognize_AsImage(object sender, EventArgs e)
     {
         // Select image (Not important)
@@ -140,7 +138,7 @@ public partial class MainPage : ContentPage
 
         string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
         using var pix = Pix.LoadFromFile(imagePath);
-        using var iter = new BlockIterable(_provider.GetLanguagesString(), _provider.TessDataFolder, pix,
+        using var iter = new BlockIterable(pix, _provider,
             PageIteratorLevel.Block, PageIteratorLevel.Symbol
             );
 

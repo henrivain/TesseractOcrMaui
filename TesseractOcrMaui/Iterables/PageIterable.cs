@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using TesseractOcrMaui.Results;
+using TesseractOcrMaui.Tessdata;
 
 namespace TesseractOcrMaui.Iterables;
 
@@ -9,28 +10,51 @@ namespace TesseractOcrMaui.Iterables;
 /// </summary>
 public class PageIterable : IEnumerable<SpanLayout>
 {
+    readonly TessEngine _engine;
+    readonly PageIterator _iterator;
+
     /// <summary>
-    /// New <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterable"/>.
+    /// New <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterator"/>.
     /// Iterate over Text layout.
     /// </summary>
-    /// <param name="iterator">Dependency <see cref="ResultIterator"/>, must exist as long as created <see cref="PageIterable"/>.</param>
-    /// <param name="level"><see cref="PageIteratorLevel"/> that determines text block size.</param>
-    /// <exception cref="ArgumentNullException">If <paramref name="iterator"/> is null.</exception>
-    /// <exception cref="ObjectDisposedException">If <see cref="_iterator"/> is disposed before or during iteration.</exception>
+    /// <param name="image"></param>
+    /// <param name="provider"></param>
+    /// <param name="level"></param>
+    /// <param name="logger"></param>
+    /// <exception cref="ObjectDisposedException">If object is disposed during iteration.</exception>
+    /// <exception cref="ImageRecognizionException">If image cannot be processed and recognition failed.</exception>
     /// <exception cref="NullPointerException">
-    /// If <paramref name="iterator"/>.Handle is <see cref="IntPtr.Zero"/> 
-    /// or iterator cannot be copied during iteration.
+    /// If <paramref name="image"/>.Handle is null orr iterator cannot be copied during iteration.
     /// </exception>
-    public PageIterable(ResultIterator iterator, PageIteratorLevel level = PageIteratorLevel.TextLine)
+    /// <exception cref="ArgumentNullException">
+    /// If <paramref name="provider"/> TessDataFolder or GetLanguagesString() returns 
+    /// null or <paramref name="image"/> is null.
+    /// </exception>
+    /// 
+    public PageIterable(Pix image, ITessDataInformationProvider provider,
+        PageIteratorLevel level = PageIteratorLevel.TextLine, ILogger? logger = null)
     {
-        ArgumentNullException.ThrowIfNull(iterator);
+        string? languages = provider?.GetLanguagesString();
+        string? tessDataPath = provider?.TessDataFolder;
 
-        _iterator = iterator.AsPageIterator();
-        _level = level;
+        ArgumentNullException.ThrowIfNull(languages);
+        ArgumentNullException.ThrowIfNull(tessDataPath);
+        ArgumentNullException.ThrowIfNull(image);
+        NullPointerException.ThrowIfNull(image.Handle);
+
+        // InvalidOperationException: Always init new engine -> cannot throw
+        // ImageNotSetException: SetImage() always called -> cannot throw
+        _engine = new(languages, tessDataPath, logger);
+        _engine.SetImage(image);
+        _engine.Recognize();
+        _iterator = new(_engine, level);
+
+        Level = level;
     }
 
+
     /// <summary>
-    /// New <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterable"/>.
+    /// New <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterator"/>.
     /// Iterate over Text layout.
     /// </summary>
     /// <param name="engine">Dependency <see cref="TessEngine"/>, must exist as long as created <see cref="PageIterable"/>.</param>
@@ -43,36 +67,22 @@ public class PageIterable : IEnumerable<SpanLayout>
     /// If <paramref name="engine"/>.Handle is <see cref="IntPtr.Zero"/> 
     /// or iterator cannot be copied during iteration.
     /// </exception>
-    public PageIterable(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
+    internal PageIterable(TessEngine engine, PageIteratorLevel level)
     {
         ArgumentNullException.ThrowIfNull(engine);
+        NullPointerException.ThrowIfNull(engine.Handle);
 
-        _iterator = new(engine);
-        _level = level;
+        _engine = engine;
+        _iterator = new(_engine, level);
+
+        Level = level;
     }
 
     /// <summary>
-    /// New <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterable"/>.
-    /// Iterate over Text layout.
+    /// Text block size to be iterated with.
     /// </summary>
-    /// <param name="iterator">
-    /// Dependency <see cref="PageIterator"/>, 
-    /// must exist as long as created <see cref="PageIterable"/>.
-    /// Copied every GetEnumerator call.
-    /// </param>
-    /// <exception cref="ArgumentNullException">If <paramref name="iterator"/> is null.</exception>
-    /// <exception cref="NullPointerException">If iterator cannot be copied.</exception>
-    /// <exception cref="ObjectDisposedException">If <see cref="_iterator"/> is disposed before or during iteration.</exception>
-    public PageIterable(PageIterator iterator)
-    {
-        ArgumentNullException.ThrowIfNull(iterator);
+    public PageIteratorLevel Level { get; }
 
-        _iterator = iterator;
-        _level = iterator.Level;
-    }
-
-    readonly PageIterator _iterator;
-    readonly PageIteratorLevel _level;
 
     /// <summary>
     /// An enumerator that can be used to iterate through the collection.
@@ -84,7 +94,7 @@ public class PageIterable : IEnumerable<SpanLayout>
     {
         // Iterator is copied every time to not get it disposed after foreach
         using PageIterator iterator = _iterator.Copy();
-        iterator.Level = _level;
+        iterator.Level = Level;
         while (iterator.MoveNext())
         {
             // IndexOutOfRangeException: MoveNext() called -> cannot throw

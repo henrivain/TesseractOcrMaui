@@ -17,7 +17,7 @@ public class TextMetadataIterable : DisposableObject, IEnumerable<RecognitionSpa
     /// Enables Synchronized iteration to text and layout.
     /// This class is <see cref="IDisposable"/>.
     /// </summary>
-    /// <param name="provider">Minimal traineddata information.</param>
+    /// <param name="provider">Traineddata information.</param>
     /// <param name="image">Image to be processed.</param>
     /// <param name="level">Text block size to be iterated with.</param>
     /// <param name="logger">Logger to be used, if null uses NullLogger.</param>
@@ -26,45 +26,24 @@ public class TextMetadataIterable : DisposableObject, IEnumerable<RecognitionSpa
     /// <exception cref="ImageRecognizionException">If image cannot be processed and recognition failed.</exception>
     /// <exception cref="ObjectDisposedException">Object disposed during iteration.</exception>
     /// <exception cref="ResultIteratorException">If native state is invalid, file bug report with input data if thrown.</exception>
-
-    public TextMetadataIterable(ITessDataInformationProvider provider, Pix image, PageIteratorLevel level = PageIteratorLevel.TextLine, ILogger? logger = null)
-        : this(provider.GetLanguagesString(), provider.TessDataFolder, image, level, logger)
-    {
-    }
-
-
-    /// <summary>
-    /// Enables Synchronized iteration to text and layout.
-    /// This class is <see cref="IDisposable"/>.
-    /// </summary>
-    /// <param name="languages">'+' -separated string of traineddata file names without extension.</param>
-    /// <param name="tessdataPath">Full path to folder containing .traineddata files.</param>
-    /// <param name="image">Image to be processed.</param>
-    /// <param name="level">Text block size to be iterated with.</param>
-    /// <param name="logger">Logger to be used, if null uses NullLogger.</param>
     /// <exception cref="ArgumentNullException">
-    /// If <paramref name="languages"/>, <paramref name="tessdataPath"/> or <paramref name="image"/> is null.
+    /// If <paramref name="provider"/> TessDataFolder or GetLanguagesString() returns 
+    /// null or <paramref name="image"/> is null.
     /// </exception>
-    /// <exception cref="TesseractException">If Tesseract cannot be initialized with given parameters.</exception>
-    /// <exception cref="NullPointerException">If <paramref name="image"/>.Handle is null.</exception>
-    /// <exception cref="ImageRecognizionException">If image cannot be processed and recognition failed.</exception>
-    /// <exception cref="ObjectDisposedException">Object disposed during iteration.</exception>
-    /// <exception cref="ResultIteratorException">If native state is invalid, file bug report with input data if thrown.</exception>
-    public TextMetadataIterable(
-        string languages,
-        string tessdataPath,
-        Pix image,
-        PageIteratorLevel level = PageIteratorLevel.TextLine,
-        ILogger? logger = null)
+    public TextMetadataIterable(Pix image, ITessDataInformationProvider provider, 
+        PageIteratorLevel level = PageIteratorLevel.TextLine, ILogger? logger = null)
     {
+        string? languages = provider?.GetLanguagesString();
+        string? tessDataPath = provider?.TessDataFolder;
+
         ArgumentNullException.ThrowIfNull(languages);
-        ArgumentNullException.ThrowIfNull(tessdataPath);
+        ArgumentNullException.ThrowIfNull(tessDataPath);
         ArgumentNullException.ThrowIfNull(image);
         NullPointerException.ThrowIfNull(image.Handle);
 
         // InvalidOperationException: Always init new engine -> cannot throw
         // ImageNotSetException: SetImage() always called -> cannot throw
-        _engine = new(languages, tessdataPath, logger);
+        _engine = new(languages, tessDataPath, logger);
         _engine.SetImage(image);
         _engine.Recognize();
 

@@ -9,6 +9,15 @@ internal sealed class SyncIterator : DisposableObject, IEnumerator<SyncedIterato
     readonly ResultIterator _resultIterator;
     readonly PageIterator _pageIterator;
 
+    /// <exception cref="NullPointerException">If engine Handle Intptr.Zero.</exception>
+    /// <exception cref="ArgumentNullException">If engine null.</exception>
+    /// <exception cref="TesseractInitException">Engine image not set or recognized.</exception>
+    /// <exception cref="ResultIteratorException">Native asset null, make bug report with used data if thrown.</exception>
+    /// <exception cref="ObjectDisposedException">If engine disposed durint iteration.</exception>
+    internal SyncIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
+        : this(new ResultIterator(engine, level))
+    {
+    }
 
     /// <exception cref="ObjectDisposedException">If engine disposed durint iteration.</exception>
     /// <exception cref="NullPointerException">If iter Handle is IntPtr.Zero.</exception>
@@ -24,15 +33,7 @@ internal sealed class SyncIterator : DisposableObject, IEnumerator<SyncedIterato
         }
     }
 
-    /// <exception cref="NullPointerException">If engine Handle Intptr.Zero.</exception>
-    /// <exception cref="ArgumentNullException">If engine null.</exception>
-    /// <exception cref="TesseractInitException">Engine image not set or recognized.</exception>
-    /// <exception cref="ResultIteratorException">Native asset null, make bug report with used data if thrown.</exception>
-    /// <exception cref="ObjectDisposedException">If engine disposed durint iteration.</exception>
-    internal SyncIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
-        : this(new ResultIterator(engine, level)) 
-    { 
-    }
+
 
     public PageIteratorLevel Level => _resultIterator.Level;
     public bool IsAtBeginning => _resultIterator.IsAtBeginning;

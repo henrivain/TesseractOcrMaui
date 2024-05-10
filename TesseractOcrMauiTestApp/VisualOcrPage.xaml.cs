@@ -38,14 +38,11 @@ public partial class VisualOcrPage : ContentPage
             return;
         }
 
-        // Get traneddata info and load image
-        string languages = _provider.GetLanguagesString();
-        string tessDataFolder = _provider.TessDataFolder;
+        // Get load image
         using var pix = Pix.LoadFromFile(imagePath);
 
-
         // Create iterable, Change TextBlockSize to try different sized text blocks
-        using var iter = new TextMetadataIterable(languages, tessDataFolder, pix, TextBlockSize);
+        using var iter = new TextMetadataIterable(pix, _provider, TextBlockSize);
 
         // Clear old data
 

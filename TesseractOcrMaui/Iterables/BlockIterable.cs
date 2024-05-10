@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using TesseractOcrMaui.Results;
+using TesseractOcrMaui.Tessdata;
 
 namespace TesseractOcrMaui.Iterables;
 
@@ -16,8 +17,7 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
     /// <summary>
     /// Text structure iterator. Analyze text structure and return the text in structurized form.
     /// </summary>
-    /// <param name="languages">'+' -separated string of traineddata filenames without extension.</param>
-    /// <param name="traineddataPath">Path to traineddata folder.</param>
+    /// <param name="provider">Traineddata information.</param>
     /// <param name="image">Image to be analyzed.</param>
     /// <param name="highestLevel">
     /// Biggest block size to be analyzed.
@@ -26,16 +26,34 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
     /// </param>
     /// <param name="lowestLevel">Smallest block size to be analyzed.</param>
     /// <param name="logger"></param>
+    /// <exception cref="ArgumentNullException">If <paramref name="provider"/> tessdata folder or traineddata file name or <paramref name="image"/> is null.</exception>
     /// <exception cref="InvalidOperationException">
-    /// <paramref name="highestLevel"/> is higher block level than <paramref name="lowestLevel"/>.
+    /// If <paramref name="highestLevel"/> is higher block level than <paramref name="lowestLevel"/>.
     /// </exception>
-    public BlockIterable(string languages,
-        string traineddataPath,
+    /// <exception cref="ObjectDisposedException">If object disposed during iteration.</exception>
+    /// <exception cref="NullPointerException">
+    /// If <paramref name="image"/>.Handle is <see cref="IntPtr.Zero"/> or
+    /// <see cref="_engine"/>.Handle Intptr.Zero meaning object disposed.
+    /// </exception>
+    /// <exception cref="ResultIteratorException">Native asset null, make bug report with used data if thrown.</exception>
+    /// <exception cref="TesseractInitException">If native copying iterator failed.</exception>
+    /// <exception cref="ImageRecognizionException">If image cannot be processed.</exception>
+    public BlockIterable(
         Pix image,
+        ITessDataInformationProvider provider,
         PageIteratorLevel highestLevel = PageIteratorLevel.Block,
         PageIteratorLevel lowestLevel = PageIteratorLevel.Symbol,
         ILogger? logger = null)
     {
+        string? languages = provider.GetLanguagesString();
+        string? traineddataPath = provider.TessDataFolder;
+
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(languages);
+        ArgumentNullException.ThrowIfNull(traineddataPath);
+        NullPointerException.ThrowIfNull(image.Handle);
+
+        // ImageNotSetException: Always set -> cannot throw
         _engine = new(languages, traineddataPath, logger);
         _engine.SetImage(image);
         _engine.Recognize();
@@ -72,7 +90,6 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
     {
         // ArgumentNullException: _engine cannot be null -> cannot throw
         using SyncIterator iter = new(_engine, HighestLevelToSearch);
-
 
         while (iter.MoveNext())
         {
