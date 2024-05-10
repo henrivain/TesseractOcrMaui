@@ -1,3 +1,5 @@
+[![Deploy to NuGet](https://github.com/henrivain/TesseractOcrMaui/actions/workflows/generate_nuget.yml/badge.svg)](https://github.com/henrivain/TesseractOcrMaui/actions/workflows/generate_nuget.yml)
+[![Deploy iOS package to NuGet](https://github.com/henrivain/TesseractOcrMaui/actions/workflows/generate_ios_nuget.yml/badge.svg)](https://github.com/henrivain/TesseractOcrMaui/actions/workflows/generate_ios_nuget.yml)
 # TesseractOcrMaui
 
 [Tesseract](https://github.com/tesseract-ocr/tesseract) wrapper for Windows, iOS and Android for .NET MAUI.
