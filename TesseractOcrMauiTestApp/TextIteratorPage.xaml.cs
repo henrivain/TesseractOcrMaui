@@ -118,7 +118,7 @@ public partial class TextIteratorPage : ContentPage
     }
 
 
-    void WriteOutput(List<string> output)
+    private void WriteOutput(List<string> output)
     { 
         int middle = output.Count / 2;
         output1.Text = string.Join(Environment.NewLine, output.Take(middle));

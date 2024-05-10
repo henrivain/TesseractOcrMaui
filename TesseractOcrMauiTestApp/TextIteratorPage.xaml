@@ -18,7 +18,6 @@
                 <Label x:Name="output2"
                        FontSize="Micro"
                        Grid.Column="1"
-                       Text="Select image to print out structure..."
                        VerticalOptions="FillAndExpand" />
             </Grid>
         </VerticalStackLayout>
