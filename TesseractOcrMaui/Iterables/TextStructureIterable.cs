@@ -8,7 +8,7 @@ namespace TesseractOcrMaui.Iterables;
 /// Text structure iterator. Analyze text structure and return the text in structurized form.
 /// <para/>This class is <see cref="IDisposable"/> and <see cref="IEnumerable{BlockLevelCollection}"/>.
 /// </summary>
-public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
+public class TextStructureIterable : DisposableObject, IEnumerable<BlockLevelCollection>
 {
     readonly TessEngine _engine;
 
@@ -38,7 +38,7 @@ public class BlockIterable : DisposableObject, IEnumerable<BlockLevelCollection>
     /// <exception cref="ResultIteratorException">Native asset null, make bug report with used data if thrown.</exception>
     /// <exception cref="TesseractInitException">If native copying iterator failed.</exception>
     /// <exception cref="ImageRecognizionException">If image cannot be processed.</exception>
-    public BlockIterable(
+    public TextStructureIterable(
         Pix image,
         ITessDataInformationProvider provider,
         PageIteratorLevel highestLevel = PageIteratorLevel.Block,

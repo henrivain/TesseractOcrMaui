@@ -138,7 +138,7 @@ public partial class MainPage : ContentPage
 
         string imagePath = @"C:\Users\henri\Downloads\clearTextImage.png";
         using var pix = Pix.LoadFromFile(imagePath);
-        using var iter = new BlockIterable(pix, _provider,
+        using var iter = new TextStructureIterable(pix, _provider,
             PageIteratorLevel.Block, PageIteratorLevel.Symbol
             );
 
@@ -150,10 +150,7 @@ public partial class MainPage : ContentPage
             string stringified = builder.ToString();
         }
 
-        string json = JsonSerializer.Serialize(blocks, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-        });
+
     }
 }
 

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using static System.Reflection.Metadata.BlobBuilder;
+using System.Text.Json;
 
 namespace TesseractOcrMaui.Results;
 
@@ -72,18 +74,6 @@ public class BlockLevelCollection
     /// </returns>
     public ImmutableArray<TextSpan>? Data { get; }
 
-
-
-
-    //public IEnumerable<StringBuilder> GetLines(ref IAverage confidence)
-    //{
-    //    if (BlockLevel is PageIteratorLevel.TextLine)
-    //    {
-    //    }
-    //}
-
-
-
     /// <summary>
     /// Build recognized text into user suitable string.
     /// </summary>
@@ -102,6 +92,19 @@ public class BlockLevelCollection
         };
     }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+#if DEBUG
+        return JsonSerializer.Serialize(this, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+        });
+#else
+        IAverage average = new Average();
+        return Build(ref average).ToString();
+#endif
+    }
 
     static StringBuilder GetWord(BlockLevelCollection collection, ref IAverage confidence)
     {
