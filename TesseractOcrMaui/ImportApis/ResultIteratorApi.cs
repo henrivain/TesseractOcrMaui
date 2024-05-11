@@ -14,7 +14,13 @@ internal sealed class ResultIteratorApi
 #elif IOS
     const string DllName = "This DLL name should never be used, please, file bug report";
 #else
+#if WINDOWS_OR_WINDOWS_NONMAUI
+    const string DllName = @"Windows\tesseract53.dll";
+#elif LINUX
+    const strin DllName = "Linux is not currently supported, please make a feature request.";
+#else
     const string DllName = "Use Windows, Android or iOS Platform";
+#endif
 #endif
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessResultIteratorDelete")]

@@ -25,7 +25,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.2.0</Version>
+		<Version>1.2.1</Version>
 		<Title>Tesseract Ocr Maui</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
@@ -72,7 +72,20 @@
 		</Resource>
 	</ItemGroup>
 
-	<!-- Copy dlls for debuggin test app -->
+	<!-- Define new constants to follow -->
+	<PropertyGroup>
+		<DefineConstants Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'">$(DefineConstants);WINDOWS_OR_WINDOWS_NONMAUI</DefineConstants>
+		<DefineConstants Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">$(DefineConstants);LINUX</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(Configuration)' == 'Release' And $(DefineConstants.Contains(WINDOWS_OR_WINDOWS_NONMAUI))">
+		<Resource Include="lib\Windows\x86_64\*.dll" Pack="true" PackagePath="lib\net7.0\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</Resource>
+	</ItemGroup>
+
+	<!-- Copy dlls for debugging test app -->
 	<!-- Dlls go to output folder, so dll import can find them. -->
 	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
 		<ContentWithTargetPath Include="lib\Windows\x86_64\**">
