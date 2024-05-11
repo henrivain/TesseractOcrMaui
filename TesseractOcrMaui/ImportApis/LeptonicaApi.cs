@@ -15,7 +15,7 @@ internal sealed partial class LeptonicaApi
     const string DllName = "This DLL name should never be used, please, file bug report";
 #else
 #if WINDOWS_OR_WINDOWS_NONMAUI
-    const string DllName = @"Windows\tesseract53.dll";
+    const string DllName = @"leptonica-1.84.0.dll";
 #elif LINUX
     const strin DllName = "Linux is not currently supported, please make a feature request.";
 #else
