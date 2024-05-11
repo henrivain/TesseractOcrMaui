@@ -61,8 +61,12 @@ public class TessPage : DisposableObject
     /// <summary>
     /// Directory where output image is saved.
     /// </summary>
-    public string OutputDirectory { get; init; } = Path.Combine(FileSystem.CacheDirectory, "tessoutput");
-    
+    public string OutputDirectory { get; init; } = Path.Combine(GetCacheDir(), "tessoutput");
+
+
+
+
+
     ILogger Logger { get; }
 
     /// <summary>
@@ -139,7 +143,7 @@ public class TessPage : DisposableObject
         }
 
         Engine.Recognize();
-        
+
         if (Engine.TryGetBoolVar("tessedit_write_images", out bool value) is false && value is false)
         {
             return;
@@ -177,6 +181,16 @@ public class TessPage : DisposableObject
             throw new TesseractException("Failed to get thresholded image.");
         }
         return new(handle);
+    }
+
+    static string GetCacheDir()
+    {
+        return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+//#if NET7_0_ONLY
+//        return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+//#else
+//        return FileSystem.CacheDirectory;
+//#endif
     }
 
 
