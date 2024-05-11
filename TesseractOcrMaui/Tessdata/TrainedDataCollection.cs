@@ -19,6 +19,7 @@ internal class TrainedDataCollection : ITrainedDataCollection
         {
             throw new ArgumentNullException(nameof(fileName));
         }
+        // TODO: Remove maui essentials dependency in net7.0
         Task<bool> exist = FileSystem.Current.AppPackageFileExistsAsync(fileName);
         exist.Wait();
         if (exist.Result is false)

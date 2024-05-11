@@ -138,6 +138,8 @@ internal class TessDataProvider : ITessDataProvider
             Logger.LogWarning("Could not load '{file}', must have '{extension}' extension.", file, FileExtension);
             return (false, $"Invalid file extension, must be {FileExtension}");
         }
+
+        // TODO: Remove maui essentials dependency in net7.0
         if (await FileSystem.Current.AppPackageFileExistsAsync(file) is false)
         {
             Logger.LogWarning("Cannot copy package file '{file}', it doesn't exist.", file);
