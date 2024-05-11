@@ -10,13 +10,12 @@ public class TessDataProviderConfiguration : ITessDataProviderConfiguration
 
     /// <summary>
     /// New Configuration for TessDataProvider.
-    /// TessDataFolder = Microsoft.Maui.Storage.FileSystem.CacheDirectory/tessdata.
+    /// TessDataFolder = [Cache directory]/tessdata.
     /// OverwritesOldFiles = false.
     /// </summary>
     public TessDataProviderConfiguration()
     {
-        // TODO: Remove maui essentials dependency in net7.0
-        _tessDataFolder = Path.Combine(FileSystem.Current.CacheDirectory, "tessdata");
+        _tessDataFolder = Path.Combine(Utilities.FileSystemHelper.GetCacheFolder(), "tessdata");
         _overwritesOldFiles = false;
     }
 

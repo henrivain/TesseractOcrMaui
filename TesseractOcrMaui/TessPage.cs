@@ -61,11 +61,8 @@ public class TessPage : DisposableObject
     /// <summary>
     /// Directory where output image is saved.
     /// </summary>
-    public string OutputDirectory { get; init; } = Path.Combine(GetCacheDir(), "tessoutput");
-
-
-
-
+    public string OutputDirectory { get; init; } 
+        = Path.Combine(Utilities.FileSystemHelper.GetCacheFolder(), "tessoutput");
 
     ILogger Logger { get; }
 
@@ -183,15 +180,7 @@ public class TessPage : DisposableObject
         return new(handle);
     }
 
-    static string GetCacheDir()
-    {
-        return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-//#if NET7_0_ONLY
-//        return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-//#else
-//        return FileSystem.CacheDirectory;
-//#endif
-    }
+
 
 
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using TesseractOcrMaui.Results;
+using TesseractOcrMaui.Utilities;
 
 namespace TesseractOcrMaui.Tessdata;
 internal class TessDataProvider : ITessDataProvider
@@ -23,11 +24,14 @@ internal class TessDataProvider : ITessDataProvider
     /// <param name="configuration">Change object settings with configuration object.</param>
     /// <param name="logger"></param>
     /// <exception cref="ArgumentNullException">When collection or configuration is null.</exception>
+    /// <exception cref="PlatformNotSupportedException">If not targetting maui (TargetFramework is [net7.0].</exception>
     public TessDataProvider(
         ITrainedDataCollection collection, 
         ITessDataProviderConfiguration configuration, 
         ILogger<ITessDataProvider> logger)
     {
+        Guard.ThrowIfNonMaui();
+
         if (collection is null)
         {
             throw new ArgumentNullException(nameof(collection));
@@ -52,7 +56,8 @@ internal class TessDataProvider : ITessDataProvider
     ITrainedDataCollection TrainedDataCollection { get; }
     ILogger<ITessDataProvider> Logger { get; }
 
-
+    /// <inheritdoc />
+    /// <exception cref="PlatformNotSupportedException">If not targetting maui (TargetFramework is [net7.0].</exception>
     public async Task<DataLoadResult> LoadFromPackagesAsync()
     {
         var files = TrainedDataCollection.GetTrainedDataFileNames();
@@ -122,6 +127,8 @@ internal class TessDataProvider : ITessDataProvider
 
     private async Task<(bool Success, string Msg)> TryCopyFile(string file, bool overwritesFiles)
     {
+        Guard.ThrowIfNonMaui();
+
         if (string.IsNullOrWhiteSpace(file))
         {
             Logger.LogWarning("Cannot copy tessdata file with empty name.");
@@ -139,7 +146,6 @@ internal class TessDataProvider : ITessDataProvider
             return (false, $"Invalid file extension, must be {FileExtension}");
         }
 
-        // TODO: Remove maui essentials dependency in net7.0
         if (await FileSystem.Current.AppPackageFileExistsAsync(file) is false)
         {
             Logger.LogWarning("Cannot copy package file '{file}', it doesn't exist.", file);

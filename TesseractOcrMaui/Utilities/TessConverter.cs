@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace TesseractOcrMaui.Converters;
+namespace TesseractOcrMaui.Utilities;
 
 /// <summary>
 /// Convert object to tesseract option value string.
