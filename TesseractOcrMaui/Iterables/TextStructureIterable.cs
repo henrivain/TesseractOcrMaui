@@ -8,7 +8,7 @@ namespace TesseractOcrMaui.Iterables;
 /// Text structure iterator. Analyze text structure and return the text in structurized form.
 /// <para/>This class is <see cref="IDisposable"/> and <see cref="IEnumerable{BlockLevelCollection}"/>.
 /// </summary>
-public class TextStructureIterable : DisposableObject, IEnumerable<BlockLevelCollection>
+public class TextStructureIterable : DisposableObject, IDisposable, IEnumerable<BlockLevelCollection>
 {
     readonly TessEngine _engine;
 
@@ -133,7 +133,6 @@ public class TextStructureIterable : DisposableObject, IEnumerable<BlockLevelCol
                 {
                     hasLowerLevels = true;
                 }
-
                 if (lowerCollection is null)
                 {
                     spans.Add(iter.GetTextSpan());
