@@ -1,6 +1,7 @@
 ﻿using TesseractOcrMaui.Utilities;
 using TesseractOcrMaui.Iterables;
 using TesseractOcrMaui.ImportApis;
+using Microsoft.Extensions.Logging;
 
 namespace TesseractOcrMaui;
 
@@ -375,6 +376,11 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         {
             throw new ImageNotSetException("Cannot recognize image. No image source set.");
         }
+        if (IsRecognized)
+        {
+            _logger.LogInformation("{} image already recognized, skip recognition.", nameof(TessEngine));
+            return;
+        }
 
         // 0 -> success, -1 -> failed
         int status = TesseractApi.Recognize(Handle, monitorHandle.Value);
@@ -384,6 +390,25 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
             throw new ImageRecognizionException("Failed to Recognize image");
         }
         IsRecognized = true;
+    }
+
+    /// <summary>
+    /// Get image after recognition process in its current form. 
+    /// </summary>
+    /// <returns>Recongized image.</returns>
+    /// <exception cref="TesseractException">If can't get thresholded image (Ptr Zero).</exception>
+    /// <exception cref="InvalidOperationException">PageSegmentationMode is OsdOnly when recognizing.</exception>
+    /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
+    internal Pix GetThresholdedImage()
+    {
+        Recognize();
+        IntPtr handle = TesseractApi.GetThresholdedImage(Handle);
+        if (handle == IntPtr.Zero)
+        {
+            _logger.LogError("Tesseract cannot get thresholded image");
+            throw new TesseractException("Failed to get thresholded image.");
+        }
+        return new(handle);
     }
 
 

@@ -109,7 +109,10 @@ public class ResultIterable : DisposableObject, IDisposable, IEnumerable<TextSpa
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    /// <param name="disposing"></param>
     protected override void Dispose(bool disposing)
     {
         // Handle engine disposal if engine was created by the ResultIterable ctor.

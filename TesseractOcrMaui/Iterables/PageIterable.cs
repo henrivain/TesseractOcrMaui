@@ -33,7 +33,6 @@ public class PageIterable : DisposableObject, IDisposable, IEnumerable<SpanLayou
     /// If <paramref name="provider"/> TessDataFolder or GetLanguagesString() returns 
     /// null or <paramref name="image"/> is null.
     /// </exception>
-    /// 
     public PageIterable(Pix image, ITessDataInformationProvider provider,
         PageIteratorLevel level = PageIteratorLevel.TextLine, ILogger? logger = null)
     {
@@ -110,6 +109,10 @@ public class PageIterable : DisposableObject, IDisposable, IEnumerable<SpanLayou
         }
     }
 
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    /// <param name="disposing"></param>
     protected override void Dispose(bool disposing)
     {
         if (_isEngineDisposalRequired)

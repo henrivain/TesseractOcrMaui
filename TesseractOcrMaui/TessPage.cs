@@ -146,7 +146,7 @@ public class TessPage : DisposableObject
             return;
         }
 
-        using Pix pix = GetThresholdedImage();
+        using Pix pix = Engine.GetThresholdedImage();
         try
         {
             pix.Save(OutputDirectory, ImageFormat.TiffG4);
@@ -160,28 +160,6 @@ public class TessPage : DisposableObject
             Logger.LogWarning("Failed to save image to '{dir}'. Could not get file name.", OutputDirectory);
         }
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="TesseractException">If can't get thresholded image (Ptr Zero).</exception>
-    /// <exception cref="InvalidOperationException">PageSegmentationMode is OsdOnly when recognizing.</exception>
-    /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
-    private Pix GetThresholdedImage()
-    {
-        Recognize();
-        nint handle = TesseractApi.GetThresholdedImage(Engine.Handle);
-        if (handle == nint.Zero)
-        {
-            Logger.LogError("Tesseract cannot get thresholded image");
-            throw new TesseractException("Failed to get thresholded image.");
-        }
-        return new(handle);
-    }
-
-
-
 
     /// <summary>
     /// Dispose current page instance.
