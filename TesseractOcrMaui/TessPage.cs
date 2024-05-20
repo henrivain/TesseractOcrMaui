@@ -104,6 +104,8 @@ public class TessPage : DisposableObject
         return result;
     }
 
+
+
     /// <summary>
     /// Get image recognizion confidence.
     /// </summary>

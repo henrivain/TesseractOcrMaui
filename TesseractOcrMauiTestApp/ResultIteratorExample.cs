@@ -34,7 +34,7 @@ public class ResultIteratorExample
         {
             return null;
         }
-
+        Stopwatch fullProcess = Stopwatch.StartNew();
         _logger.LogInformation("Image at {}.", imagePath);
 
         // Load image
@@ -64,6 +64,7 @@ public class ResultIteratorExample
         }
 
         PrintTime(sw, "foreach(ResultIterable)");
+        PrintTime(fullProcess, "Full recognition process");
         return lines;
     }
 
