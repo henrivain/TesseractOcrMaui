@@ -106,8 +106,6 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     public static string? TryGetVersion()
         => Marshal.PtrToStringAnsi(TesseractApi.GetVersion());
 
-
-
     /*  Next methods should be called only one and once before cleaning (Cleaning not Supported yet)
      *  - ProcessImage(Pix, PageSegmentationMode)
      *  - ProcessImage(Pix, string?, Rect, PageSegmentationMode)
@@ -255,7 +253,29 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     }
 
 
+
+
     #region EngineGettersAndSetters
+
+    /// <summary>
+    /// Get image after recognition process in its current form. 
+    /// </summary>
+    /// <returns>Recongized image.</returns>
+    /// <exception cref="TesseractException">If can't get thresholded image (Ptr Zero).</exception>
+    /// <exception cref="InvalidOperationException">PageSegmentationMode is OsdOnly when recognizing.</exception>
+    /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
+    public Pix GetThresholdedImage()
+    {
+        Recognize();
+        IntPtr handle = TesseractApi.GetThresholdedImage(Handle);
+        if (handle == IntPtr.Zero)
+        {
+            _logger.LogError("Tesseract cannot get thresholded image");
+            throw new TesseractException("Failed to get thresholded image.");
+        }
+        return new(handle);
+    }
+
     /// <summary>
     /// Set tesseract library variable for debug purposes.
     /// </summary>
@@ -392,24 +412,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         IsRecognized = true;
     }
 
-    /// <summary>
-    /// Get image after recognition process in its current form. 
-    /// </summary>
-    /// <returns>Recongized image.</returns>
-    /// <exception cref="TesseractException">If can't get thresholded image (Ptr Zero).</exception>
-    /// <exception cref="InvalidOperationException">PageSegmentationMode is OsdOnly when recognizing.</exception>
-    /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
-    internal Pix GetThresholdedImage()
-    {
-        Recognize();
-        IntPtr handle = TesseractApi.GetThresholdedImage(Handle);
-        if (handle == IntPtr.Zero)
-        {
-            _logger.LogError("Tesseract cannot get thresholded image");
-            throw new TesseractException("Failed to get thresholded image.");
-        }
-        return new(handle);
-    }
+
 
 
 
