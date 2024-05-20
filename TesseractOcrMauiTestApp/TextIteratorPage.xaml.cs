@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using TesseractOcrMaui;
 using TesseractOcrMaui.Enums;
@@ -10,12 +11,14 @@ namespace TesseractOcrMauiTestApp;
 
 public partial class TextIteratorPage : ContentPage
 {
-    private readonly ITessDataProvider _provider;
+    readonly ITessDataProvider _provider;
+    readonly ILogger _logger;
 
-    public TextIteratorPage(ITessDataProvider provider)
+    public TextIteratorPage(ITessDataProvider provider, ILogger logger)
     {
         InitializeComponent();
         _provider = provider;
+        _logger = logger;
     }
 
     private async void SelectImageButton_Clicked(object sender, EventArgs e)
@@ -90,7 +93,7 @@ public partial class TextIteratorPage : ContentPage
 
         // Load image and create iterator
         using var image = Pix.LoadFromFile(imagePath);
-        using var iter = new TextStructureIterable(image, _provider, highestLevel, lowestLevel);
+        using var iter = new TextStructureIterable(image, _provider, highestLevel, lowestLevel, _logger);
 
         /* Examples of visualizing data
          * These are examples how to visualize data from TextStructureIterable.
@@ -101,7 +104,6 @@ public partial class TextIteratorPage : ContentPage
         List<string> acsiiTree = new();
         foreach (BlockLevelCollection block in iter)
         {
-#pragma warning disable IDE0039 // Use local function
 
             // ACSII tree - Print text structure as 
             // Action<string> debugWriteLine = value => Debug.WriteLine(value);

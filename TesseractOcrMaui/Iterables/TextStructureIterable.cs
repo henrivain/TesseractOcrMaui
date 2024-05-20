@@ -11,7 +11,7 @@ namespace TesseractOcrMaui.Iterables;
 public class TextStructureIterable : DisposableObject, IDisposable, IEnumerable<BlockLevelCollection>
 {
     readonly TessEngine _engine;
-
+    private readonly ILogger? _logger;
     const PageIteratorLevel LowestAvailableLevel = PageIteratorLevel.Symbol;
 
     /// <summary>
@@ -66,6 +66,7 @@ public class TextStructureIterable : DisposableObject, IDisposable, IEnumerable<
 
         HighestLevelToSearch = highestLevel;
         LowestLevelToSearch = lowestLevel;
+        _logger = logger;
     }
 
     /// <summary>
@@ -89,7 +90,7 @@ public class TextStructureIterable : DisposableObject, IDisposable, IEnumerable<
     public IEnumerator<BlockLevelCollection> GetEnumerator()
     {
         // ArgumentNullException: _engine cannot be null -> cannot throw
-        using SyncIterator iter = new(_engine, HighestLevelToSearch);
+        using SyncIterator iter = new(_engine, HighestLevelToSearch, _logger);
 
         while (iter.MoveNext())
         {

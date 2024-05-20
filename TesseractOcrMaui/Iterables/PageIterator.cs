@@ -4,6 +4,7 @@ using TesseractOcrMaui.Imaging;
 using TesseractOcrMaui.PointerTypes;
 using TesseractOcrMaui.Results;
 using TesseractOcrMaui.ImportApis;
+using TesseractOcrMaui.Utilities;
 
 
 namespace TesseractOcrMaui.Iterables;
@@ -16,6 +17,12 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
 
     SpanLayout? _current;
 
+    readonly ILogger _logger;
+
+    /// <summary>
+    /// Creation type that affects how disposing is done.
+    /// </summary>
+    private protected readonly ResultIteratorType _creationType;
 
     /// <summary>
     /// New <see cref="PageIterator"/> to iterate over image text layout like bounding boxes and paragraph layout.
@@ -25,15 +32,17 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
     /// ResultIterator instance that is casted into PageIterator. 
     /// <paramref name="iterator"/> must exist as long as created <see cref="PageIterator"/>.
     /// </param>
+    /// <param name="logger">Logger to be used.</param>
     /// <exception cref="ArgumentNullException">If <paramref name="iterator"/> is <see langword="null"/>.</exception>
     /// <exception cref="NullPointerException">If <paramref name="iterator"/>.Handle is <see cref="IntPtr.Zero"/></exception>
-    internal PageIterator(ResultIterator iterator) : base(iterator)
+    internal PageIterator(ResultIterator iterator, ILogger? logger = null) : base(iterator)
     {
         /* Iterator should be the dependency object here, because it is also disposed  
            if TessEngine is disposed. Both iterators are using the same pointer,
            because PageIterator is casted from ResultIterator here */
 
         _creationType = ResultIteratorType.ResultIteratorBased;
+        _logger = logger ?? NullLogger.Instance;
 
         ArgumentNullException.ThrowIfNull(iterator);
         NullPointerException.ThrowIfNull(iterator.Handle);
@@ -57,13 +66,15 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
     /// <paramref name="engine"/> must exist as long as created <see cref="PageIterator"/>.
     /// </param>
     /// <param name="level">Text block size to be used.</param>
+    /// <param name="logger">Logger to be used.</param>
     /// <exception cref="ArgumentNullException">If <paramref name="engine"/> is <see langword="null"/>.</exception>
     /// <exception cref="NullPointerException"> If <paramref name="engine"/>.Handle is <see cref="IntPtr.Zero"/>.</exception>
     /// <exception cref="PageIteratorException">If image does not contain text.</exception>
     /// <exception cref="ImageNotSetException">If <see cref="TessEngine.SetImage(Pix)"/> is not called before init.</exception>
-    internal PageIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine)
+    internal PageIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine, ILogger? logger = null) : base(engine)
     {
         _creationType = ResultIteratorType.EngineBased;
+        _logger = logger ?? NullLogger.Instance;
 
         ArgumentNullException.ThrowIfNull(engine);
         NullPointerException.ThrowIfNull(engine.Handle);
@@ -72,7 +83,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
             throw new ImageNotSetException($"TessEngine.SetImage() not called, cannot get iterator.");
         }
 
-        IntPtr ptr = TesseractApi.AnalyseLayoutToPageIterator(engine.Handle);
+        IntPtr ptr = MethodTimer.Wrap(TesseractApi.AnalyseLayoutToPageIterator, engine.Handle, _logger);
         if (ptr == IntPtr.Zero)
         {
             throw new PageIteratorException($"Analyzed image page is empty.");
@@ -90,14 +101,17 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
     /// <param name="level"><see cref="PageIteratorLevel"/> from old iterator.</param>
     /// <param name="isAtBeginning">Value from <see cref="IsAtBeginning"/> when copying.</param>
     /// <param name="dependency">TessEngine instance that iterator is depending on.</param>
+    /// <param name="logger">Logger to be used.</param>
     /// <exception cref="ArgumentNullException">If <paramref name="dependency"/> is <see langword="null"/>.</exception>
     /// <exception cref="NullPointerException">If <paramref name="copiedPtr"/> is <see cref="IntPtr.Zero"/>.</exception>
     private PageIterator(
         IntPtr copiedPtr,
         PageIteratorLevel level,
         bool isAtBeginning,
-        DisposableObject dependency) : base(dependency)
+        DisposableObject dependency, 
+        ILogger? logger = null) : base(dependency)
     {
+        _logger = logger ?? NullLogger.Instance;
         _creationType = ResultIteratorType.Copied;
         NullPointerException.ThrowIfNull(copiedPtr);
         IsAtBeginning = isAtBeginning;
@@ -212,7 +226,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
         }
 
         // ArgumentNullException: _dependencyObject always not null -> cannot throw
-        return new(copied, Level, IsAtBeginning, dependencyObject);
+        return new(copied, Level, IsAtBeginning, dependencyObject, _logger);
     }
 
     /// <summary>
@@ -346,10 +360,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
 
 
 
-    /// <summary>
-    /// Creation type that affects how disposing is done.
-    /// </summary>
-    private protected readonly ResultIteratorType _creationType;
+
 
     /// <summary>
     /// Get current text layout from text block that's size is determined by <see cref="Level"/>.

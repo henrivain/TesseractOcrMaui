@@ -8,22 +8,24 @@ internal sealed class SyncIterator : DisposableObject, IEnumerator<SyncedIterato
 {
     readonly ResultIterator _resultIterator;
     readonly PageIterator _pageIterator;
+    readonly ILogger _logger;
 
     /// <exception cref="NullPointerException">If engine Handle Intptr.Zero.</exception>
     /// <exception cref="ArgumentNullException">If engine null.</exception>
     /// <exception cref="TesseractInitException">Engine image not set or recognized.</exception>
     /// <exception cref="ResultIteratorException">Native asset null, make bug report with used data if thrown.</exception>
     /// <exception cref="ObjectDisposedException">If engine disposed durint iteration.</exception>
-    internal SyncIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
-        : this(new ResultIterator(engine, level))
+    internal SyncIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine, ILogger? logger = null)
+        : this(new ResultIterator(engine, level, logger), logger)
     {
     }
 
     /// <exception cref="ObjectDisposedException">If engine disposed durint iteration.</exception>
     /// <exception cref="NullPointerException">If iter Handle is IntPtr.Zero.</exception>
-    private SyncIterator(ResultIterator iter)
+    private SyncIterator(ResultIterator iter, ILogger? logger = null)
     {
         // Tracks and disposes both iterators.
+        _logger = logger ?? NullLogger.Instance;
         _resultIterator = iter;
         _pageIterator = iter.AsPageIterator();
         if (_resultIterator.IsAtBeginning is false)
@@ -99,7 +101,7 @@ internal sealed class SyncIterator : DisposableObject, IEnumerator<SyncedIterato
     public SyncIterator CopyAtCurrentIndex(PageIteratorLevel? level = null)
     {
         ResultIterator copied = _resultIterator.CopyToCurrentIndex();
-        SyncIterator synced = new(copied);
+        SyncIterator synced = new(copied, _logger);
         if (level is not null)
         {
             synced.SetIteratorLevel(level.Value);

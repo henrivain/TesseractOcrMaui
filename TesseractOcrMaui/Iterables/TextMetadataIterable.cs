@@ -12,6 +12,7 @@ namespace TesseractOcrMaui.Iterables;
 public class TextMetadataIterable : DisposableObject, IEnumerable<RecognitionSpan>
 {
     readonly TessEngine _engine;
+    readonly ILogger _logger;
 
     /// <summary>
     /// Enables Synchronized iteration to text and layout.
@@ -41,6 +42,7 @@ public class TextMetadataIterable : DisposableObject, IEnumerable<RecognitionSpa
         ArgumentNullException.ThrowIfNull(image);
         NullPointerException.ThrowIfNull(image.Handle);
 
+        _logger = logger ?? NullLogger.Instance;
         // InvalidOperationException: Always init new engine -> cannot throw
         // ImageNotSetException: SetImage() always called -> cannot throw
         _engine = new(languages, tessDataPath, logger);
@@ -85,7 +87,7 @@ public class TextMetadataIterable : DisposableObject, IEnumerable<RecognitionSpa
         // NullPointerException: Engine handle checked -> cannot throw
         // ArgumentNullException: Engine always not null -> cannot throw
         // TesseractInitException: .ctor calls SetImage() and Recognize() -> cannot throw
-        using SyncIterator iter = new(_engine, Level);
+        using SyncIterator iter = new(_engine, Level, _logger);
 
         while (iter.MoveNext())
         {

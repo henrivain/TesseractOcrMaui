@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using TesseractOcrMaui.Results;
 using TesseractOcrMaui.ImportApis;
+using TesseractOcrMaui.Utilities;
 
 namespace TesseractOcrMaui.Iterables;
 
@@ -12,6 +13,7 @@ namespace TesseractOcrMaui.Iterables;
 public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextSpan>
 {
     TextSpan? _current;
+    readonly ILogger _logger;
 
 
     /// <summary>
@@ -26,13 +28,15 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     /// <param name="level">
     /// <see cref="PageIteratorLevel"/> that determines page size to be read like TextLine, Symbol or Paragraph.
     /// </param>
+    /// <param name="logger">Logger to be used.</param>
     /// 
     /// <exception cref="ArgumentNullException">If engine is null</exception>
     /// <exception cref="NullPointerException">If <paramref name="engine"/>.Handle is <see cref="IntPtr.Zero"/>.</exception>
     /// <exception cref="TesseractInitException">Engine image not set or recognized.</exception>
     /// <exception cref="ResultIteratorException">Native asset is null, consider making bug report if you encouter.</exception>
-    internal ResultIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine) : base(engine)
+    internal ResultIterator(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine, ILogger? logger = null) : base(engine)
     {
+        _logger = logger ?? NullLogger.Instance;
         ArgumentNullException.ThrowIfNull(engine);
         NullPointerException.ThrowIfNull(engine.Handle);
 
@@ -47,7 +51,8 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         }
 
         EngineHandle = new TessEngineHandle(engine);
-        IntPtr iterPtr = TesseractApi.GetResultIterator(EngineHandle);
+
+        IntPtr iterPtr = MethodTimer.Wrap(TesseractApi.GetResultIterator, (HandleRef)EngineHandle, logger);
 
         if (iterPtr == IntPtr.Zero)
         {
@@ -76,11 +81,12 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     /// <see cref="TessEngine"/> that <see cref="ResultIterator"/> depends on. 
     /// <see cref="TessEngine"/> instance must exist as long as created <see cref="ResultIterator"/>
     /// </param>
+    /// <param name="logger">Logger to be used.</param>
     /// <exception cref="NullPointerException">
     /// If <paramref name="newIterator"/> or <paramref name="engineHandle"/>.Handle is <see cref="IntPtr.Zero"/> 
     /// </exception>
     private protected ResultIterator(IntPtr newIterator, TessEngineHandle engineHandle, 
-        PageIteratorLevel level, bool isAtBeginning, TessEngine dependency) : base(dependency)
+        PageIteratorLevel level, bool isAtBeginning, TessEngine dependency, ILogger logger) : base(dependency)
     {
         // This ctor is for ResultIterator copy action
         NullPointerException.ThrowIfNull(newIterator);
@@ -90,6 +96,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
         Level = level;
         Handle = new HandleRef(this, newIterator);
         IsAtBeginning = isAtBeginning;
+        _logger = logger;
     }
     
 
@@ -211,7 +218,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
             throw new InvalidOperationException($"Dependency object should always be of type {nameof(TessEngine)}. " +
                 $"Consider making a bug report");
         }
-        return new(newIteratorPtr, EngineHandle, Level, IsAtBeginning, (TessEngine)_dependencyObject);
+        return new(newIteratorPtr, EngineHandle, Level, IsAtBeginning, (TessEngine)_dependencyObject, _logger);
     }
 
     /// <summary>
@@ -223,7 +230,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
     public PageIterator AsPageIterator()
     {
         ThrowIfDisposed();
-        return new PageIterator(this);
+        return new PageIterator(this, _logger);
     }
 
     /// <summary>

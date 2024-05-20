@@ -190,7 +190,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         // TesseractInitException: SetImage() and Recognize() always called -> cannot throw
         SetImage(image);
         Recognize();
-        return new(this, level);
+        return new(this, level, _logger);
     }
 
     /// <summary>
@@ -212,7 +212,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         // TesseractInitException: SetImage() and Recognize() always called -> cannot throw
         SetImage(image);
         Recognize();
-        return new(this, level);
+        return new(this, level, _logger);
     }
 
     /// <summary>
@@ -231,7 +231,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     {
         // ImageNotSetException: SetImage() always called -> cannot throw
         SetImage(image);
-        return new(this, level);
+        return new(this, level, _logger);
     }
 
     /// <summary>
@@ -248,7 +248,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
     {
         // TesseractInitException: SetImage() alway called -> cannot throw
         SetImage(image);
-        return new(this, level);
+        return new(this, level, _logger);
     }
 
 
@@ -378,7 +378,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
             throw new InvalidOperationException("Engine image already set.");
         }
 
-        TesseractApi.SetImage(Handle, image.Handle);
+        MethodTimer.Time(TesseractApi.SetImage, Handle, image.Handle, _logger);
         IsImageSet = true;
     }
 
@@ -402,7 +402,7 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         }
 
         // 0 -> success, -1 -> failed
-        int status = TesseractApi.Recognize(Handle, monitorHandle.Value);
+        int status = MethodTimer.Time(TesseractApi.Recognize, Handle, monitorHandle.Value, _logger);
         if (status is not 0)
         {
             _logger.LogError("Could not Recognize image with api status {}", status);

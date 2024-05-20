@@ -14,6 +14,7 @@ public class PageIterable : DisposableObject, IDisposable, IEnumerable<SpanLayou
     readonly TessEngine _engine;
     readonly PageIterator _iterator;
     readonly bool _isEngineDisposalRequired = true;
+    readonly ILogger _logger;
 
     /// <summary>
     /// New <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterator"/>.
@@ -44,13 +45,14 @@ public class PageIterable : DisposableObject, IDisposable, IEnumerable<SpanLayou
         ArgumentNullException.ThrowIfNull(image);
         NullPointerException.ThrowIfNull(image.Handle);
 
+        _logger = logger ?? NullLogger.Instance;
         _isEngineDisposalRequired = true;
         // InvalidOperationException: Always init new engine -> cannot throw
         // ImageNotSetException: SetImage() always called -> cannot throw
         _engine = new(languages, tessDataPath, logger);
         _engine.SetImage(image);
         _engine.Recognize();
-        _iterator = new(_engine, level);
+        _iterator = new(_engine, level, _logger);
 
         Level = level;
     }
@@ -65,6 +67,7 @@ public class PageIterable : DisposableObject, IDisposable, IEnumerable<SpanLayou
     /// Disposal of the engine is not handled.
     /// </param>
     /// <param name="level"><see cref="PageIteratorLevel"/> that determines text block size.</param>
+    /// <param name="logger">Logger to be used.</param>
     /// <exception cref="ObjectDisposedException">If <see cref="_iterator"/> is disposed before or during iteration.</exception>
     /// <exception cref="ArgumentNullException">If <paramref name="engine"/> is null.</exception>
     /// <exception cref="PageIteratorException">If image does not contain text.</exception>
@@ -73,14 +76,15 @@ public class PageIterable : DisposableObject, IDisposable, IEnumerable<SpanLayou
     /// If <paramref name="engine"/>.Handle is <see cref="IntPtr.Zero"/> 
     /// or iterator cannot be copied during iteration.
     /// </exception>
-    internal PageIterable(TessEngine engine, PageIteratorLevel level)
+    internal PageIterable(TessEngine engine, PageIteratorLevel level, ILogger? logger = null)
     {
         ArgumentNullException.ThrowIfNull(engine);
         NullPointerException.ThrowIfNull(engine.Handle);
 
+        _logger = logger ?? NullLogger.Instance;
         _isEngineDisposalRequired = false;
         _engine = engine;
-        _iterator = new(_engine, level);
+        _iterator = new(_engine, level, _logger);
 
         Level = level;
     }

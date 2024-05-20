@@ -13,6 +13,7 @@ public class ResultIterable : DisposableObject, IDisposable, IEnumerable<TextSpa
 {
     readonly TessEngine _engine;
     readonly bool _isEngineDisposalRequired = true;
+    readonly ILogger? _logger;
 
 
     /// <summary>
@@ -46,6 +47,7 @@ public class ResultIterable : DisposableObject, IDisposable, IEnumerable<TextSpa
         ArgumentNullException.ThrowIfNull(image);
         NullPointerException.ThrowIfNull(image.Handle);
 
+        _logger = logger;
         _isEngineDisposalRequired = true;
         // InvalidOperationException: Always init new engine -> cannot throw
         // ImageNotSetException: SetImage() always called -> cannot throw
@@ -63,6 +65,7 @@ public class ResultIterable : DisposableObject, IDisposable, IEnumerable<TextSpa
     /// </summary>
     /// <param name="engine">Engine that must exist as long as the iterator, not disposed automatically.</param>
     /// <param name="level">Text block size to be used.</param>
+    /// <param name="logger"></param>
     /// <exception cref="ArgumentNullException">If <paramref name="engine"/> null.</exception>
     /// <exception cref="ObjectDisposedException">If <see cref="_engine"/> is disposed.</exception>
     /// <exception cref="NullPointerException">If <see cref="TessEngine.Handle"/> is <see cref="IntPtr.Zero"/>.</exception>
@@ -70,8 +73,9 @@ public class ResultIterable : DisposableObject, IDisposable, IEnumerable<TextSpa
     /// <exception cref="TesseractInitException">
     /// If <see cref="TessEngine.SetImage(Pix)"/> or <see cref="TessEngine.Recognize(HandleRef?)"/> is not called.
     /// </exception>
-    internal ResultIterable(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
+    internal ResultIterable(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine, ILogger? logger = null)
     {
+        _logger = logger;
         _isEngineDisposalRequired = false;
         ArgumentNullException.ThrowIfNull(engine);
 
@@ -98,7 +102,7 @@ public class ResultIterable : DisposableObject, IDisposable, IEnumerable<TextSpa
     public IEnumerator<TextSpan> GetEnumerator()
     {
         // ArgumentNullException: _engine cannot be null -> cannot throw
-        using ResultIterator iterator = new(_engine, Level);
+        using ResultIterator iterator = new(_engine, Level, _logger);
 
         while (iterator.MoveNext())
         {

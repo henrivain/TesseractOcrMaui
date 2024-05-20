@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 using TesseractOcrMaui;
 using TesseractOcrMaui.Enums;
-using TesseractOcrMaui.Imaging;
-using TesseractOcrMaui.Iterables;
 using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
 #nullable enable
@@ -13,9 +10,12 @@ namespace TesseractOcrMauiTestApp;
 public partial class MainPage : ContentPage
 {
     readonly ITessDataProvider _provider;
+    private readonly ResultIteratorExample _resultIteratorExample;
 
-    public MainPage(ITesseract tesseract, ILogger<MainPage> logger, ITessDataProvider provider)
+    public MainPage(ITesseract tesseract, ILogger<MainPage> logger, ITessDataProvider provider, ResultIteratorExample resultIteratorExample)
     {
+
+
         InitializeComponent();
         Tesseract = tesseract;
         _provider = provider;
@@ -23,10 +23,9 @@ public partial class MainPage : ContentPage
         logger.LogInformation($"-   {nameof(TesseractOcrMaui)} Demo   -");
         logger.LogInformation($"--------------------------------");
 
+        _resultIteratorExample = resultIteratorExample;
         var rid = RuntimeInformation.RuntimeIdentifier;
         logger.LogInformation("Running on rid '{rid}'", rid);
-
-
     }
 
     ITesseract Tesseract { get; }
@@ -130,6 +129,11 @@ public partial class MainPage : ContentPage
         }
         confidenceLabel.Text = $"Confidence: {result.Confidence}";
         resultLabel.Text = result.RecognisedText;
+    }
+
+    private async void ContentPage_Loaded(object sender, EventArgs e)
+    {
+        _ = await _resultIteratorExample.GetImageTextLines();
     }
 }
 

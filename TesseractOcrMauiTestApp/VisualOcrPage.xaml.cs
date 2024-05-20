@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System.Text;
 using TesseractOcrMaui;
 using TesseractOcrMaui.Enums;
@@ -10,13 +11,14 @@ namespace TesseractOcrMauiTestApp;
 
 public partial class VisualOcrPage : ContentPage
 {
-    private readonly ITessDataProvider _provider;
+    readonly ITessDataProvider _provider;
+    readonly ILogger _logger;
 
-    public VisualOcrPage(ITessDataProvider provider)
+    public VisualOcrPage(ITessDataProvider provider, ILogger logger)
     {
         InitializeComponent();
         _provider = provider;
-
+        _logger = logger;
         graphicsView.Drawable = new Drawable();
     }
 
@@ -42,7 +44,7 @@ public partial class VisualOcrPage : ContentPage
         using var pix = Pix.LoadFromFile(imagePath);
 
         // Create iterable, Change TextBlockSize to try different sized text blocks
-        using var iter = new TextMetadataIterable(pix, _provider, TextBlockSize);
+        using var iter = new TextMetadataIterable(pix, _provider, TextBlockSize, _logger);
 
         // Clear old data
 

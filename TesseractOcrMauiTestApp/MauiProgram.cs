@@ -34,6 +34,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddSingleton<VisualOcrPage>();
         builder.Services.AddSingleton<TextIteratorPage>();
+        builder.Services.AddTransient<ResultIteratorExample>();
 
         return builder.Build();
     }
