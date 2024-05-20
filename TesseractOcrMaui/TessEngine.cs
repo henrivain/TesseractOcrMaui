@@ -1,7 +1,6 @@
-﻿using TesseractOcrMaui.Utilities;
+﻿using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.Iterables;
-using TesseractOcrMaui.ImportApis;
-using Microsoft.Extensions.Logging;
+using TesseractOcrMaui.Utilities;
 
 namespace TesseractOcrMaui;
 
