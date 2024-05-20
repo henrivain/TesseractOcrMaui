@@ -1,4 +1,5 @@
-﻿using TesseractOcrMaui.ImportApis;
+﻿using System.Diagnostics;
+using TesseractOcrMaui.ImportApis;
 using TesseractOcrMaui.Iterables;
 using TesseractOcrMaui.Utilities;
 
@@ -478,7 +479,11 @@ public class TessEngine : DisposableObject, ITessEngineConfigurable
         languages ??= string.Empty;
         traineddataPath ??= string.Empty;
 
+        Stopwatch sw = Stopwatch.StartNew();
         int apiStatus = InitializeTesseractApi5(Handle, languages, traineddataPath, mode, initialOptions);
+        MethodTimer.PrintTime(sw, "TessEngine.InitializeTesseractApi5", _logger);
+
+
         if (apiStatus is not 0)
         {
             _logger.LogError("Could not initialize new Tesseract api for {cls}. Api status {status}",

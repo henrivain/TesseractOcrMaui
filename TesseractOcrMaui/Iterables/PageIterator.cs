@@ -83,7 +83,7 @@ public class PageIterator : ParentDependantDisposableObject, IEnumerator<SpanLay
             throw new ImageNotSetException($"TessEngine.SetImage() not called, cannot get iterator.");
         }
 
-        IntPtr ptr = MethodTimer.Wrap(TesseractApi.AnalyseLayoutToPageIterator, engine.Handle, _logger);
+        IntPtr ptr = MethodTimer.Time(TesseractApi.AnalyseLayoutToPageIterator, engine.Handle, _logger);
         if (ptr == IntPtr.Zero)
         {
             throw new PageIteratorException($"Analyzed image page is empty.");

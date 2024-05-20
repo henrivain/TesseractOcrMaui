@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
 using TesseractOcrMaui;
 using TesseractOcrMaui.Iterables;
@@ -34,21 +35,23 @@ public class ResultIteratorExample
             return null;
         }
 
+        _logger.LogInformation("Image at {}.", imagePath);
+
         // Load image
         Stopwatch sw = Stopwatch.StartNew();
 
         using Pix pix = Pix.LoadFromFile(imagePath);
 
         long ms1 = sw.ElapsedMilliseconds;
-        _logger.LogInformation("Image loading took {ms1} ms", ms1);
-        
+        PrintTime(sw, "Pix.LoadFromFile(string)");
+
         // Create itearble, set image and recognize
         sw.Restart();
 
         using ResultIterable iterable = new(pix, _provider, TesseractOcrMaui.Enums.PageIteratorLevel.TextLine, _logger);
 
         long ms2 = sw.ElapsedMilliseconds;
-        _logger.LogInformation("iterable creation took {ms2} ms", ms2);
+        PrintTime(sw, "new ResultIterable()");
 
         // Iterate over result
         sw.Restart();
@@ -60,9 +63,14 @@ public class ResultIteratorExample
             lines.Add(item.Text);
         }
 
-        long ms3 = sw.ElapsedMilliseconds;
-        _logger.LogInformation("Iterating took {ms3} ms", ms3);
-
+        PrintTime(sw, "foreach(ResultIterable)");
         return lines;
+    }
+
+
+    private void PrintTime(Stopwatch sw, string methodName)
+    {
+        long ms = sw.ElapsedMilliseconds;
+        _logger.LogInformation("[{ms} ms] [HIGH LEVEL] to execute {method}.", ms, methodName);
     }
 }

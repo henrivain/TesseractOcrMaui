@@ -52,7 +52,7 @@ public class ResultIterator : ParentDependantDisposableObject, IEnumerator<TextS
 
         EngineHandle = new TessEngineHandle(engine);
 
-        IntPtr iterPtr = MethodTimer.Wrap(TesseractApi.GetResultIterator, (HandleRef)EngineHandle, logger);
+        IntPtr iterPtr = MethodTimer.Time(TesseractApi.GetResultIterator, (HandleRef)EngineHandle, logger);
 
         if (iterPtr == IntPtr.Zero)
         {

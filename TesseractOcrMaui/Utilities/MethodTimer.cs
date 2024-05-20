@@ -53,11 +53,12 @@ internal static class MethodTimer
     }
 
 
-    private static void PrintTime(this Stopwatch sw, string? methodName, ILogger? logger)
+
+    internal static void PrintTime(this Stopwatch sw, string? methodName, ILogger? logger)
     {
         logger ??= NullLogger.Instance;
         long ms = sw.ElapsedMilliseconds;
-        logger.LogInformation("Executing {method} took {ms} ms.", methodName ?? "Name_Not_Found", ms);
+        logger.LogInformation("[{ms} ms] [NATIVE] to execute {method}.", ms, methodName ?? "Name_Not_Found");
     }
 
 }
