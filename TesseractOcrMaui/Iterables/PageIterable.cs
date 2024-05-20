@@ -7,20 +7,23 @@ namespace TesseractOcrMaui.Iterables;
 /// <summary>
 /// <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterable"/>. 
 /// Iterate over Text layout.
+/// Note that this class is <see cref="IDisposable"/>.
 /// </summary>
-public class PageIterable : IEnumerable<SpanLayout>
+public class PageIterable : DisposableObject, IDisposable, IEnumerable<SpanLayout>
 {
     readonly TessEngine _engine;
     readonly PageIterator _iterator;
+    readonly bool _isEngineDisposalRequired = true;
 
     /// <summary>
     /// New <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterator"/>.
     /// Iterate over Text layout.
+    /// Note that this class is <see cref="IDisposable"/>.
     /// </summary>
-    /// <param name="image"></param>
-    /// <param name="provider"></param>
-    /// <param name="level"></param>
-    /// <param name="logger"></param>
+    /// <param name="image">Image to be processed. Image disposal is not handled by the <see cref="TextMetadataIterable"/>.</param>
+    /// <param name="provider">Traineddata information to be used.</param>
+    /// <param name="level">Text block size to be iterated with.</param>
+    /// <param name="logger">Logger to be used, if null uses NullLogger.</param>
     /// <exception cref="ObjectDisposedException">If object is disposed during iteration.</exception>
     /// <exception cref="ImageRecognizionException">If image cannot be processed and recognition failed.</exception>
     /// <exception cref="NullPointerException">
@@ -42,6 +45,7 @@ public class PageIterable : IEnumerable<SpanLayout>
         ArgumentNullException.ThrowIfNull(image);
         NullPointerException.ThrowIfNull(image.Handle);
 
+        _isEngineDisposalRequired = true;
         // InvalidOperationException: Always init new engine -> cannot throw
         // ImageNotSetException: SetImage() always called -> cannot throw
         _engine = new(languages, tessDataPath, logger);
@@ -57,7 +61,10 @@ public class PageIterable : IEnumerable<SpanLayout>
     /// New <see cref="IEnumerable{SpanInfo}"/> implementation for <see cref="PageIterator"/>.
     /// Iterate over Text layout.
     /// </summary>
-    /// <param name="engine">Dependency <see cref="TessEngine"/>, must exist as long as created <see cref="PageIterable"/>.</param>
+    /// <param name="engine">
+    /// Dependency <see cref="TessEngine"/>, must exist as long as created <see cref="PageIterable"/>. 
+    /// Disposal of the engine is not handled.
+    /// </param>
     /// <param name="level"><see cref="PageIteratorLevel"/> that determines text block size.</param>
     /// <exception cref="ObjectDisposedException">If <see cref="_iterator"/> is disposed before or during iteration.</exception>
     /// <exception cref="ArgumentNullException">If <paramref name="engine"/> is null.</exception>
@@ -72,6 +79,7 @@ public class PageIterable : IEnumerable<SpanLayout>
         ArgumentNullException.ThrowIfNull(engine);
         NullPointerException.ThrowIfNull(engine.Handle);
 
+        _isEngineDisposalRequired = false;
         _engine = engine;
         _iterator = new(_engine, level);
 
@@ -100,6 +108,15 @@ public class PageIterable : IEnumerable<SpanLayout>
             // IndexOutOfRangeException: MoveNext() called -> cannot throw
             yield return iterator.Current;
         }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (_isEngineDisposalRequired)
+        {
+            _engine.Dispose();
+        }
+        _iterator.Dispose();
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -18,7 +18,7 @@ public class TextMetadataIterable : DisposableObject, IEnumerable<RecognitionSpa
     /// This class is <see cref="IDisposable"/>.
     /// </summary>
     /// <param name="provider">Traineddata information.</param>
-    /// <param name="image">Image to be processed.</param>
+    /// <param name="image">Image to be processed. Image disposal is not handled by the <see cref="TextMetadataIterable"/>.</param>
     /// <param name="level">Text block size to be iterated with.</param>
     /// <param name="logger">Logger to be used, if null uses NullLogger.</param>
     /// <exception cref="TesseractException">If Tesseract cannot be initialized with given parameters.</exception>

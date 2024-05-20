@@ -7,15 +7,19 @@ namespace TesseractOcrMaui.Iterables;
 /// <summary>
 /// IEnumerable implementation of <see cref="ResultIterator"/>. 
 /// Iterate over different text block sizes.
+/// Note that this iterable is <see cref="IDisposable"/>.
 /// </summary>
-public class ResultIterable : IEnumerable<TextSpan>
+public class ResultIterable : DisposableObject, IDisposable, IEnumerable<TextSpan>
 {
     readonly TessEngine _engine;
+    readonly bool _isEngineDisposalRequired = true;
+
 
     /// <summary>
     /// New IEnumerable implementation of <see cref="ResultIterator"/>. Iterate over different text block sizes.
+    /// Note that this iterable is <see cref="IDisposable"/>.
     /// </summary>
-    /// <param name="image">Image to be processed.</param>
+    /// <param name="image">Image to be processed. Disposal of the image is not handled by the <see cref="ResultIterable"/>.</param>
     /// <param name="provider">Traineddata information.</param>
     /// <param name="level">Text block size to be used.</param>
     /// <param name="logger"></param>
@@ -42,6 +46,7 @@ public class ResultIterable : IEnumerable<TextSpan>
         ArgumentNullException.ThrowIfNull(image);
         NullPointerException.ThrowIfNull(image.Handle);
 
+        _isEngineDisposalRequired = true;
         // InvalidOperationException: Always init new engine -> cannot throw
         // ImageNotSetException: SetImage() always called -> cannot throw
         _engine = new(languages, tessDataPath, logger);
@@ -54,6 +59,7 @@ public class ResultIterable : IEnumerable<TextSpan>
 
     /// <summary>
     /// New IEnumerable implementation of <see cref="ResultIterator"/>. Iterate over different text block sizes.
+    /// Note that this iterable is <see cref="IDisposable"/>.
     /// </summary>
     /// <param name="engine">Engine that must exist as long as the iterator, not disposed automatically.</param>
     /// <param name="level">Text block size to be used.</param>
@@ -66,6 +72,7 @@ public class ResultIterable : IEnumerable<TextSpan>
     /// </exception>
     internal ResultIterable(TessEngine engine, PageIteratorLevel level = PageIteratorLevel.TextLine)
     {
+        _isEngineDisposalRequired = false;
         ArgumentNullException.ThrowIfNull(engine);
 
         _engine = engine;
@@ -101,4 +108,14 @@ public class ResultIterable : IEnumerable<TextSpan>
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+
+    protected override void Dispose(bool disposing)
+    {
+        // Handle engine disposal if engine was created by the ResultIterable ctor.
+        if (_isEngineDisposalRequired)
+        {
+            _engine.Dispose();
+        }
+    }
 }
