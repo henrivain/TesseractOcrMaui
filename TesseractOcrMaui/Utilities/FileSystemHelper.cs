@@ -10,7 +10,7 @@ internal class FileSystemHelper
             return _cacheFolder;
         }
 
-#if NET7_0_ONLY
+#if NET7_0_ONLY || NET8_0_ONLY || NET9_0_ONLY
         _cacheFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 #else
         _cacheFolder = FileSystem.CacheDirectory;

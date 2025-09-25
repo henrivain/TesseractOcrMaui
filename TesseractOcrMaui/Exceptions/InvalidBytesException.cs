@@ -30,13 +30,4 @@ public class InvalidBytesException : TesseractException
     public InvalidBytesException(string? message, Exception? innerException) : base(message, innerException)
     {
     }
-
-    /// <summary>
-    /// New exception that is thrown when tesseract result
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    protected InvalidBytesException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
 }

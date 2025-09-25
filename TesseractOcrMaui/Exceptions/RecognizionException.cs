@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace TesseractOcrMaui.Exceptions;
+﻿namespace TesseractOcrMaui.Exceptions;
 /// <summary>
 /// Thrown when text recognizion cannot be done to given image.
 /// </summary>
@@ -12,6 +10,4 @@ internal class ImageRecognizionException : TesseractException
     public ImageRecognizionException(string message) : base(message) { }
 
     public ImageRecognizionException(string message, Exception innerException) : base(message, innerException) { }
-
-    protected ImageRecognizionException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
