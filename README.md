@@ -25,10 +25,10 @@ Currently supports Windows, iOS and Android. Library is meant to be used with .N
 
 Supported runtimes
 
-> net7.0 or newer  
-> net7.0-windows10.0.19041 or newer  
-> net7.0-android or newer  
-> net7.0-ios or newer  
+> net9.0 or newer  
+> net9.0-windows10.0.19041 or newer  
+> net9.0-android or newer  
+> net9.0-ios or newer  
 
 Only png and jpeg libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later.
 
@@ -50,7 +50,7 @@ dotnet add package TesseractOcrMaui
 3. By package reference
 
 ```xml
-<PackageReference Include="TesseractOcrMaui" Version="1.2.0" />
+<PackageReference Include="TesseractOcrMaui" Version="1.3.0" />
 ```
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
@@ -204,7 +204,7 @@ public interface ITesseract
 ## Licence
 
 ```licence
-Copyright 2023 Henri Vainio
+Copyright 2025 Henri Vainio
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
