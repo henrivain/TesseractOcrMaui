@@ -31,7 +31,7 @@
 		<!-- include xcframework in nuget -->
 		<None Include="tesseract.xcframework/**" >
 			<Pack>true</Pack>
-			<PackagePath>lib/net9.0-ios18.0/TesseractOcrMaui.IOS.resources/tesseract.xcframework</PackagePath>
+			<PackagePath>lib/$(TargetPlatform)$(TargetPlatformVersion)/TesseractOcrMaui.IOS.resources/tesseract.xcframework</PackagePath>
 		</None>
 		<!-- include Readme-->
 		<None Include="Properties/README.md" Link="Properties/README.md">
@@ -41,7 +41,7 @@
 		<!-- include dll manifest file -->
 		<None Include="Configuration/manifest" Condition="'$(IsWindows)' == 'true'">
 			<Pack>true</Pack>
-			<PackagePath>lib/net9.0-ios18.0/TesseractOcrMaui.IOS.resources/</PackagePath>
+			<PackagePath>lib/$(TargetPlatform)$(TargetPlatformVersion)/TesseractOcrMaui.IOS.resources/</PackagePath>
 		</None>
 	</ItemGroup>
 
@@ -52,7 +52,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.3.0</Version>
+		<Version>1.3.1</Version>
 		<Title>Maui Tesseract ocr iOS bindings</Title>
 		<PackageId>TesseractOcrMaui.IOS</PackageId>
 		<Authors>henrivain</Authors>
@@ -69,12 +69,19 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackAsTool>False</PackAsTool>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmpedUntrackedSSources>true</EmpedUntrackedSSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<IncludeSource>true</IncludeSource>
+		<Deterministic>true</Deterministic>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
 		<PackageOutputPath>C:\Nugets</PackageOutputPath>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 </Project>
 

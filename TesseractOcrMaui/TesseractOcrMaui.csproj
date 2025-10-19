@@ -26,7 +26,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.2.1.0</Version>
+		<Version>1.2.2.0</Version>
 		<Title>Tesseract Ocr Maui</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
@@ -44,8 +44,15 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackAsTool>False</PackAsTool>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmpedUntrackedSSources>true</EmpedUntrackedSSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<IncludeSource>true</IncludeSource>
+		<Deterministic>true</Deterministic>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 
 
