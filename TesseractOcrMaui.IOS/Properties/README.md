@@ -13,13 +13,13 @@ This package `TesseractOcrMaui.IOS` only includes bindings for iOS and should no
 2. Package reference
 
 ```xml
-<PackageReference Include="TesseractOcrMaui" Version="1.1.6" />
+<PackageReference Include="TesseractOcrMaui" Version="1.3.0" />
 ```
 
 3. Dotnet CLI
 
 ```ps
-dotnet add package TesseractOcrMaui --version 1.1.6
+dotnet add package TesseractOcrMaui --version 1.3.0
 ```
 
 Note that you should check what the current package version is and use it in your command.
@@ -36,7 +36,7 @@ This package is dependency on the main package `TesseractOcrMaui`.
 ## Licence
 
 ```licence
-Copyright 2024 Henri Vainio
+Copyright 2025 Henri Vainio
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
