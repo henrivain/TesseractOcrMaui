@@ -59,7 +59,7 @@ public partial class MainPage : ContentPage
         // File to byte array (Use your own way)
         using FileStream stream = new(path, FileMode.Open, FileAccess.Read);
         byte[] buffer = new byte[stream.Length];
-        stream.Read(buffer);
+        stream.ReadExactly(buffer);
 
         // recognize bytes
         var result = await Tesseract.RecognizeTextAsync(buffer);

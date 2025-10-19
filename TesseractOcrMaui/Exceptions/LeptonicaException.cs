@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace TesseractOcrMaui.Exceptions;
+﻿namespace TesseractOcrMaui.Exceptions;
 
 /// <summary>
 /// Exception that Leptonica might throw when error occurs
@@ -29,15 +27,6 @@ public class LeptonicaException : Exception
     /// <param name="message"></param>
     /// <param name="innerException"></param>
     public LeptonicaException(string message, Exception innerException) : base(message, innerException)
-    {
-    }
-
-    /// <summary>
-    /// New Exception that Leptonica might throw when error occurs
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="info"></param>
-    protected LeptonicaException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }
 }
