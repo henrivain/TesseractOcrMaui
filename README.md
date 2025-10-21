@@ -30,7 +30,9 @@ Supported runtimes
 > net9.0-android or newer  
 > net9.0-ios or newer  
 
-Only png and jpeg libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later.
+Only png, jpeg and tiff libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later.
+
+Android and Windows use `Tesseract version 5.3.3`
 
 ## Getting started
 
@@ -50,7 +52,7 @@ dotnet add package TesseractOcrMaui
 3. By package reference
 
 ```xml
-<PackageReference Include="TesseractOcrMaui" Version="1.3.0" />
+<PackageReference Include="TesseractOcrMaui" Version="1.4.0" />
 ```
 
 ### 2. Add package to dependency injection (see TesseractOcrMauiTestApp)
