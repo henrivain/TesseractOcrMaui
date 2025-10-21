@@ -32,7 +32,7 @@ Supported runtimes
 
 Only png, jpeg and tiff libraries are compiled into tesseract native libraries, so only these image types are supported. Additional image libraries are added if needed later.
 
-Android and Windows use `Tesseract version 5.3.3`
+Android and Windows use `Tesseract version 5.5.1`
 
 ## Getting started
 
