@@ -200,6 +200,12 @@ public interface ITesseract
 
     // Access used TessEngine for configuration (E.g. Whitelist chafacters)
     Action<ITessEngineConfigurable>? EngineConfiguration { set; }
+
+    // Format for recognized text output, like TextOnly, HOCR, ALTO
+    TextFormat OutputFormat { get; set; }
+
+    // Page number used by special output formats
+    int PageNumber { get; set; }
 }
 ```
 
