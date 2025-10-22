@@ -27,7 +27,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.4.0</Version>
+		<Version>1.5.0</Version>
 		<Title>Tesseract Ocr Maui</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
