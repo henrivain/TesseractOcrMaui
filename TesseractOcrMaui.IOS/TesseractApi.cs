@@ -50,6 +50,9 @@ public static class TesseractApi
     public static IntPtr GetAltoText_Ptr(HandleRef self, int pageNumber)
         => DllImport.GetAltoText_Ptr(self, pageNumber);
     
+    public static IntPtr GetPageText_Ptr(HandleRef self, int pageNumber)
+        => DllImport.GetPageText_Ptr(self, pageNumber);
+
     public static IntPtr GetTsvText_Ptr(HandleRef self, int pageNumber)
         => DllImport.GetTsvText_Ptr(self, pageNumber);
     
