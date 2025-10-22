@@ -41,8 +41,6 @@ public interface ITesseract
     /// <exception cref="DllNotFoundException">[Default implementation] If tesseract or any other library is not found.</exception>
     RecognizionResult RecognizeText(Pix image);
 
-
-
     /// <summary>
     /// Load traineddata files from app packages and recognize text from given image path async.
     /// </summary>
@@ -89,5 +87,15 @@ public interface ITesseract
     /// Engine mode Tesseract should use, for example lstm or tesseract
     /// </summary>
     EngineMode EngineMode { get; set; }
+
+    /// <summary>
+    /// Format text output should be provided in.
+    /// </summary>
+    TextFormat OutputFormat { get; set; }
+
+    /// <summary>
+    /// Page number to be used when getting output in special formats.
+    /// </summary>
+    int PageNumber { get; set; }
 
 }

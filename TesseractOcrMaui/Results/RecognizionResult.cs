@@ -36,6 +36,11 @@ public readonly struct RecognizionResult
     public float Confidence { get; init; } = -1f;
 
     /// <summary>
+    /// Text format used for result parsing.
+    /// </summary>
+    public TextFormat OutputFormat { get; init; } = TextFormat.TextOnly;
+
+    /// <summary>
     /// Recognizion state that is neither success nor failure.
     /// </summary>
     public static readonly RecognizionResult InProgress = new()

@@ -57,6 +57,9 @@ internal sealed partial class TesseractApi
     [DllImport(_dllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetAltoText")]
     public static extern IntPtr GetAltoText_Ptr(HandleRef handle, int pageNumber);
 
+    [DllImport(_dllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetPAGEText")]
+    public static extern IntPtr GetPageText_Ptr(HandleRef handle, int pageNumber);
+
     [DllImport(_dllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetTsvText")]
     public static extern IntPtr GetTsvText_Ptr(HandleRef handle, int pageNumber);
 

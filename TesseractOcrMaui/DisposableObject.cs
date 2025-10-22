@@ -38,10 +38,7 @@ public abstract class DisposableObject : IDisposable
     /// <exception cref="ObjectDisposedException">If object is already disposed.</exception>
     protected virtual void VerifyNotDisposed()
     {
-        if (IsDisposed)
-        {
-            throw new ObjectDisposedException(ToString());
-        }
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
     }
 
     /// <summary>

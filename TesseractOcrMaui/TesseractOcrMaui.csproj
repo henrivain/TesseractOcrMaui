@@ -17,6 +17,7 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+		<NoWarn>IDE0290</NoWarn>
 	</PropertyGroup>
 
 	<!-- Package, only with release mode -->
@@ -116,7 +117,7 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-ios'">
 	  <PackageReference Include="TesseractOcrMaui.IOS">
-	    <Version>1.2.1</Version>
+	    <Version>1.2.2</Version>
 	  </PackageReference>
 	</ItemGroup>
 

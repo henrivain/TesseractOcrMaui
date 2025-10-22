@@ -93,8 +93,16 @@ public partial class MainPage : ContentPage
 
         };
 
-        // You can also set engine mode by uncommenting line below
-        //Tesseract.EngineMode = TesseractOcrMaui.Enums.EngineMode.TesseractOnly;
+        // Test these by uncommenting lines below
+
+        // Engine mode can be set like this
+        // Tesseract.EngineMode = TesseractOcrMaui.Enums.EngineMode.TesseractOnly;
+
+        // Special output formats can be used like this
+        // Tesseract.OutputFormat = TextFormat.HOCR;
+
+        // Speacial formats might use page number in output, so it can be supplied like this
+        // Tesseract.PageNumber = 12;
 
         // Recognize image 
         var result = await Tesseract.RecognizeTextAsync(path);

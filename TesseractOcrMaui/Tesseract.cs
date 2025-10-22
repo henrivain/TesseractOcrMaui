@@ -1,5 +1,4 @@
 ﻿using System.Runtime.Versioning;
-using TesseractOcrMaui.Exceptions;
 using TesseractOcrMaui.Results;
 using TesseractOcrMaui.Tessdata;
 
@@ -34,10 +33,7 @@ public class Tesseract : ITesseract
     /// </exception>
     public Tesseract(string tessdataFolder, string[] traineddataFileNames, ILogger<ITesseract>? logger = null)
     {
-        if (tessdataFolder is null)
-        {
-            throw new ArgumentNullException(nameof(tessdataFolder));
-        }
+        ArgumentNullException.ThrowIfNull(tessdataFolder);
 
         var traineddataCollection = new TrainedDataCollection();
         foreach (var file in traineddataFileNames)
@@ -59,6 +55,12 @@ public class Tesseract : ITesseract
 
     /// <inheritdoc/>
     public EngineMode EngineMode { get; set; } = EngineMode.Default;
+    
+    /// <inheritdoc/>
+    public TextFormat OutputFormat { get; set; } = TextFormat.TextOnly;
+    
+    /// <inheritdoc/>
+    public int PageNumber { get; set; } = 0;
 
     readonly ITessDataProvider _tessDataProvider;
     readonly ILogger<ITesseract> _logger;
@@ -229,7 +231,8 @@ public class Tesseract : ITesseract
             return new RecognizionResult
             {
                 Status = traineddataStatus,
-                Message = "Failed to load traineddata files. See status to find reason."
+                Message = "Failed to load traineddata files. See status to find reason.",
+                OutputFormat = OutputFormat,
             };
         }
         if (languages is null)
@@ -237,7 +240,8 @@ public class Tesseract : ITesseract
             return new RecognizionResult
             {
                 Status = RecognizionStatus.NoLanguagesAvailable,
-                Message = "All languages given are invalid."
+                Message = "All languages given are invalid.",
+                OutputFormat = OutputFormat,
             };
         }
         if (string.IsNullOrWhiteSpace(tessDataFolder))
@@ -250,7 +254,8 @@ public class Tesseract : ITesseract
             return new RecognizionResult
             {
                 Status = RecognizionStatus.ImageNotFound,
-                Message = "Pix image cannot null"
+                Message = "Pix image cannot null",
+                OutputFormat = OutputFormat,
             };
         }
 
@@ -274,7 +279,7 @@ public class Tesseract : ITesseract
             confidence = page.GetConfidence();
 
             // SegMode can't be OsdOnly in here.
-            text = page.GetText();
+            text = page.GetText(OutputFormat, PageNumber);
         }
         catch (DllNotFoundException)
         {
@@ -305,7 +310,8 @@ public class Tesseract : ITesseract
             {
                 Status = status,
                 Message = message,
-                Exception = ex
+                Exception = ex,
+                OutputFormat = OutputFormat,
             };
         }
 
@@ -317,6 +323,7 @@ public class Tesseract : ITesseract
             Status = RecognizionStatus.Success,
             RecognisedText = text,
             Confidence = confidence,
+            OutputFormat = OutputFormat,
         };
     }
 

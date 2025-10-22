@@ -7,7 +7,7 @@ namespace TesseractOcrMaui;
 /// <summary>
 /// Tesseract engine that can process images with native library bindings.
 /// </summary>
-public class TessEngine : DisposableObject, ITessEngineConfigurable
+public partial class TessEngine : DisposableObject, ITessEngineConfigurable
 {
     int _processCount = 0;
 

@@ -6,8 +6,21 @@ namespace TesseractOcrMaui;
 /// Page that is used to contain information during and after image recognizion.
 /// This object is IDisposable.
 /// </summary>
-public class TessPage : DisposableObject
+public partial class TessPage : DisposableObject
 {
+    readonly ILogger _logger;
+
+    static readonly Dictionary<TextFormat, Func<HandleRef, int, IntPtr>> _specialTextTypes = new()
+    {
+        [TextFormat.HOCR] = TesseractApi.GetHOCRText_Ptr,
+        [TextFormat.ALTO] = TesseractApi.GetAltoText_Ptr,
+        [TextFormat.Page] = TesseractApi.GetBoxText_Ptr,
+        [TextFormat.TSV] = TesseractApi.GetTsvText_Ptr,
+        [TextFormat.Box] = TesseractApi.GetBoxText_Ptr,
+        [TextFormat.StrBox] = TesseractApi.GetWordStrBoxText_Ptr
+    };
+
+
     /// <summary>
     /// New Tesseract page that is used to contain information when recognizing text in image.
     /// This object is IDisposable.
@@ -25,7 +38,7 @@ public class TessPage : DisposableObject
         InputName = inputName ?? string.Empty;
         Region = region;
         Mode = mode;
-        Logger = logger ?? NullLogger.Instance;
+        _logger = logger ?? NullLogger.Instance;
     }
 
     /// <summary>
@@ -64,45 +77,80 @@ public class TessPage : DisposableObject
     public string OutputDirectory { get; init; } 
         = Path.Combine(Utilities.FileSystemHelper.GetCacheFolder(), "tessoutput");
 
-    ILogger Logger { get; }
+
 
     /// <summary>
-    /// Get text from image. Runs recognizion if it is not already done. Uses UTF-8.
+    /// Recognize text from image in UTF-8 format.
     /// </summary>
-    /// <returns>Recognized text as UTF-8 string</returns>
-    /// <exception cref="InvalidOperationException">PageSegmentationMode is OsdOnly when recognizing.</exception>
+    /// <returns>UTF-8 encoded string representing recognized text.</returns>
+    /// <exception cref="InvalidOperationException">If passed invalid <see cref="TextFormat"/> or PageSegmentationMode is OsdOnly when recognizing.</exception>
     /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
     /// <exception cref="TesseractException">Can't get thresholded image when recognizing.</exception>
-    /// <exception cref="StringMarshallingException">
-    /// When recognizion result string pointer is nullpointer or the pointer cannot 
-    /// be marshalled into UTF-8 string.
-    /// </exception>
+    /// <exception cref="StringMarshallingException">If recognition result was nullptr or pointer cannot be converted to UTF-8 string.</exception>
     public string GetText()
     {
-        Logger.LogInformation("Try to get text from image.");
+        return GetText(TextFormat.TextOnly);
+    }
 
+
+    /// <summary>
+    /// Get text from image in special format UTF-8 encoded string.
+    /// </summary>
+    /// <param name="type">Type of special format requested.</param>
+    /// <param name="pageNumber">Page number to be used in result.</param>
+    /// <returns>UTF-8 encoded string in given fromat representing recognized text.</returns>
+    /// <exception cref="InvalidOperationException">If passed invalid <see cref="TextFormat"/> or PageSegmentationMode is OsdOnly when recognizing.</exception>
+    /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
+    /// <exception cref="TesseractException">Can't get thresholded image when recognizing.</exception>
+    /// <exception cref="StringMarshallingException">If recognition result was nullptr or pointer cannot be converted to UTF-8 string.</exception>
+    public string GetText(TextFormat type, int pageNumber = 0)
+    {
+        if (type is not TextFormat.TextOnly && _specialTextTypes.ContainsKey(type) is false)
+        {
+            _logger.LogError("Text type '{type}' is not supported.", type);
+            throw new InvalidOperationException($"Text type '{type}' not supported.");
+        }
+
+        _logger.LogInformation("Try to get text from image in {format} format.", type);
+
+
+        // Recognize image first
         Recognize();
 
-        IntPtr ptr = TesseractApi.GetUTF8Text_Ptr(Engine.Handle);
+        // Get given text type
+        IntPtr ptr = IntPtr.Zero;
+        if (type == TextFormat.TextOnly)
+        {
+            // Skips page number as not needed
+            ptr = TesseractApi.GetUTF8Text_Ptr(Engine.Handle);
+        }
+        else if (_specialTextTypes.TryGetValue(type, out var getter))
+        {
+            ptr = getter(Engine.Handle, pageNumber);
+        }
+
         if (ptr == IntPtr.Zero)
         {
-            Logger.LogError("Recognizion result string cannot be marshalled from null pointer.");
-            throw new StringMarshallingException("String cannot be marshalled from null pointer.");
+            _logger.LogError("Recognizion returned nulltpr.");
+            throw new StringMarshallingException("Recognition returned nullptr.");
         }
 
-        string? result = Marshal.PtrToStringUTF8(ptr);
+        // Marshal to UTF-8 string
+        string? utf8Result = Marshal.PtrToStringUTF8(ptr);
+
+        // Delete native string
         TesseractApi.DeleteString(ptr);
 
-        if (result is null)
+        if (utf8Result is null)
         {
-            Logger.LogError("Cannot encode char* to UTF-8 string.");
-            throw new StringMarshallingException("Could not encode recognizion result string to UTF-8.");
+            _logger.LogError("Cannot encode text to UTF-8.");
+            throw new StringMarshallingException("Failed to encode recognition result to UTF-8.");
         }
 
-        Logger.LogInformation("Found '{count}' characters in image.", result.Length);
-
-        return result;
+        _logger.LogInformation("Found '{count}' characters in image.", utf8Result.Length);
+        return utf8Result;
     }
+
 
     /// <summary>
     /// Get image recognizion confidence.
@@ -112,11 +160,11 @@ public class TessPage : DisposableObject
     /// <exception cref="ImageRecognizionException">Native Library call returns failed status when recognizing.</exception>
     public float GetConfidence()
     {
-        Logger.LogInformation("Getting current Tesseract text recognizion confidence.");
+        _logger.LogInformation("Getting current Tesseract text recognizion confidence.");
 
         Recognize();
         float confidence = TesseractApi.GetMeanConfidence(Engine.Handle) / 100f;
-        Logger.LogInformation("Confidence for image is '{value}'.", confidence);
+        _logger.LogInformation("Confidence for image is '{value}'.", confidence);
         return confidence;
     }
 
@@ -134,7 +182,7 @@ public class TessPage : DisposableObject
         }
         if (Mode is PageSegmentationMode.OsdOnly)
         {
-            Logger.LogError("Cannot use OsdOnly Segmentation mode to recognize image text.");
+            _logger.LogError("Cannot use OsdOnly Segmentation mode to recognize image text.");
             throw new InvalidOperationException("Cannor OCR image using OSD only segmentation, " +
                 "use DetectBestOrientation instead.");
         }
@@ -153,11 +201,11 @@ public class TessPage : DisposableObject
         }
         catch (IOException)
         {
-            Logger.LogWarning("Failed to save image to tif format using path '{dir}'. IO Exception was thrown.", OutputDirectory);
+            _logger.LogWarning("Failed to save image to tif format using path '{dir}'. IO Exception was thrown.", OutputDirectory);
         }
         catch (ArgumentException)
         {
-            Logger.LogWarning("Failed to save image to '{dir}'. Could not get file name.", OutputDirectory);
+            _logger.LogWarning("Failed to save image to '{dir}'. Could not get file name.", OutputDirectory);
         }
     }
 
