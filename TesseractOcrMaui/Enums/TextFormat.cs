@@ -1,4 +1,6 @@
-﻿namespace TesseractOcrMaui.Enums;
+﻿using System.Runtime.Versioning;
+
+namespace TesseractOcrMaui.Enums;
 
 /// <summary>
 /// Text output format types.
@@ -23,6 +25,7 @@ public enum TextFormat
     /// <summary>
     /// XML-formatted string with PAGE markup
     /// </summary>
+    [UnsupportedOSPlatform("IOS")]
     Page,
 
     /// <summary>

@@ -62,8 +62,9 @@ public sealed partial class TesseractApi_Imports
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetAltoText")]
     internal static extern IntPtr GetAltoText_Ptr(HandleRef handle, int pageNumber);
 
-    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetPAGEText")]
-    internal static extern IntPtr GetPageText_Ptr(HandleRef handle, int pageNumber);
+    // This can be added, if IOS binaries are rebuilt, as current (old) ones do not have this function yet.
+    //[DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetPAGEText")]
+    //internal static extern IntPtr GetPageText_Ptr(HandleRef handle, int pageNumber);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "TessBaseAPIGetTsvText")]
     internal static extern IntPtr GetTsvText_Ptr(HandleRef handle, int pageNumber);
