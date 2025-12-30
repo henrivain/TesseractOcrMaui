@@ -13,13 +13,13 @@ This package `TesseractOcrMaui.IOS` only includes bindings for iOS and should no
 2. Package reference
 
 ```xml
-<PackageReference Include="TesseractOcrMaui" Version="1.3.0" />
+<PackageReference Include="TesseractOcrMaui" Version="1.5.1" />
 ```
 
 3. Dotnet CLI
 
 ```ps
-dotnet add package TesseractOcrMaui --version 1.3.0
+dotnet add package TesseractOcrMaui
 ```
 
 Note that you should check what the current package version is and use it in your command.
