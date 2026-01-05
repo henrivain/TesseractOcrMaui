@@ -14,10 +14,12 @@ public partial class TessPage : DisposableObject
     {
         [TextFormat.HOCR] = TesseractApi.GetHOCRText_Ptr,
         [TextFormat.ALTO] = TesseractApi.GetAltoText_Ptr,
-        [TextFormat.Page] = TesseractApi.GetBoxText_Ptr,
         [TextFormat.TSV] = TesseractApi.GetTsvText_Ptr,
         [TextFormat.Box] = TesseractApi.GetBoxText_Ptr,
-        [TextFormat.StrBox] = TesseractApi.GetWordStrBoxText_Ptr
+        [TextFormat.StrBox] = TesseractApi.GetWordStrBoxText_Ptr,
+#if !IOS
+        [TextFormat.Page] = TesseractApi.GetPageText_Ptr,
+#endif
     };
 
 

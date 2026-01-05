@@ -40,6 +40,7 @@
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Copyright>Copyright 2023-2026 Henri Vainio</Copyright>
+		<Copyright>Copyright 2023-2026 Henri Vainio</Copyright>
 		<!-- Output will be found inside this folder locally -->
 		<PackageOutputPath>C:\Nugets</PackageOutputPath>
 		<NeutralLanguage>en</NeutralLanguage>
@@ -117,7 +118,7 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-ios'">
 	  <PackageReference Include="TesseractOcrMaui.IOS">
-	    <Version>1.2.2</Version>
+	    <Version>1.2.3</Version>
 	  </PackageReference>
 	</ItemGroup>
 
