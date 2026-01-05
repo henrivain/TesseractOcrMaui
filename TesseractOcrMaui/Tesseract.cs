@@ -8,7 +8,7 @@ namespace TesseractOcrMaui;
 /// High-level functionality with Tesseract ocr. Default implementation for ITesseract interface.
 /// </summary>
 [UnsupportedOSPlatform("MACCATALYST")]
-public class Tesseract : ITesseract
+public class Tesseract : ITesseract, ITessDataProviderSwappable, ITessdataProviderExposingTesseract
 {
     /// <summary>
     /// New instance of High-level functionality with Tesseract ocr.
@@ -17,7 +17,7 @@ public class Tesseract : ITesseract
     /// <param name="logger"></param>
     public Tesseract(ITessDataProvider tessDataProvider, ILogger<ITesseract>? logger)
     {
-        _tessDataProvider = tessDataProvider;
+        TessDataProvider = tessDataProvider;
         _logger = logger ?? NullLogger<ITesseract>.Instance;
     }
 
@@ -40,7 +40,7 @@ public class Tesseract : ITesseract
         {
             traineddataCollection.AddNonPackageFile(file);
         }
-        _tessDataProvider = new TessDataProvider(traineddataCollection, new TessDataProviderConfiguration()
+        TessDataProvider = new TessDataProvider(traineddataCollection, new TessDataProviderConfiguration()
         {
             TessDataFolder = tessdataFolder
         });
@@ -48,7 +48,7 @@ public class Tesseract : ITesseract
     }
 
     /// <inheritdoc/>
-    public string TessDataFolder => _tessDataProvider.TessDataFolder;
+    public string TessDataFolder => TessDataProvider.TessDataFolder;
 
     /// <inheritdoc/>
     public Action<ITessEngineConfigurable>? EngineConfiguration { get; set; }
@@ -62,13 +62,14 @@ public class Tesseract : ITesseract
     /// <inheritdoc/>
     public int PageNumber { get; set; } = 0;
 
-    readonly ITessDataProvider _tessDataProvider;
+    ITessDataProvider TessDataProvider { get; set; }
+
     readonly ILogger<ITesseract> _logger;
 
     /// <inheritdoc/>
     public async Task<DataLoadResult> LoadTraineddataAsync()
     {
-        var result = await _tessDataProvider.LoadFromPackagesAsync();
+        var result = await TessDataProvider.LoadFromPackagesAsync();
         result.LogLoadErrorsIfNotAllSuccess(_logger);
         return result;
     }
@@ -89,7 +90,7 @@ public class Tesseract : ITesseract
         try
         {
             using Pix pix = Pix.LoadFromFile(imagePath);
-            return Recognize(pix, TessDataFolder, _tessDataProvider.GetAllFileNames());
+            return Recognize(pix, TessDataFolder, TessDataProvider.GetAllFileNames());
         }
         catch (IOException)
         {
@@ -109,7 +110,7 @@ public class Tesseract : ITesseract
         try
         {
             using Pix pix = Pix.LoadFromMemory(imageBytes);
-            return Recognize(pix, TessDataFolder, _tessDataProvider.GetAllFileNames());
+            return Recognize(pix, TessDataFolder, TessDataProvider.GetAllFileNames());
         }
         catch (IOException)
         {
@@ -135,7 +136,7 @@ public class Tesseract : ITesseract
     public RecognizionResult RecognizeText(Pix image)
     {
         _logger.LogInformation("Tesseract, recognize pix image.");
-        return Recognize(image, TessDataFolder, _tessDataProvider.GetAllFileNames());
+        return Recognize(image, TessDataFolder, TessDataProvider.GetAllFileNames());
     }
 
 
@@ -161,7 +162,7 @@ public class Tesseract : ITesseract
         try
         {
             using Pix pix = Pix.LoadFromFile(imagePath);
-            return await Task.Run(() => Recognize(pix, TessDataFolder, _tessDataProvider.AvailableLanguages));
+            return await Task.Run(() => Recognize(pix, TessDataFolder, TessDataProvider.AvailableLanguages));
         }
         catch (IOException)
         {
@@ -186,7 +187,7 @@ public class Tesseract : ITesseract
         try
         {
             using Pix pix = Pix.LoadFromMemory(imageBytes);
-            return await Task.Run(() => Recognize(pix, TessDataFolder, _tessDataProvider.GetAllFileNames()));
+            return await Task.Run(() => Recognize(pix, TessDataFolder, TessDataProvider.GetAllFileNames()));
         }
         catch (IOException)
         {
@@ -217,7 +218,7 @@ public class Tesseract : ITesseract
         {
             return loaded;
         }
-        return Recognize(image, TessDataFolder, _tessDataProvider.GetAllFileNames());
+        return Recognize(image, TessDataFolder, TessDataProvider.GetAllFileNames());
     }
 
     /// <inheritdoc/>
@@ -329,7 +330,7 @@ public class Tesseract : ITesseract
 
     private async Task<RecognizionResult> LoadTraineddataIfNotLoadedAsync()
     {
-        if (_tessDataProvider.IsAllDataLoaded is false)
+        if (TessDataProvider.IsAllDataLoaded is false)
         {
             var loadResult = await LoadTraineddataAsync();
             if (loadResult.NotSuccess())
@@ -386,5 +387,22 @@ public class Tesseract : ITesseract
             return (RecognizionStatus.NoLanguagesAvailable, null);
         }
         return (RecognizionStatus.InProgressSuccess, string.Join('+', languages));
+    }
+
+    /// <inheritdoc/>
+    public ITessDataProvider GetTessdataProvideInstance()
+    {
+        return TessDataProvider;
+    }
+
+    /// <inheritdoc/>
+    public bool SwapTessdataProvider(ITessDataProvider provider)
+    {
+        if (provider is null)
+        {
+            return false;
+        }
+        TessDataProvider = provider;
+        return true;
     }
 }

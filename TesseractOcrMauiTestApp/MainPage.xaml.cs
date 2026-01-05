@@ -26,7 +26,15 @@ public partial class MainPage : ContentPage
         var rid = RuntimeInformation.RuntimeIdentifier;
         logger.LogInformation("Running on rid '{rid}'", rid);
 
+        if (tesseract is ITessdataProviderExposingTesseract)
+        {
+            logger.LogInformation("Tesseract has support for retrieving used TessdataProvider instance.");
+        }
 
+        if (tesseract is ITessDataProviderSwappable)
+        {
+            logger.LogInformation("Tesseract has support for swapping used TessdataProvider in runtime.");
+        }
     }
 
     ITesseract Tesseract { get; }

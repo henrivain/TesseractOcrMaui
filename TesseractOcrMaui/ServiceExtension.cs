@@ -60,15 +60,6 @@ public static class ServiceExtensions
         Action<ITrainedDataCollection>? tessDataCollection,
         Action<ITessDataProviderConfiguration>? providerConfiguration)
     {
-#if ANDROID
-        // Load libraries
-        JavaSystem.LoadLibrary("tiff");
-        JavaSystem.LoadLibrary("png16");
-        JavaSystem.LoadLibrary("jpeg");
-        JavaSystem.LoadLibrary("leptonica");
-        JavaSystem.LoadLibrary("tesseract");
-#endif
-
         tessDataCollection ??= new((files) =>
         {
             files.AddFile("eng.traineddata");
@@ -82,11 +73,40 @@ public static class ServiceExtensions
         {
             providerConfiguration(configuration);
         }
-
         services.AddSingleton<ITessDataProviderConfiguration>(configuration);
         services.AddSingleton<ITrainedDataCollection>(trainedDataCollection);
         services.AddSingleton<ITessDataProvider, TessDataProvider>();
+        services.AddTesseractOcrNoTessdataProvider();
+        return services;
+    }
+
+    /// <summary>
+    /// Add Tesseract to service container without any tessdata provider.
+    /// Note that <see cref="ITessDataProvider"/> must be registered separately.
+    /// </summary>
+    /// <param name="services">App DI container.</param>
+    /// <returns>Same container instance as <paramref name="services"/></returns>
+    public static IServiceCollection AddTesseractOcrNoTessdataProvider(this IServiceCollection services)
+    {
+        PreloadRequiredLibraries();
         services.AddTransient<ITesseract, Tesseract>();
         return services;
+    }
+
+    /// <summary>
+    /// Load native libraries required by Tesseract OCR for current platform.
+    /// This step is required for some platforms and is automatically done when using
+    /// AddTesseractOcr();
+    /// </summary>
+    public static void PreloadRequiredLibraries()
+    {
+#if ANDROID
+        // Load libraries
+        JavaSystem.LoadLibrary("tiff");
+        JavaSystem.LoadLibrary("png16");
+        JavaSystem.LoadLibrary("jpeg");
+        JavaSystem.LoadLibrary("leptonica");
+        JavaSystem.LoadLibrary("tesseract");
+#endif
     }
 }

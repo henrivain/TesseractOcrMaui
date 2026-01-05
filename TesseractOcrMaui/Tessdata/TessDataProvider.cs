@@ -2,6 +2,11 @@
 using TesseractOcrMaui.Utilities;
 
 namespace TesseractOcrMaui.Tessdata;
+
+/// <summary>
+/// Default implementation of <see cref="ITessDataProvider"/> that 
+/// is used to provide information about traineddata files to Tesseract.
+/// </summary>
 internal class TessDataProvider : ITessDataProvider
 {
     /// <summary>
@@ -32,23 +37,28 @@ internal class TessDataProvider : ITessDataProvider
     {
         Guard.ThrowIfNonMaui();
 
-        if (collection is null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
+        ArgumentNullException.ThrowIfNull(collection);
+        ArgumentNullException.ThrowIfNull(configuration);
+
         TrainedDataCollection = collection;
         Configuration = configuration;
         Logger = logger;
     }
 
-
+    /// <summary>
+    /// Default file extension for traineddata files.
+    /// </summary>
     public string FileExtension { get; } = ".traineddata";
+
+    /// <summary>
+    /// Path to tessdata folder where traineddata files are stored.
+    /// </summary>
     public string TessDataFolder => Configuration.TessDataFolder;
+
+    /// <inheritdoc />
     public string[] AvailableLanguages { get; private set; } = Array.Empty<string>();
+
+    /// <inheritdoc />
     public bool IsAllDataLoaded { get; private set; }
 
 
@@ -58,7 +68,7 @@ internal class TessDataProvider : ITessDataProvider
 
     /// <inheritdoc />
     /// <exception cref="PlatformNotSupportedException">If not targetting maui (TargetFramework is [net7.0].</exception>
-    public async Task<DataLoadResult> LoadFromPackagesAsync()
+    public virtual async Task<DataLoadResult> LoadFromPackagesAsync()
     {
         var files = TrainedDataCollection.GetTrainedDataFileNames();
 
@@ -122,8 +132,9 @@ internal class TessDataProvider : ITessDataProvider
             Message = $"Loaded successfully Tesseract languages: '{string.Join(", ", AvailableLanguages)}'."
         };
     }
-    public string[] GetAllFileNames() => TrainedDataCollection.GetTrainedDataFileNames();
-
+    
+    /// <inheritdoc />
+    public virtual string[] GetAllFileNames() => TrainedDataCollection.GetTrainedDataFileNames();
 
     private async Task<(bool Success, string Msg)> TryCopyFile(string file, bool overwritesFiles)
     {

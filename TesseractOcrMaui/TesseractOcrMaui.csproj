@@ -27,7 +27,7 @@
 
 	<!-- Package properties -->
 	<PropertyGroup>
-		<Version>1.5.0</Version>
+		<Version>1.5.2</Version>
 		<Title>Tesseract Ocr Maui</Title>
 		<PackageId>TesseractOcrMaui</PackageId>
 		<Authors>henrivain</Authors>
@@ -39,7 +39,7 @@
 		<PackageTags>tesseract;ocr;maui;csharp;android;windows;ios;arm64;arm64-v8a;arm-v7a;x86_64;x86;</PackageTags>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<Copyright>Copyright 2023-2025 Henri Vainio</Copyright>
+		<Copyright>Copyright 2023-2026 Henri Vainio</Copyright>
 		<!-- Output will be found inside this folder locally -->
 		<PackageOutputPath>C:\Nugets</PackageOutputPath>
 		<NeutralLanguage>en</NeutralLanguage>
